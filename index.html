@@ -1036,6 +1036,7 @@ const MODES = {
   listen:  { create: () => roundListen(), ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
   pyChar:  { create: () => roundTiles(true) },
   pyNum:   { create: () => roundPlaques() },
+  meaning: { create: () => roundMeaning() },
   dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
 };
 function startRound() {
@@ -1309,6 +1310,71 @@ function roundListen() {
 }
 
 /* ---------------------------------------------------------------------
+   MODO 8 · 义 — Significado (汉字 → español)
+   --------------------------------------------------------------------- */
+function roundMeaning() {
+  const R = newRound('meaning');
+  const target = pickTarget(VOCAB);
+  // distractores visualmente parecidos (木 → Bosque/Fuego/Persona): hay que leer el carácter con atención
+  const opts = shuffle([target, ...charDistractors(target, 3)]);
+  UI.prompt({ seal: '义', chip: 'Significado', title: '¿Qué significa?', long: true, sub: 'Elige la traducción correcta', speaker: true });
+  R.speakText = target.chino;
+  setTimeout(() => { if (round === R && !R.exiting) Speech.say(target.chino); }, 800);
+  const hero = makeTile(target.chino, R); hero.userData.onTap = () => {
+    Speech.say(target.chino); sfx.tap();
+    gsap.fromTo(hero.userData.float.rotation, { y: 0 }, { y: TAU, duration: 1, ease: 'power3.out' });
+  };
+  R.group.add(hero); R.pick.push(hero);
+  const plaques = opts.map(o => { const P = makePlaque(o.espanol, R); P.userData.item = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
+  let ts = 1, ps = 1;
+  R.layout = () => {
+    const A = area(), gap = .22;
+    ts = Math.min(1.15, (A.h * .27) / TILE.h);
+    ps = Math.min(1.0, (A.w * .86) / PLQ.w, (A.h - TILE.h * ts - .4) / (4 * (PLQ.h + gap)));
+    const blockH = TILE.h * ts + .4 + 4 * (PLQ.h + gap) * ps, top = A.cy + blockH / 2;
+    hero.userData.home = new THREE.Vector3(0, top - TILE.h * ts / 2, 0);
+    if (hero.userData.entered) { hero.position.copy(hero.userData.home); hero.scale.setScalar(ts); }
+    const y0 = top - TILE.h * ts - .4 - (PLQ.h + gap) * ps / 2;
+    plaques.forEach((P, i) => {
+      P.userData.home = new THREE.Vector3(0, y0 - i * (PLQ.h + gap) * ps, 0);
+      if (P.userData.entered) { P.position.copy(P.userData.home); P.scale.setScalar(ps); }
+    });
+  };
+  R.layout();
+  const hh = hero.userData.home; hero.scale.setScalar(ts);
+  hero.position.set(0, hh.y + 3, -9); hero.rotation.set(-2, rand(-3, 3), 0);
+  gsap.to(hero.position, { y: hh.y, z: 0, duration: 1.3, ease: 'expo.out', onComplete: () => hero.userData.entered = true });
+  gsap.to(hero.rotation, { x: 0, y: 0, duration: 1.5, ease: 'expo.out' });
+  plaques.forEach((P, i) => {
+    const h = P.userData.home, side = i % 2 ? 1 : -1, d = .3 + i * .09; P.scale.setScalar(ps);
+    P.position.set(side * 7, h.y, -3); P.rotation.set(0, -side * 1.4, side * .3);
+    gsap.to(P.position, { x: 0, z: 0, duration: 1.2, delay: d, ease: 'expo.out', onComplete: () => P.userData.entered = true });
+    gsap.to(P.rotation, { y: 0, z: 0, duration: 1.4, delay: d, ease: 'expo.out' });
+  });
+  R.update = t => { idleFloat(hero, t); plaques.forEach(P => idleFloat(P, t, .5)); };
+  function choose(P) {
+    if (state.locked) return; state.locked = true; sfx.tap();
+    const C = plaques.find(x => x.userData.item === target);
+    gsap.killTweensOf(P.position); gsap.killTweensOf(P.rotation);
+    if (P === C) {
+      Speech.say(target.chino);
+      glowFace(hero, 2.2); glowFace(P, 3);
+      gsap.to(hero.position, { z: 1.2, duration: .8, ease: 'expo.out' });
+      gsap.to(hero.rotation, { y: TAU, duration: 1.1, ease: 'power3.out' });
+      gsap.fromTo(P.rotation, { x: 0 }, { x: TAU, duration: 1, ease: 'power3.out' });
+      setTimeout(() => celebrate(hero), 120);
+      plaques.filter(x => x !== P).forEach((o, i) => { gsap.killTweensOf(o.position); gsap.to(o.position, { x: (i % 2 ? 1 : -1) * 7, duration: .8, delay: i * .05, ease: 'power2.in' }); });
+      resolve(true, target);
+    } else {
+      rejectTile(P);
+      gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
+      resolve(false, target);
+    }
+  }
+  return R;
+}
+
+/* ---------------------------------------------------------------------
    MODO 7 · 对话 — Conversación: responder, completar la palabra, traducir
    --------------------------------------------------------------------- */
 function roundDialog() {
@@ -1552,7 +1618,7 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不！？，。';
+  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不义！？，。';
   const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü';
   try {
     await Promise.race([
