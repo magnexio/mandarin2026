@@ -311,23 +311,26 @@ function numZh(n) { const t = Math.floor(n / 10), u = n % 10, s = []; if (t > 1)
    ===================================================================== */
 const Speech = (() => {
   const ok = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  let voice = null, loaded = false, unlocked = false, pending = null;
+  let voice = null, esVoice = null, loaded = false, unlocked = false, pending = null;
   function load() {
     if (!ok) return; const vs = speechSynthesis.getVoices(); if (!vs.length) return; loaded = true;
     const zh = vs.filter(v => /^(zh|cmn)/i.test(v.lang));
     voice = zh.find(v => /zh[-_]CN/i.test(v.lang) && /Google|Xiaoxiao|Tingting|Ting-Ting|Yaoyao|Huihui|Lili/i.test(v.name))
          || zh.find(v => /zh[-_]CN|cmn/i.test(v.lang)) || zh[0] || null;
+    esVoice = vs.find(v => /es[-_]ES/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
   }
   if (ok) { load(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', load) : (speechSynthesis.onvoiceschanged = load); }
   function say(text, rate = 0.78) {
     if (!ok || !text) return;
     if (!unlocked) { pending = [text, rate]; return; }
     try { speechSynthesis.cancel(); } catch (e) {}
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN'; if (voice) u.voice = voice; u.rate = rate;
-    u.onstart = () => document.body.classList.add('speaking');
-    u.onend = u.onerror = () => document.body.classList.remove('speaking');
-    setTimeout(() => speechSynthesis.speak(u), 40);
+    // Un nombre en letras latinas al principio ("Lorea，你好吗？") se lee con voz castellana y el resto en chino
+    const m = text.match(/^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)[，,]\s*(.+)$/);
+    const parts = m ? [[m[1], 'es-ES', esVoice, .95], [m[2], 'zh-CN', voice, rate]] : [[text, 'zh-CN', voice, rate]];
+    const us = parts.map(([t, lang, v, r]) => { const u = new SpeechSynthesisUtterance(t); u.lang = lang; if (v) u.voice = v; u.rate = r; return u; });
+    us[0].onstart = () => document.body.classList.add('speaking');
+    us[us.length - 1].onend = us[us.length - 1].onerror = () => document.body.classList.remove('speaking');
+    setTimeout(() => us.forEach(u => speechSynthesis.speak(u)), 40);
   }
   function unlock() {
     if (unlocked) return; unlocked = true; if (!ok) return;
