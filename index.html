@@ -73,7 +73,8 @@
     background:linear-gradient(180deg,#fffbe9,#ffd27a 55%,#e39a32);-webkit-background-clip:text;background-clip:text;color:transparent;
     filter:drop-shadow(0 0 18px rgba(255,170,60,.6)) drop-shadow(0 4px 2px rgba(60,0,0,.6))}
   #toast .t-py{margin-top:2px;font-family:var(--serif);font-size:16px;letter-spacing:.06em;color:rgba(255,236,200,.85)}
-  #toast .t-sub{display:inline-flex;align-items:center;gap:10px;margin-top:12px;padding:8px 16px;border-radius:999px;white-space:nowrap;
+  #toast .t-sub{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 10px;margin-top:12px;padding:8px 16px;border-radius:22px;
+    max-width:calc(100vw - 32px);white-space:normal;line-height:1.3;
     background:rgba(38,4,9,.5);border:1px solid var(--hair);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
     font-size:15px;color:#ffeccc}
   #toast .t-sub b{font-family:var(--zh);font-weight:900;font-size:20px;color:#ffd27a}
@@ -94,6 +95,7 @@
     font-family:var(--zh);font-weight:900;font-size:58px;line-height:1;color:#7d0f14;
     background:linear-gradient(180deg,#fbf3df,#e8dbbb);box-shadow:inset 0 -6px 0 #0d6a4c,inset 0 1px 0 #fff,0 10px 24px -10px rgba(0,0,0,.8)}
   .rv-char.long{font-size:40px}
+  .rv-char.xl{font-size:26px;height:auto;min-height:88px;max-width:58%;padding:10px 14px;line-height:1.25}
   .rv-txt{min-width:0}
   .rv-py{font-family:var(--serif);font-weight:700;font-size:28px;color:#ffe2a6;line-height:1.1}
   .rv-es{margin-top:4px;font-size:16px;color:rgba(255,232,210,.78)}
@@ -112,6 +114,19 @@
     background:rgba(0,0,0,.18);border:1px solid rgba(255,212,145,.16)}
   .meta b{font-family:var(--zh);font-size:16px;color:#fff1d2;font-weight:700}
   .meta:empty{display:none}
+  /* Burbujas de conversación */
+  .chat{display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left}
+  .chat:empty{display:none}
+  .bub{position:relative;max-width:86%;padding:8px 14px 9px;border-radius:18px;background:rgba(255,236,214,.09);border:1px solid rgba(255,212,145,.2)}
+  .bub.a{align-self:flex-start;border-bottom-left-radius:6px}
+  .bub.b{align-self:flex-end;border-bottom-right-radius:6px;background:linear-gradient(180deg,rgba(243,197,107,.26),rgba(190,110,40,.2));border-color:rgba(255,212,145,.35)}
+  .bub .who{position:absolute;top:-8px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,215,160,.7)}
+  .bub.a .who{left:12px}.bub.b .who{right:12px}
+  .bub .zh{font-family:var(--zh);font-weight:700;font-size:23px;line-height:1.3;color:#fff3d6}
+  .bub .py{font-family:var(--serif);font-size:14.5px;color:#ffd99a}
+  .bub .es{margin-top:2px;font-size:12.5px;color:rgba(255,226,192,.62)}
+  .gap{display:inline-block;min-width:1.15em;margin:0 2px;text-align:center;border-bottom:2px solid #f3c56b;color:#f3c56b;animation:breath 1.6s ease-in-out infinite}
+  .bub .wait{font-size:22px;letter-spacing:4px;color:#f3c56b;animation:breath 1.2s ease-in-out infinite}
   #hint{position:fixed;left:50%;bottom:calc(var(--safe-b) + 18px);transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap;
     display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:500;color:rgba(255,232,200,.85);
     background:rgba(38,4,9,.45);border:1px solid var(--hair);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
@@ -138,7 +153,7 @@
 <header id="hud">
   <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span></div>
   <div id="card">
-    <div id="card-in"><div id="title" class="title">&nbsp;</div><div id="sub" class="sub">&nbsp;</div><div id="meta" class="meta"></div></div>
+    <div id="card-in"><div id="title" class="title">&nbsp;</div><div id="sub" class="sub">&nbsp;</div><div id="meta" class="meta"></div><div id="chat" class="chat"></div></div>
     <button id="speak" aria-label="Escuchar otra vez">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 5 6.5 9H3.5v6h3l4.5 4V5z" fill="currentColor" stroke="none"/>
@@ -192,6 +207,40 @@ const NUMS = VOCAB.slice(0, 10);
 // Caracteres que se confunden a simple vista: distractores más interesantes
 const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火','力'], '八':['人','六'], '力':['九','也'],
   '九':['力'], '女':['也','马'], '一':['二','三'], '二':['三','一'], '三':['二','一'], '十':['七'], '七':['十'], '火':['人','木'] };
+// Frases de conversación, como tokens [carácter, pinyin] para poder dejar huecos
+const T = (c, p) => ({ c, p });
+const PHRASES = {
+  nihao: { t: [T('你','Nǐ'), T('好','hǎo'), T('！','!')], es: '¡Hola!' },
+  ma:    { t: [T('你','Nǐ'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal? ¿Cómo estás?' },
+  ne:    { t: [T('我','Wǒ'), T('很','hěn'), T('好','hǎo'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy bien, ¿y tú?' },
+  ye:    { t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Yo también estoy bien.' },
+  bu:    { t: [T('我','Wǒ'), T('不','bù'), T('好','hǎo'), T('。','.')], es: 'No estoy bien.' },
+};
+const isPunct = tok => /[！？，。]/.test(tok.c);
+for (const k in PHRASES) {
+  const P = PHRASES[k]; P.id = k;
+  P.zh = P.t.map(x => x.c).join('');
+  P.py = P.t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, '');
+}
+const WORDS = [['我','wǒ'],['你','nǐ'],['很','hěn'],['好','hǎo'],['吗','ma'],['呢','ne'],['也','yě'],['不','bù']].map(([c, p]) => ({ chino: c, pinyin: p }));
+// Qué respuestas encajan con cada frase (y cuáles no pueden salir como distractor por ser también válidas)
+const REPLIES = [
+  { q: 'nihao', ok: ['nihao'], bad: ['ye', 'bu', 'ne', 'ma'] },
+  { q: 'ma', ok: ['ne', 'bu'], bad: ['ma', 'ye', 'nihao'] },
+  { q: 'ne', ok: ['ye', 'bu'], bad: ['ma', 'ne', 'nihao'] },
+];
+// Compañeros de clase: a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
+const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea'];
+function withName(P) {
+  if (P.id !== 'ma' || Math.random() < .25) return P;
+  const n = pick(NAMES), t = [T(n + '，', n + ','), ...P.t.map((x, i) => i === 0 ? T(x.c, x.p.toLowerCase()) : x)];
+  return { ...P, t, zh: t.map(x => x.c).join(''),
+    py: t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, ''), es: `${n}, ¿qué tal?` };
+}
+const phraseAns = P => ({ chino: P.zh, pinyin: P.py, espanol: P.es });
+function bubble(cls, who, zh, py, es) {
+  return `<div class="bub ${cls}"><span class="who">${who}</span><div class="zh">${zh}</div>${py ? `<div class="py">${py}</div>` : ''}${es ? `<div class="es">${es}</div>` : ''}</div>`;
+}
 const PRAISE = [ {zh:'对！',py:'duì'}, {zh:'很好！',py:'hěn hǎo'}, {zh:'太棒了！',py:'tài bàng le'}, {zh:'真棒！',py:'zhēn bàng'} ];
 
 /* =====================================================================
@@ -691,23 +740,27 @@ function glowFace(tile, k = 6) {
 }
 // Placa lacada (opciones largas de pinyin)
 const PLQ = { w: 3.4, h: .78 };
-const plaqueTex = text => cached('plq:' + text, () => canvasTexture(1024, 236, (g, W, H) => {
+const plaqueTex = (text, sub = '') => cached('plq:' + text + '|' + sub, () => canvasTexture(1024, 236, (g, W, H) => {
   rr(g, 14, 14, W - 28, H - 28, 46); g.strokeStyle = 'rgba(246,206,120,.9)'; g.lineWidth = 6; g.stroke();
   rr(g, 30, 30, W - 60, H - 60, 34); g.strokeStyle = 'rgba(246,206,120,.35)'; g.lineWidth = 2.5; g.stroke();
-  const f = s => `700 ${s}px ${FONT_PY}`;
-  const { x, y, size } = layoutGlyph(g, text, W / 2, H / 2, 112, W * .84, f); g.font = f(size);
+  if (sub) {   // segunda línea (pinyin) bajo los caracteres
+    const fs = s => `600 ${s}px ${FONT_PY}`, L = layoutGlyph(g, sub, W / 2, H * .74, 48, W * .84, fs);
+    g.font = fs(L.size); g.fillStyle = 'rgba(255,220,160,.85)'; g.fillText(sub, L.x, L.y);
+  }
+  const f = s => `700 ${s}px ${sub ? FONT_ZH : FONT_PY}`;
+  const { x, y, size } = layoutGlyph(g, text, W / 2, sub ? H * .4 : H / 2, sub ? 92 : 104, W * .84, f); g.font = f(size);
   g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 10; g.shadowOffsetY = 4; g.fillStyle = '#3a0306'; g.fillText(text, x, y); g.restore();
   const gr = g.createLinearGradient(0, y - size * .8, 0, y + size * .2); gr.addColorStop(0, '#fff6d6'); gr.addColorStop(1, '#f0bd5c');
   g.fillStyle = gr; g.fillText(text, x, y);
 }));
 let _plqA = null;
-function makePlaque(text, R) {
+function makePlaque(text, R, sub = '') {
   if (!_plqA) _plqA = {
     body: SH(new RoundedBoxGeometry(PLQ.w, PLQ.h, .24, 6, .11)), face: SH(new THREE.PlaneGeometry(PLQ.w * .97, PLQ.h * .9)),
     mat: new THREE.MeshPhysicalMaterial({ color: 0x8a0f15, roughness: .28, clearcoat: 1, clearcoatRoughness: .1, envMapIntensity: 1.2 }),
   };
   const root = new THREE.Group(), float = new THREE.Group(); root.add(float);
-  const tex = plaqueTex(text);
+  const tex = plaqueTex(text, sub);
   const faceMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0x000000, transparent: true, depthWrite: false, roughness: .4,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   R.disposables.push(faceMat);
@@ -873,8 +926,8 @@ function updateDecor(t, dt) {
    UI 2D
    ===================================================================== */
 const UI = {
-  prompt({ seal, chip, title, sub, number = false, speaker = false, long = false, meta = '' }) {
-    $('#meta').innerHTML = meta;
+  prompt({ seal, chip, title, sub, number = false, speaker = false, long = false, meta = '', chat = '' }) {
+    $('#meta').innerHTML = meta; $('#chat').innerHTML = chat;
     $('#seal').textContent = seal; $('#chip-text').textContent = chip;
     const t = $('#title'); t.textContent = title; t.classList.toggle('number', number); t.classList.toggle('long', long);
     $('#sub').textContent = sub; $('#card').classList.toggle('has-speaker', speaker);
@@ -898,7 +951,7 @@ const UI = {
   reveal(ans) {
     return new Promise(res => {
       const el = $('#reveal'), c = $('#rv-char');
-      c.textContent = ans.chino; c.classList.toggle('long', ans.chino.length > 1);
+      c.textContent = ans.chino; c.classList.toggle('long', ans.chino.length > 1 && ans.chino.length <= 3); c.classList.toggle('xl', ans.chino.length > 3);
       $('#rv-py').textContent = ans.pinyin; $('#rv-es').textContent = ans.espanol;
       el.classList.add('on');
       gsap.fromTo(el, { y: 0, yPercent: 140 }, { yPercent: 0, duration: .65, ease: 'expo.out' });
@@ -980,11 +1033,12 @@ const MODES = {
   listen:  { create: () => roundListen(), ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
   pyChar:  { create: () => roundTiles(true) },
   pyNum:   { create: () => roundPlaques() },
+  dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
 };
 function startRound() {
   const keys = Object.keys(MODES).filter(k => k !== lastMode && (!MODES[k].ok || MODES[k].ok()));
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
-  const k = MODES[forced] ? forced : pick(keys); lastMode = k;
+  const k = MODES[forced] ? forced : pick(keys.flatMap(k => Array(MODES[k].w || 1).fill(k))); lastMode = k;
   round = MODES[k].create();
   const R = round;
   // continúa desde donde dejó la cámara la transición anterior (sin saltos)
@@ -1252,6 +1306,125 @@ function roundListen() {
 }
 
 /* ---------------------------------------------------------------------
+   MODO 7 · 对话 — Conversación: responder, completar la palabra, traducir
+   --------------------------------------------------------------------- */
+function roundDialog() {
+  const sub = new URLSearchParams(location.search).get('sub') || pick(['reply', 'reply', 'blank', 'blank', 'meaning']);
+  if (sub === 'blank') return dialogBlank();
+  return dialogPlaques(sub === 'meaning');
+}
+// Opciones en placas: respuesta correcta a una frase, o su traducción
+function dialogPlaques(meaning) {
+  const R = newRound('dialog');
+  let correct, opts, ans;
+  if (meaning) {
+    const P = withName(pick(Object.values(PHRASES)));
+    correct = P.es; ans = phraseAns(P);
+    opts = shuffle([P.es, ...shuffle(Object.values(PHRASES).filter(x => x.id !== P.id).map(x => x.es)).slice(0, 3)]);
+    UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué significa?', long: true, sub: 'Elige la traducción correcta', speaker: true,
+      chat: bubble('a', 'A', P.zh, P.py, '') });
+    R.speakText = P.zh;
+  } else {
+    const D = pick(REPLIES), Q = withName(PHRASES[D.q]), A = PHRASES[pick(D.ok)];
+    correct = A.zh; ans = phraseAns(A);
+    opts = shuffle([A.zh, ...shuffle(D.bad).slice(0, 3).map(k => PHRASES[k].zh)]);
+    UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué contestas?', long: true, sub: 'Elige la respuesta lógica', speaker: true,
+      chat: bubble('a', 'A', Q.zh, Q.py, Q.es) + `<div class="bub b"><span class="who">Tú</span><div class="wait">• • •</div></div>` });
+    R.speakText = Q.zh;
+  }
+  setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, .8); }, 800);
+  const plaques = opts.map(o => {
+    const P = meaning ? makePlaque(o, R) : makePlaque(o, R, Object.values(PHRASES).find(x => x.zh === o).py);
+    P.userData.val = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P;
+  });
+  let s = 1;
+  R.layout = () => {
+    const A = area(); s = Math.min(1.15, (A.w * .9) / PLQ.w, A.h / (4 * (PLQ.h + .26)));
+    plaques.forEach((P, i) => {
+      P.userData.home = new THREE.Vector3(0, A.cy + (1.5 - i) * (PLQ.h + .26) * s, 0);
+      if (P.userData.entered) { P.position.copy(P.userData.home); P.scale.setScalar(s); }
+    });
+  };
+  R.layout();
+  plaques.forEach((P, i) => {
+    const h = P.userData.home, side = i % 2 ? 1 : -1, d = .15 + i * .09; P.scale.setScalar(s);
+    P.position.set(side * 7, h.y, -3); P.rotation.set(0, -side * 1.4, side * .3);
+    gsap.to(P.position, { x: 0, z: 0, duration: 1.2, delay: d, ease: 'expo.out', onComplete: () => P.userData.entered = true });
+    gsap.to(P.rotation, { y: 0, z: 0, duration: 1.4, delay: d, ease: 'expo.out' });
+  });
+  R.update = t => plaques.forEach(P => idleFloat(P, t, .5));
+  function choose(P) {
+    if (state.locked) return; state.locked = true; sfx.tap();
+    const C = plaques.find(x => x.userData.val === correct);
+    gsap.killTweensOf(P.position); gsap.killTweensOf(P.rotation);
+    if (P === C) {
+      Speech.say(ans.chino, .8);
+      if (!meaning) { const b = $('#chat .bub.b'); if (b) b.innerHTML = `<span class="who">Tú</span><div class="zh">${ans.chino}</div><div class="py">${ans.pinyin}</div>`; }
+      gsap.to(P.position, { y: area().cy, z: 1.4, duration: .8, ease: 'expo.out' });
+      gsap.fromTo(P.rotation, { x: 0 }, { x: TAU, duration: 1, ease: 'power3.out' });
+      glowFace(P, 3); setTimeout(() => celebrate(P), 120);
+      plaques.filter(x => x !== P).forEach((o, i) => { gsap.killTweensOf(o.position); gsap.to(o.position, { x: (i % 2 ? 1 : -1) * 7, duration: .8, delay: i * .05, ease: 'power2.in' }); });
+      resolve(true, ans);
+    } else {
+      rejectTile(P);
+      gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
+      resolve(false, ans);
+    }
+  }
+  return R;
+}
+// Frase con un hueco: tocar la ficha con el carácter que falta
+function dialogBlank() {
+  const R = newRound('dialog');
+  const P = withName(PHRASES[pick(['ma', 'ma', 'ne', 'ne', 'ye', 'ye', 'bu'])]);
+  const idxs = P.t.map((x, i) => i).filter(i => !isPunct(P.t[i]));
+  const gi = pick(idxs), miss = P.t[gi], target = WORDS.find(w => w.chino === miss.c);
+  const zhHtml = P.t.map((x, i) => i === gi ? '<span class="gap">？</span>' : x.c).join('');
+  const pyHtml = P.t.reduce((acc, x, i) => { const v = i === gi ? '<span class="gap">&nbsp;?&nbsp;</span>' : x.p; return isPunct(x) ? acc + v : (acc ? acc + ' ' : '') + v; }, '');
+  UI.prompt({ seal: '话', chip: 'Conversación', title: 'Completa la frase', long: true, sub: 'Toca el carácter que falta',
+    chat: bubble('a', 'A', zhHtml, pyHtml, P.es) });
+  const opts = shuffle([target, ...shuffle(WORDS.filter(w => w !== target && !P.t.some(x => x.c === w.chino))).slice(0, 3)]);
+  const ans = phraseAns(P);
+  const tiles = opts.map(o => { const t = makeTile(o.chino, R); t.userData.item = o; t.userData.onTap = () => choose(t); R.group.add(t); R.pick.push(t); return t; });
+  let s = 1;
+  R.layout = () => {
+    const A = area(); s = Math.min(1.2, (A.w * .92) / (4 * TILE.w + 3 * .22), (A.h * .8) / TILE.h);
+    tiles.forEach((t, i) => {
+      t.userData.home = new THREE.Vector3((i - 1.5) * (TILE.w + .22) * s, A.cy, 0);
+      if (t.userData.entered) { t.position.copy(t.userData.home); t.scale.setScalar(s); }
+    });
+  };
+  R.layout();
+  tiles.forEach((t, i) => {
+    const h = t.userData.home, d = .12 + i * .08; t.scale.setScalar(s);
+    t.position.set(h.x * 2, h.y - 6, -8); t.rotation.set(rand(-4, 4), rand(-4, 4), rand(-1, 1));
+    gsap.to(t.position, { x: h.x, y: h.y, z: 0, duration: 1.2, delay: d, ease: 'expo.out', onComplete: () => t.userData.entered = true });
+    gsap.to(t.rotation, { x: 0, y: 0, z: 0, duration: 1.4, delay: d, ease: 'expo.out' });
+  });
+  R.update = t => tiles.forEach(x => idleFloat(x, t));
+  function choose(tile) {
+    if (state.locked) return; state.locked = true; sfx.tap();
+    gsap.killTweensOf(tile.position); gsap.killTweensOf(tile.rotation);
+    const fill = () => { const g = $('#chat .gap'); if (g) { g.textContent = miss.c; g.style.animation = 'none'; } const gp = $('#chat .py .gap'); if (gp) gp.textContent = miss.p; };
+    if (tile.userData.item === target) {
+      fill(); Speech.say(P.zh, .8);
+      gsap.to(tile.position, { y: tile.position.y + .4, z: 1.6, duration: .8, ease: 'expo.out' });
+      gsap.to(tile.rotation, { y: TAU, duration: 1, ease: 'power3.out' });
+      glowFace(tile); setTimeout(() => celebrate(tile), 120);
+      tiles.filter(x => x !== tile).forEach((o, i) => { gsap.killTweensOf(o.position); gsap.to(o.position, { y: '-=8', z: -4, duration: 1, delay: i * .05, ease: 'power2.in' }); });
+      resolve(true, ans);
+    } else {
+      rejectTile(tile);
+      const ct = tiles.find(x => x.userData.item === target);
+      gsap.to(ct.position, { z: 1.1, duration: .7, ease: 'back.out(2)' }); glowFace(ct, 4);
+      setTimeout(fill, 500);
+      resolve(false, ans);
+    }
+  }
+  return R;
+}
+
+/* ---------------------------------------------------------------------
    MODO 6 · 拼 — Pinyin de números (número → pinyin)
    --------------------------------------------------------------------- */
 function roundPlaques() {
@@ -1376,7 +1549,7 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听';
+  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不！？，。';
   const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü';
   try {
     await Promise.race([
