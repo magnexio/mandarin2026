@@ -232,7 +232,7 @@ const REPLIES = [
   { q: 'ne', ok: ['ye', 'bu'], bad: ['ma', 'ne', 'nihao'] },
 ];
 // Compañeros de clase: a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
-const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea'];
+const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea', 'Irati', 'Mikel', 'Cristina'];
 function withName(P) {
   if (P.id !== 'ma' || Math.random() < .25) return P;
   const n = pick(NAMES), t = [T(n + '，', n + ','), ...P.t.map((x, i) => i === 0 ? T(x.c, x.p.toLowerCase()) : x)];
