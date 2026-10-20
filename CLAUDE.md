@@ -19,7 +19,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - El texto de los objetos 3D se dibuja con Canvas 2D a texturas de 512–1024 px (`layoutGlyph` centra según la caja real del glifo).
 
 ## Dónde tocar en `index.html`
-- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`.
+- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`) y 百 (`BAI`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas.
 - `CONFUSABLE`: caracteres parecidos, que se usan como distractores.
 - `PHRASES`: frases de conversación como tokens `[carácter, pinyin]`, para poder dejar huecos. `REPLIES` define qué respuestas son válidas o inválidas para cada frase (nunca debe haber dos correctas entre las opciones). `WORDS` son las fichas del ejercicio de completar.
 - `NAMES`: compañeros de clase. Aparecen en «(nombre)，你好吗？».
@@ -32,15 +32,16 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 | pyChar | 拼 | pinyin → carácter | `roundTiles(true)` |
 | meaning | 义 | carácter → español (ficha + 4 placas) | `roundMeaning()` |
 | orbit | 音 | carácter → pinyin (moneda dorada + linternas en órbita, variantes de tono) | `roundOrbit()` |
-| pyNum | 拼 | número 11–99 → pinyin (placas, errores típicos) | `roundPlaques()` |
-| numbers | 数 | construir el número 11–99 con un teclado 一–十 barajado | `roundNumbers()` |
+| pyNum | 拼 | número 0–100 o centena redonda (200…900) → pinyin (placas, errores típicos) | `roundPlaques()` |
+| numbers | 数 | construir el número (0–100 o 200…900) con un teclado 一–十 + 零 百 barajado | `roundNumbers()` |
 | listen | 听 | audio → carácter (linternas celestes). Solo si el sonido está activado y hay voz china | `roundListen()` |
 | dialog (w:2) | 话 | conversación: «¿Qué contestas?», «Completa la frase», «¿Qué significa?» | `roundDialog()` |
+| pairs (w:2) | 配 | parejas: 4 fichas de marfil ↔ 4 placas lacadas. Subtipos (`&sub=`): `zhEs`, `zhPy`, `esPy`, `numZh`, `numPy`, `mix`. Un fallo termina la ronda | `roundPairs()` |
 
 Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas usando `area()`, es decir, el hueco libre entre la tarjeta superior y el borde inferior, y `update(t, dt)`. La ronda termina llamando a `resolve(ok, { chino, pinyin, espanol })`. Las transiciones entre rondas son un único barrido continuo de cámara (`transitionOut` → `startRound`), sin saltos.
 
 ## Depuración
-- `index.html?mode=<clave>` fuerza un modo. `&sub=reply|blank|meaning` fuerza el subtipo de conversación.
+- `index.html?mode=<clave>` fuerza un modo. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
 - Probar siempre a tamaño móvil (390×844). El sonido solo se activa tras el primer toque, por eso la primera ronda nunca es `listen`.
 
 ## Publicar

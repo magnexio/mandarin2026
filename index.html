@@ -201,9 +201,11 @@ const VOCAB = [
   { espanol: "También", chino: "也", pinyin: "yě" }, { espanol: "Caballo", chino: "马", pinyin: "mǎ" },
   { espanol: "Madera", chino: "木", pinyin: "mù" }, { espanol: "Bosque", chino: "林", pinyin: "lín" },
   { espanol: "Mujer", chino: "女", pinyin: "nǚ" }, { espanol: "Fuego", chino: "火", pinyin: "huǒ" },
-  { espanol: "Persona", chino: "人", pinyin: "rén" }
+  { espanol: "Persona", chino: "人", pinyin: "rén" },
+  { espanol: "Cero", chino: "零", pinyin: "líng" }, { espanol: "Cien", chino: "百", pinyin: "bǎi" }
 ];
 const NUMS = VOCAB.slice(0, 10);
+const ZERO = VOCAB.find(v => v.chino === '零'), BAI = VOCAB.find(v => v.chino === '百');
 // Caracteres que se confunden a simple vista: distractores más interesantes
 const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火','力'], '八':['人','六'], '力':['九','也'],
   '九':['力'], '女':['也','马'], '一':['二','三'], '二':['三','一'], '三':['二','一'], '十':['七'], '七':['十'], '火':['人','木'] };
@@ -277,14 +279,22 @@ function pinyinDistractors(target, n) {
 }
 // Pinyin de números con errores típicos: tono cambiado, cifras al revés, "yī shí" sobrante, cifra vecina
 function numberPinyinOptions(n) {
-  const ok = numZh(n).map(v => v.pinyin), t = Math.floor(n / 10), u = n % 10, out = new Set();
+  const ok = numZh(n).map(v => v.pinyin), h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, u = n % 10, out = new Set();
   const py = m => numZh(m).map(v => v.pinyin);
-  const add = a => { const s = a.join(' '); if (s !== ok.join(' ')) out.add(s); };
-  for (let k = 0; k < 4; k++) { const i = Math.floor(Math.random() * ok.length), a = ok.slice(); a[i] = pick(toneVariants(a[i])); add(a); }
-  if (u && t > 1 && t !== u) add(py(u * 10 + t));
-  if (t === 1) add(['yī', ...ok]);
-  if (u) add(py(t * 10 + (u === 9 ? 8 : u + 1)));
-  if (t > 1) add(py((t === 9 ? 8 : t + 1) * 10 + u));
+  const add = a => { const s = a.join(' '); if (a.length && s !== ok.join(' ')) out.add(s); };
+  const near = m => { if (NUM_OK(m) && m !== n) add(py(m)); };   // mismo rango que randNum
+  if (h && !t && !u) near(h * 10);                                   // 二十 en vez de 二百
+  // Sin variantes de tono de 一: yì bǎi también se dice así (cambio de tono)
+  for (let k = 0; k < 4; k++) { const i = Math.floor(Math.random() * ok.length), a = ok.slice(); if (a[i] === 'yī') continue; a[i] = pick(toneVariants(a[i])); add(a); }
+  if (u && t && t !== u) near(n - t * 10 - u + u * 10 + t);       // cifras cambiadas
+  if (n >= 10 && n < 20) add(['yī', ...ok]);                         // 一十五 en vez de 十五
+  if (h && !t && u) add(ok.filter(p => p !== 'líng'));               // olvidar el 零
+  if (h && t === 1) add(ok.filter((p, i) => i !== 2));               // 一百十 en vez de 一百一十
+  if (h === 1) add(ok.slice(1));                                     // 百 sin 一
+  if (u) near(n - u + (u === 9 ? 8 : u + 1));
+  if (t) near(n - t * 10 + (t === 9 ? 8 : t + 1) * 10);
+  if (h) near(n - h * 100 + (h === 9 ? 8 : h + 1) * 100);
+  for (let k = 0; out.size < 3 && k < 50; k++) near(n + pick([-1, 1]) * (1 + Math.floor(Math.random() * 10)) * (n % 100 || !n ? 1 : 100));
   return shuffle([ok.join(' '), ...shuffle([...out]).slice(0, 3)]);
 }
 const TONES = { a:'āáǎà', e:'ēéěè', i:'īíǐì', o:'ōóǒò', u:'ūúǔù', 'ü':'ǖǘǚǜ' };
@@ -298,13 +308,32 @@ function pinyinOptions(target) {
   for (const o of shuffle(VOCAB)) { if (set.size >= 4) break; set.add(o.pinyin); }
   return shuffle([...set]);
 }
-// Números 11-99
+// Números 0-999
+const ES_H = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
 const ES_U = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
 const ES_T = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
 const ES_SP = { 11:'once', 12:'doce', 13:'trece', 14:'catorce', 15:'quince', 16:'dieciséis', 17:'diecisiete', 18:'dieciocho', 19:'diecinueve',
   21:'veintiuno', 22:'veintidós', 23:'veintitrés', 24:'veinticuatro', 25:'veinticinco', 26:'veintiséis', 27:'veintisiete', 28:'veintiocho', 29:'veintinueve' };
-function numES(n) { if (ES_SP[n]) return ES_SP[n]; const t = Math.floor(n / 10), u = n % 10; return u ? `${ES_T[t]} y ${ES_U[u]}` : ES_T[t]; }
-function numZh(n) { const t = Math.floor(n / 10), u = n % 10, s = []; if (t > 1) s.push(NUMS[t - 1]); s.push(NUMS[9]); if (u) s.push(NUMS[u - 1]); return s; }
+function numES(n) {
+  if (n === 0) return 'cero'; if (n === 100) return 'cien';
+  const h = Math.floor(n / 100), r = n % 100, t = Math.floor(r / 10), u = r % 10, s = [];
+  if (h) s.push(ES_H[h]);
+  if (r) s.push(ES_SP[r] || (!t ? ES_U[u] : u ? `${ES_T[t]} y ${ES_U[u]}` : ES_T[t]));
+  return s.join(' ');
+}
+// 十五, 二十五, 一百零五, 一百一十五, 二百二十二
+function numZh(n) {
+  if (n === 0) return [ZERO];
+  const h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, u = n % 10, s = [];
+  if (h) s.push(NUMS[h - 1], BAI);
+  if (t) { if (h || t > 1) s.push(NUMS[t - 1]); s.push(NUMS[9]); }
+  else if (h && u) s.push(ZERO);
+  if (u) s.push(NUMS[u - 1]);
+  return s;
+}
+// De momento: 0-100 y centenas redondas (100, 200 … 900). numZh ya sabe hacer 0-999.
+const NUM_OK = m => m >= 0 && (m <= 100 || (m < 1000 && m % 100 === 0));
+const randNum = () => Math.random() < .25 ? (1 + Math.floor(Math.random() * 9)) * 100 : Math.floor(Math.random() * 101);
 
 /* =====================================================================
    VOZ (Web Speech API)
@@ -1038,6 +1067,7 @@ const MODES = {
   pyNum:   { create: () => roundPlaques() },
   meaning: { create: () => roundMeaning() },
   dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
+  pairs:   { create: () => roundPairs(), w: 2 },
 };
 function startRound() {
   const keys = Object.keys(MODES).filter(k => k !== lastMode && (!MODES[k].ok || MODES[k].ok()));
@@ -1179,11 +1209,11 @@ function roundOrbit() {
 }
 
 /* ---------------------------------------------------------------------
-   MODO 3 · 数字 — Constructor de números 11-99
+   MODO 3 · 数字 — Constructor de números 0-999
    --------------------------------------------------------------------- */
 function roundNumbers() {
   const R = newRound('numbers');
-  const n = 11 + Math.floor(Math.random() * 89);
+  const n = randNum();
   const seq = numZh(n);
   const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap(numES(n)) };
   UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
@@ -1193,11 +1223,11 @@ function roundNumbers() {
     R.disposables.push(m); slotMat.push(m);
     const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); g.userData.mat = m; R.group.add(g); return g;
   });
-  const keys = shuffle(NUMS).map(v => { const k = makeTile(v.chino, R); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const keys = shuffle([...NUMS, ZERO, BAI]).map(v => { const k = makeTile(v.chino, R); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
   let ks = .74, ss = 1, step = 0;
   R.layout = () => {
     const A = area();
-    ks = Math.min(.76, (A.w * .94) / (5 * TILE.w + 4 * .16));
+    ks = Math.min(.76, (A.w * .94) / (6 * TILE.w + 5 * .16));
     const row2 = A.bottom + TILE.h * ks * .5 + .15, row1 = row2 + TILE.h * ks + .2;
     const freeTop = A.top, freeBot = row1 + TILE.h * ks * .5 + .3;
     ss = Math.min(1.1, (A.w * .86) / (seq.length * TILE.w + (seq.length - 1) * .24), (freeTop - freeBot) / TILE.h * .92);
@@ -1208,8 +1238,8 @@ function roundNumbers() {
       const t = sl.userData.tile; if (t && t.userData.placed) { t.position.copy(sl.userData.home); t.scale.setScalar(ss); }
     });
     keys.forEach((k, i) => {
-      const c = i % 5, r = (i / 5) | 0;
-      k.userData.home = new THREE.Vector3((c - 2) * (TILE.w + .16) * ks, r ? row2 : row1, 0);
+      const c = i % 6, r = (i / 6) | 0;
+      k.userData.home = new THREE.Vector3((c - 2.5) * (TILE.w + .16) * ks, r ? row2 : row1, 0);
       if (k.userData.entered) { k.position.copy(k.userData.home); k.scale.setScalar(ks); }
     });
   };
@@ -1498,7 +1528,7 @@ function dialogBlank() {
    --------------------------------------------------------------------- */
 function roundPlaques() {
   const R = newRound('pyNum');
-  const n = 11 + Math.floor(Math.random() * 89), seq = numZh(n);
+  const n = randNum(), seq = numZh(n);
   const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap(numES(n)) };
   UI.prompt({ seal: '拼', chip: 'Pinyin de números', title: String(n), number: true, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
   const plaques = numberPinyinOptions(n).map(o => { const P = makePlaque(o, R); P.userData.py = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
@@ -1534,6 +1564,156 @@ function roundPlaques() {
       rejectTile(P);
       gsap.to(correct.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(correct, 2.5);
       resolve(false, ans);
+    }
+  }
+  return R;
+}
+
+/* ---------------------------------------------------------------------
+   MODO 8 · 配 — Parejas: dos columnas de 4, une cada pieza con su pareja
+   --------------------------------------------------------------------- */
+// Lado izquierdo: fichas de marfil. Lado derecho: placas lacadas.
+const CARD = { w: 2.1, h: .95 };
+const PAIR_TYPES = {
+  zhEs:  ['zh', 'es', 'Carácter ↔ significado'],
+  zhPy:  ['zh', 'py', 'Carácter ↔ pinyin'],
+  esPy:  ['es', 'py', 'Significado ↔ pinyin'],
+  numZh: ['num', 'zh', 'Número ↔ carácter'],
+  numPy: ['num', 'py', 'Número ↔ pinyin'],
+};
+const cardText = (ans, kind) => kind === 'num' ? String(ans.num) : kind === 'zh' ? ans.chino : kind === 'es' ? ans.espanol : ans.pinyin;
+const cardTex = (text, kind, ivory) => cached(`card:${ivory}:${kind}:${text}`, () => canvasTexture(1024, 464, (g, W, H) => {
+  g.lineJoin = 'round';
+  rr(g, 16, 16, W - 32, H - 32, 52); g.strokeStyle = ivory ? 'rgba(150,32,30,.55)' : 'rgba(246,206,120,.9)'; g.lineWidth = 6; g.stroke();
+  rr(g, 34, 34, W - 68, H - 68, 38); g.strokeStyle = ivory ? 'rgba(190,140,60,.45)' : 'rgba(246,206,120,.35)'; g.lineWidth = 2.5; g.stroke();
+  const zh = kind === 'zh', f = s => zh ? `900 ${s}px ${FONT_ZH}` : `700 ${s}px ${FONT_PY}`;
+  const { x, y, size } = layoutGlyph(g, text, W / 2, H / 2, zh ? 270 : kind === 'num' ? 220 : 150, W * .8, f); g.font = f(size);
+  if (ivory) {
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(text, x + 3, y + 4);
+    g.fillStyle = 'rgba(60,8,8,.5)'; g.fillText(text, x - 2, y - 3);
+    const gr = g.createLinearGradient(0, y - size * .85, 0, y + size * .1); gr.addColorStop(0, '#d23a26'); gr.addColorStop(1, '#6f0a10'); g.fillStyle = gr;
+  } else {
+    g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 10; g.shadowOffsetY = 4; g.fillStyle = '#3a0306'; g.fillText(text, x, y); g.restore();
+    const gr = g.createLinearGradient(0, y - size * .8, 0, y + size * .2); gr.addColorStop(0, '#fff6d6'); gr.addColorStop(1, '#f0bd5c'); g.fillStyle = gr;
+  }
+  g.fillText(text, x, y);
+}));
+let _cardA = null;
+function makeCard(text, kind, ivory, R) {
+  if (!_cardA) _cardA = {
+    ivory: SH(new RoundedBoxGeometry(CARD.w, CARD.h, .3, 6, .12)), jade: SH(new RoundedBoxGeometry(CARD.w * .995, CARD.h * .99, .22, 6, .1)),
+    lacquer: SH(new RoundedBoxGeometry(CARD.w, CARD.h, .24, 6, .11)), face: SH(new THREE.PlaneGeometry(CARD.w * .97, CARD.h * .93)),
+    lacquerMat: new THREE.MeshPhysicalMaterial({ color: 0x8a0f15, roughness: .28, clearcoat: 1, clearcoatRoughness: .1, envMapIntensity: 1.2 }),
+  };
+  const A = _cardA, T = tileAssets(), root = new THREE.Group(), float = new THREE.Group(); root.add(float);
+  if (ivory) {
+    const iv = new THREE.Mesh(A.ivory, T.ivoryMat); iv.position.z = .06;
+    const jd = new THREE.Mesh(A.jade, T.jadeMat); jd.position.z = -.14; float.add(iv, jd);
+  } else float.add(new THREE.Mesh(A.lacquer, A.lacquerMat));
+  const tex = cardTex(text, kind, ivory);
+  const faceMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0x000000, transparent: true, depthWrite: false, roughness: .4,
+    envMapIntensity: .6, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  R.disposables.push(faceMat);
+  const face = new THREE.Mesh(A.face, faceMat); face.position.z = ivory ? .212 : .122; float.add(face);
+  Object.assign(root.userData, { float, faceMat, phase: rand(0, 10) });
+  return root;
+}
+const numItem = n => { const s = numZh(n); return { chino: s.map(v => v.chino).join(''), pinyin: s.map(v => v.pinyin).join(' '), espanol: cap(numES(n)), num: n }; };
+// Números que se confunden entre sí (34 → 43, 33, 44, 24…) para que haya que leer de verdad
+function numberSet(k) {
+  const n = randNum(), t = Math.floor(n / 10) % 10, u = n % 10;
+  const c = [n, u * 10 + t, n + 1, n - 1, n + 10, n - 10, n + 100, n - 100, t, u, t * 100];
+  const out = [...new Set(shuffle(c.slice(1)).filter(NUM_OK))].filter(m => m !== n).slice(0, Math.ceil((k - 1) / 2));
+  out.unshift(n);
+  while (out.length < k) { const m = randNum(); if (!out.includes(m)) out.push(m); }
+  return shuffle(out).map(numItem);
+}
+function pairSet(sub) {
+  if (sub !== 'mix') {
+    const [l, r] = PAIR_TYPES[sub];
+    let items;
+    if (l === 'num') items = numberSet(4);
+    else { const t = pickTarget(VOCAB); items = [t, ...(r === 'py' ? pinyinDistractors(t, 3) : charDistractors(t, 3))]; }
+    return items.map(ans => ({ ans, l, r }));
+  }
+  // Mezcla: cada pareja de un tipo; conceptos distintos (por carácter) y ningún texto repetido, así nunca hay dos parejas válidas
+  for (let tries = 0; tries < 40; tries++) {
+    const out = [], zhs = new Set(), txt = new Set();
+    for (const type of shuffle(Object.keys(PAIR_TYPES).concat(Object.keys(PAIR_TYPES))).slice(0, 4)) {
+      const [l, r] = PAIR_TYPES[type];
+      const ans = l === 'num' ? numItem(randNum()) : pick(VOCAB);
+      const a = cardText(ans, l), b = cardText(ans, r);
+      if (zhs.has(ans.chino) || txt.has(a) || txt.has(b)) break;
+      zhs.add(ans.chino); txt.add(a); txt.add(b); out.push({ ans, l, r });
+    }
+    if (out.length === 4) return out;
+  }
+  return pairSet('zhEs');
+}
+function roundPairs() {
+  const R = newRound('pairs');
+  const sub = new URLSearchParams(location.search).get('sub');
+  const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : pick(['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix']);
+  const pairs = pairSet(type);
+  UI.prompt({ seal: '配', chip: 'Parejas', title: 'Une las parejas', long: true, sub: type === 'mix' ? 'Mezcla de todo' : PAIR_TYPES[type][2] });
+  const mk = (p, i, side) => {
+    const kind = side ? p.r : p.l, C = makeCard(cardText(p.ans, kind), kind, !side, R);
+    Object.assign(C.userData, { pid: i, side, ans: p.ans, onTap: () => tap(C) });
+    R.group.add(C); R.pick.push(C); return C;
+  };
+  const cols = [shuffle(pairs.map((p, i) => mk(p, i, 0))), shuffle(pairs.map((p, i) => mk(p, i, 1)))];
+  const cards = cols.flat();
+  let s = 1, sel = null, left = pairs.length;
+  R.layout = () => {
+    const A = area(), gx = .2, gy = .26;
+    s = Math.min(1.1, (A.w * .88) / (2 * CARD.w + gx), (A.h * .94) / (4 * CARD.h + 3 * gy));
+    cols.forEach((col, side) => col.forEach((C, row) => {
+      C.userData.home = new THREE.Vector3((side ? 1 : -1) * (CARD.w + gx) / 2 * s, A.cy + (1.5 - row) * (CARD.h + gy) * s, 0);
+      if (C.userData.entered && !C.userData.matched) { C.position.copy(C.userData.home); C.scale.setScalar(s); }
+    }));
+  };
+  R.layout();
+  cols.forEach((col, side) => col.forEach((C, row) => {
+    const h = C.userData.home, dir = side ? 1 : -1, d = .15 + row * .08 + side * .05; C.scale.setScalar(s);
+    C.position.set(dir * 7, h.y, -3); C.rotation.set(0, -dir * 1.4, dir * .3);
+    gsap.to(C.position, { x: h.x, z: 0, duration: 1.2, delay: d, ease: 'expo.out', onComplete: () => C.userData.entered = true });
+    gsap.to(C.rotation, { y: 0, z: 0, duration: 1.4, delay: d, ease: 'expo.out' });
+  }));
+  R.update = t => cards.forEach(C => { if (!C.userData.matched) idleFloat(C, t, .4); });
+  const lift = (C, on) => {
+    gsap.to(C.userData.float.position, { z: on ? .5 : 0, duration: .35, ease: on ? 'back.out(2.5)' : 'power2.out' });
+    const m = C.userData.faceMat; gsap.to(m.emissive, { r: on ? 1 : 0, g: on ? .6 : 0, b: on ? .25 : 0, duration: .25 }); m.emissiveIntensity = on ? 1.4 : 1;
+  };
+  function tap(C) {
+    if (state.locked || C.userData.matched) return;
+    sfx.tap();
+    if (sel === C) { lift(C, false); sel = null; return; }
+    if (!sel || sel.userData.side === C.userData.side) { if (sel) lift(sel, false); sel = C; lift(C, true); return; }
+    const a = sel; sel = null;
+    if (a.userData.pid !== C.userData.pid) {
+      state.locked = true;
+      const partner = cards.find(x => x.userData.pid === a.userData.pid && x !== a);
+      rejectTile(C);
+      gsap.to(partner.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(partner, 2.5); glowFace(a, 2.5);
+      resolve(false, a.userData.ans);
+      return;
+    }
+    // Pareja correcta: se juntan en el centro, chispas y desaparecen
+    const ans = C.userData.ans; left--;
+    [a, C].forEach(x => { x.userData.matched = true; R.pick.splice(R.pick.indexOf(x), 1); gsap.killTweensOf(x.position); gsap.killTweensOf(x.rotation); glowFace(x, 2.5); });
+    Speech.say(ans.chino, .85); haptic(10);
+    const mid = a.position.clone().add(C.position).multiplyScalar(.5); mid.z = .8;
+    [a, C].forEach(x => {
+      sparks.burst(x.getWorldPosition(new THREE.Vector3()), { count: 36, speed: [.8, 2.2], life: [.4, .8], size: [.03, .08] });
+      gsap.to(x.position, { x: mid.x, y: mid.y, z: mid.z, duration: .5, delay: .25, ease: 'power3.in' });
+      gsap.to(x.rotation, { y: (x === a ? 1 : -1) * .5, duration: .5, delay: .25, ease: 'power3.in' });
+      gsap.to(x.scale, { x: 0, y: 0, z: 0, duration: .35, delay: .7, ease: 'back.in(2)' });
+    });
+    setTimeout(() => { if (R.exiting) return; sfx.place(); sparks.burst(world.localToWorld(mid.clone()), { count: 60, speed: [.6, 2], life: [.5, 1], size: [.03, .08] }); }, 760);
+    if (!left) {
+      state.locked = true;
+      setTimeout(() => { if (!R.exiting) celebrate(new THREE.Vector3(0, area().cy + world.position.y, .5)); }, 900);
+      setTimeout(() => resolve(true, ans), 700);
     }
   }
   return R;
@@ -1618,8 +1798,8 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不义！？，。';
-  const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü';
+  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不义配！？，。';
+  const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü0123456789';
   try {
     await Promise.race([
       Promise.all([
