@@ -19,12 +19,12 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - El texto de los objetos 3D se dibuja con Canvas 2D a texturas de 512–1024 px (`layoutGlyph` centra según la caja real del glifo).
 
 ## Dónde tocar en `index.html`
-- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`), 百 (`BAI`), 第 (`DI`) y 页 (`YE`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas. Las palabras de la lección 2 llevan `l: 2`. Puede haber palabras de varios caracteres (爸爸, 男朋友) y pinyin repetido (他/她 = tā): los modos que eligen por sonido o pinyin excluyen distractores con el mismo pinyin.
+- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`), 百 (`BAI`), 第 (`DI`) y 页 (`YE`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas. Las palabras de la lección 2 llevan `l: 2` (solo como referencia; ningún tema filtra por lección). Puede haber palabras de varios caracteres (爸爸, 男朋友) y pinyin repetido (他/她 = tā): los modos que eligen por sonido o pinyin excluyen distractores con el mismo pinyin.
 - `CONFUSABLE`: caracteres parecidos (o que se oyen igual), que se usan como distractores.
-- `PHRASES`: frases de conversación como tokens `T(carácter, pinyin)`, para poder dejar huecos (`l: 2` = lección 2; `voc: true` = puede ir dirigida a alguien). `REPLIES` define qué respuestas son válidas (`ok`) o claramente incorrectas (`bad`) para cada frase; las dudosas no van en ninguna lista, así nunca hay dos correctas. `BLANK_WRONG` da, para cada palabra que puede faltar en «Completa la frase», opciones que nunca forman una frase válida.
+- `PHRASES`: frases de conversación como tokens `T(carácter, pinyin)`, para poder dejar huecos (`l: 2` = lección 2, solo como referencia; `voc: true` = puede ir dirigida a alguien). `REPLIES` define qué respuestas son válidas (`ok`) o claramente incorrectas (`bad`) para cada frase; las dudosas no van en ninguna lista, así nunca hay dos correctas. `BLANK_WRONG` da, para cada palabra que puede faltar en «Completa la frase», opciones que nunca forman una frase válida.
 - `NAMES` (compañeros de clase) y `KIN` (哥哥, 弟弟): aparecen en «(nombre)，你忙吗？» y similares.
 - `MODES`: registro de modos. `w` es el peso (cuántas veces más sale) y `ok()` indica si está disponible.
-- `TOPICS`: temas del selector (`mix` Mezcla, `new` Lección 2, `num` Números, `char` Caracteres, `talk` Conversación). Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
+- `TOPICS`: temas del selector (`mix` Mezcla, `num` Números, `char` Caracteres, `talk` Conversación). Los temas separan por tipo de ejercicio, nunca por lección: siempre entra el vocabulario de todas las lecciones. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
 
 ## Modos (bucle aleatorio dentro del tema, nunca el mismo dos veces seguidas si hay otro)
 | clave | sello | ejercicio | función |
@@ -43,7 +43,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas usando `area()`, es decir, el hueco libre entre la tarjeta superior y el borde inferior, y `update(t, dt)`. La ronda termina llamando a `resolve(ok, { chino, pinyin, espanol })`. Las transiciones entre rondas son un único barrido continuo de cámara (`transitionOut` → `startRound`), sin saltos.
 
 ## Depuración
-- `index.html?mode=<clave>` fuerza un modo y `?topic=mix|new|num|char|talk` fuerza un tema. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
+- `index.html?mode=<clave>` fuerza un modo y `?topic=mix|num|char|talk` fuerza un tema. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
 - Probar siempre a tamaño móvil (390×844). El sonido solo se activa tras el primer toque, por eso la primera ronda nunca es `listen`.
 
 ## Publicar

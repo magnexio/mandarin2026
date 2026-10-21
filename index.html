@@ -1185,11 +1185,9 @@ const MODES = {
   pairs:   { create: () => roundPairs(), w: 2 },
   page:    { create: () => Math.random() < .5 ? roundNumbers(true) : roundPlaques(true) },
 };
-// Temas: qué modos salen y con qué vocabulario/frases. «Mezcla» es todo junto (como siempre).
+// Temas: qué tipo de ejercicio sale, siempre con todo el vocabulario de todas las lecciones. «Mezcla» es todo junto.
 const TOPICS = {
   mix:  { seal: '全', name: 'Mezcla', desc: 'Todos los ejercicios mezclados', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  new:  { seal: '新', name: 'Lección 2', desc: 'Solo lo nuevo: 你忙吗, 你要咖啡吗, 丁刀又大口土尼可 y 第…页',
-          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'dialog', 'page'], vocab: v => v.l === 2, phrases: P => P.l === 2, pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
   num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页) y parejas',
           modes: ['numbers', 'pyNum', 'page', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
   char: { seal: '字', name: 'Caracteres', desc: 'Carácter, pinyin, significado, audio y parejas',
@@ -1969,7 +1967,7 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + Object.values(PHRASES).map(P => P.zh).join('') + '福对很好太棒了真汉字音数听拼对话义配全新页哥弟！？，。、';
+  const zh = VOCAB.map(v => v.chino).join('') + Object.values(PHRASES).map(P => P.zh).join('') + '福对很好太棒了真汉字音数听拼对话义配全页哥弟！？，。、';
   const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü0123456789';
   try {
     await Promise.race([
