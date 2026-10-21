@@ -516,6 +516,7 @@ const HINTS = {};
 const hintFor = (a, b) => HINTS[[a, b].sort().join('|')];
 const lowerFirst = x => x.charAt(0).toLowerCase() + x.slice(1);
 const vocabOf = c => VOCAB.find(v => v.chino === c);
+const pyOf = c => ({ '们': 'men' })[c] || (vocabOf(c) ? vocabOf(c).pinyin : '');
 // Por qué has fallado en los modos de vocabulario. via 'py': la pregunta era de pinyin
 function explainPick(ans, picked, via = '') {
   if (!picked) return '';
@@ -740,12 +741,19 @@ function layoutGlyph(g, text, cx, cy, size, maxW, font) {
 }
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 
-const tileFaceTex = ch => cached('tile:' + ch, () => canvasTexture(512, 716, (g, W, H) => {
+// py: pinyin opcional bajo el carácter, para los ejercicios donde importa la estructura y no reconocer el carácter
+const tileFaceTex = (ch, py = '') => cached('tile:' + ch + '|' + py, () => canvasTexture(512, 716, (g, W, H) => {
   g.lineJoin = 'round';
   rr(g, 20, 20, W - 40, H - 40, 54); g.strokeStyle = 'rgba(150,32,30,.55)'; g.lineWidth = 6; g.stroke();
   rr(g, 38, 38, W - 76, H - 76, 40); g.strokeStyle = 'rgba(190,140,60,.45)'; g.lineWidth = 2.5; g.stroke();
+  if (py) {
+    const fp = s => `700 ${s}px ${FONT_PY}`, P = layoutGlyph(g, py, W / 2, H * .835, 128, W * .8, fp);
+    g.font = fp(P.size); g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText(py, P.x + 2, P.y + 3);
+    g.fillStyle = '#8a2a16'; g.fillText(py, P.x, P.y);
+    g.beginPath(); g.moveTo(W * .3, H * .68); g.lineTo(W * .7, H * .68); g.strokeStyle = 'rgba(190,140,60,.35)'; g.lineWidth = 2.5; g.stroke();
+  }
   const f = s => `900 ${s}px ${FONT_ZH}`;
-  const { x, y, size } = layoutGlyph(g, ch, W / 2, H / 2, 390, W * 0.72, f);
+  const { x, y, size } = py ? layoutGlyph(g, ch, W / 2, H * .36, 280, W * .72, f) : layoutGlyph(g, ch, W / 2, H / 2, 390, W * 0.72, f);
   g.font = f(size);
   g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(ch, x + 3, y + 4);          // bisel inferior (grabado)
   g.fillStyle = 'rgba(60,8,8,.55)'; g.fillText(ch, x - 2, y - 3);               // sombra superior
@@ -1017,11 +1025,11 @@ function tileAssets() {
     jadeMat: new THREE.MeshPhysicalMaterial({ color: 0x0c6549, roughness: .2, clearcoat: 1, clearcoatRoughness: .08, envMapIntensity: 1.3 }),
   };
 }
-function makeTile(ch, R) {
+function makeTile(ch, R, py = '') {
   const A = tileAssets(), root = new THREE.Group(), float = new THREE.Group(); root.add(float);
   const ivory = new THREE.Mesh(A.ivory, A.ivoryMat); ivory.position.z = .14;
   const jade = new THREE.Mesh(A.jade, A.jadeMat); jade.position.z = -.2;
-  const tex = tileFaceTex(ch);
+  const tex = tileFaceTex(ch, py);
   const faceMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0x000000, transparent: true, depthWrite: false,
     roughness: .4, envMapIntensity: .6, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   R.disposables.push(faceMat);
@@ -1573,7 +1581,7 @@ function roundNumbers({ page = false, audio = false } = {}) {
     R.disposables.push(m); slotMat.push(m);
     const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); g.userData.mat = m; R.group.add(g); return g;
   });
-  const keys = shuffle([...NUMS, ...(page ? [DI, YE] : [ZERO, BAI])]).map(v => { const k = makeTile(v.chino, R); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const keys = shuffle([...NUMS, ...(page ? [DI, YE] : [ZERO, BAI])]).map(v => { const k = makeTile(v.chino, R, v.pinyin); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
   let ks = .74, ss = 1, step = 0;
   R.layout = () => {
     const A = area();
@@ -1613,7 +1621,7 @@ function roundNumbers({ page = false, audio = false } = {}) {
     gsap.fromTo(k.userData.float.position, { z: -.3 }, { z: 0, duration: .5, ease: 'back.out(3)' });
     if (v !== seq[step]) { state.locked = true; rejectTile(k); showNum(); resolve(false, ans, { picked: v.chino, why: numberWhy(n, page) }); return; }
     const sl = slots[step++], h = sl.userData.home, m = sl.userData.mat;
-    const t = makeTile(v.chino, R); sl.userData.tile = t; R.group.add(t);
+    const t = makeTile(v.chino, R, v.pinyin); sl.userData.tile = t; R.group.add(t);
     t.position.copy(k.position); t.scale.setScalar(ks);
     const tl = gsap.timeline({ onComplete: () => t.userData.placed = true });
     tl.to(t.position, { x: h.x, y: h.y, duration: .6, ease: 'power3.inOut' }, 0)
@@ -1861,7 +1869,7 @@ function dialogBlank() {
     chat: bubble('a', 'A', zhHtml, pyHtml, P.es) });
   const opts = shuffle([target, ...shuffle(blankWrong(P, miss.c)).slice(0, 3).map(c => ({ chino: c }))]);
   const ans = phraseAns(P);
-  const tiles = opts.map(o => { const t = makeTile(o.chino, R); t.userData.item = o; t.userData.onTap = () => choose(t); R.group.add(t); R.pick.push(t); return t; });
+  const tiles = opts.map(o => { const t = makeTile(o.chino, R, o === target ? miss.p.toLowerCase() : pyOf(o.chino)); t.userData.item = o; t.userData.onTap = () => choose(t); R.group.add(t); R.pick.push(t); return t; });
   let s = 1;
   R.layout = () => {
     const A = area(); s = Math.min(1.2, (A.w * .92) / (4 * TILE.w + 3 * .22), (A.h * .8) / TILE.h);
@@ -1940,7 +1948,8 @@ function roundOrder() {
     R.disposables.push(m); slotMat.push(m);
     const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); R.group.add(g); return g;
   });
-  const keys = shuffle([...seq, trap]).map(c => { const k = makeTile(c, R); k.userData.c = c; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const pyByWord = Object.fromEntries(orderWords(P).map(x => [x.c, x.p.toLowerCase()]));
+  const keys = shuffle([...seq, trap]).map(c => { const k = makeTile(c, R, pyByWord[c] || pyOf(c)); k.userData.c = c; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
   const placed = [];
   let ks = .8, ss = 1;
   const cols = keys.length <= 4 ? keys.length : Math.ceil(keys.length / 2);

@@ -18,6 +18,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - SFX sintetizados con Web Audio (escala pentatónica).
 - Fuentes de Google: Noto Serif SC (caracteres), Noto Serif (pinyin), Inter (interfaz).
 - El texto de los objetos 3D se dibuja con Canvas 2D a texturas de 512–1024 px (`layoutGlyph` centra según la caja real del glifo).
+- Fichas con pinyin debajo (`makeTile(ch, R, py)`) solo en los ejercicios de estructura: construir frases, completar la frase y teclados de números/páginas/dictado. Nunca donde el objetivo es reconocer el carácter (tiles, pyChar, meaning, orbit, listen, pairs), porque daría la respuesta.
 
 ## Dónde tocar en `index.html`
 - `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`), 百 (`BAI`), 第 (`DI`) y 页 (`YE`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas. Las palabras de la lección 2 llevan `l: 2` (solo como referencia; ningún tema filtra por lección). Puede haber palabras de varios caracteres (爸爸, 男朋友) y pinyin repetido (他/她 = tā): los modos que eligen por sonido o pinyin excluyen distractores con el mismo pinyin.
