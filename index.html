@@ -1271,7 +1271,7 @@ const UI = {
       $('#rv-py').innerHTML = pyHTML(ans.pinyin); $('#rv-es').textContent = ans.espanol;
       const was = info.picked ? `<span class="rv-was">Tocaste <s>${info.picked}</s></span>` : '';
       $('#rv-why').innerHTML = was + (info.why || '');
-      const dur = info.why ? 4200 : 2800;
+      const dur = info.why ? 6000 : 4200;   // con explicación hay más que leer
       el.classList.remove('held'); el.classList.add('on');
       gsap.fromTo(el, { y: 0, yPercent: 140 }, { yPercent: 0, duration: .65, ease: 'expo.out' });
       gsap.fromTo('#rv-bar', { scaleX: 1 }, { scaleX: 0, duration: dur / 1000, ease: 'none' });

@@ -5,7 +5,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 
 ## Filosofía (no romperla)
 - **Fricción cero:** no hay puntuaciones. Al abrir la web solo hay un sello 开始 («Toca para empezar»): ese toque desbloquea la voz y los sonidos (iOS lo exige) y empieza una ronda aleatoria del último tema elegido (por defecto, «Mezcla»). El único menú es el selector de temas (botón a la izquierda del chip superior).
-- Si aciertas, explosión de partículas y pasas a la siguiente ronda. Si fallas, una tarjeta muestra la respuesta (carácter + pinyin coloreado por tono + español), lo que tocaste tachado y por qué no era eso (2,8 s, o 4,2 s si hay explicación). Toque corto: seguir; mantener pulsado: congelarla para leer; 🔊 de la tarjeta: repetir despacio.
+- Si aciertas, explosión de partículas y pasas a la siguiente ronda. Si fallas, una tarjeta muestra la respuesta (carácter + pinyin coloreado por tono + español), lo que tocaste tachado y por qué no era eso (4,2 s, o 6 s si hay explicación). Toque corto: seguir; mantener pulsado: congelarla para leer; 🔊 de la tarjeta: repetir despacio.
 - Lo que fallas vuelve 2-4 rondas después en otro tipo de ejercicio, con el sello rojo 复 (repaso).
 - Pensada para el móvil: abrir, jugar un minuto y cerrar.
 - Estética china tradicional: fondo granate oscuro, luz cálida de linternas, dorados, fichas Mahjong.
