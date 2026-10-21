@@ -4,8 +4,9 @@ Web app para repasar vocabulario de mandarín con los compañeros de clase. Todo
 Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magnexio/mandarin2026`, rama `main`).
 
 ## Filosofía (no romperla)
-- **Fricción cero:** no hay puntuaciones ni pantalla de inicio. Al abrir la web empieza directamente una ronda aleatoria del último tema elegido (por defecto, «Mezcla»). El único menú es el selector de temas (botón a la izquierda del chip superior).
-- Si aciertas, explosión de partículas y pasas a la siguiente ronda. Si fallas, una tarjeta muestra la respuesta (carácter + pinyin + español) unos 2,8 s y pasa a la siguiente.
+- **Fricción cero:** no hay puntuaciones. Al abrir la web solo hay un sello 开始 («Toca para empezar»): ese toque desbloquea la voz y los sonidos (iOS lo exige) y empieza una ronda aleatoria del último tema elegido (por defecto, «Mezcla»). El único menú es el selector de temas (botón a la izquierda del chip superior).
+- Si aciertas, explosión de partículas y pasas a la siguiente ronda. Si fallas, una tarjeta muestra la respuesta (carácter + pinyin coloreado por tono + español), lo que tocaste tachado y por qué no era eso (2,8 s, o 4,2 s si hay explicación). Toque corto: seguir; mantener pulsado: congelarla para leer; 🔊 de la tarjeta: repetir despacio.
+- Lo que fallas vuelve 2-4 rondas después en otro tipo de ejercicio, con el sello rojo 复 (repaso).
 - Pensada para el móvil: abrir, jugar un minuto y cerrar.
 - Estética china tradicional: fondo granate oscuro, luz cálida de linternas, dorados, fichas Mahjong.
 - La interfaz está en español. El usuario aprende chino en clase, con compañeros (véase `NAMES`).
@@ -24,6 +25,8 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - `PHRASES`: frases de conversación como tokens `T(carácter, pinyin)`, para poder dejar huecos (`l: 2` = lección 2, solo como referencia; `voc: true` = puede ir dirigida a alguien). `REPLIES` define qué respuestas son válidas (`ok`) o claramente incorrectas (`bad`) para cada frase; las dudosas no van en ninguna lista, así nunca hay dos correctas. `BLANK_WRONG` da, para cada palabra que puede faltar en «Completa la frase», opciones que nunca forman una frase válida.
 - `NAMES` (compañeros de clase) y `KIN` (哥哥, 弟弟): aparecen en «(nombre)，你忙吗？» y similares.
 - `MODES`: registro de modos. `w` es el peso (cuántas veces más sale) y `ok()` indica si está disponible.
+- Aprendizaje (sección «APRENDIZAJE»): `pyHTML` colorea el pinyin por tono (solo en respuestas); `explainPick`, `toneWhy`, `numberWhy`, `replyWhy`, `orderWhy`, `HINTS` (pares que se confunden) y `WORD_RULE` generan la explicación del fallo, que se pasa como `resolve(false, ans, { picked, why })`. Nunca deben enseñar algo falso.
+- `Mem` (localStorage `mem:v1`): repetición espaciada por palabra/frase/número (`memKey`), cajas 0-5; `wpick` sortea dando más peso a lo que toca repasar. `Echo`: cola de fallos que vuelven en otro modo (`ECHO_MODES`, `echoFits`, consumo con `Echo.peek` en `pickTarget`, diálogo, `roundOrder` y `forcedNum`). Si localStorage falla, todo sigue al azar.
 - `TOPICS`: temas del selector (`mix` Mezcla, `num` Números, `char` Caracteres, `talk` Conversación). Los temas separan por tipo de ejercicio, nunca por lección: siempre entra el vocabulario de todas las lecciones. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
 
 ## Modos (bucle aleatorio dentro del tema, nunca el mismo dos veces seguidas si hay otro)
@@ -35,7 +38,9 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 | orbit | 音 | carácter → pinyin (moneda dorada + linternas en órbita, variantes de tono) | `roundOrbit()` |
 | pyNum | 拼 | número 0–100 o centena redonda (200…900) → pinyin (placas, errores típicos) | `roundPlaques()` |
 | numbers | 数 | construir el número (0–100 o 200…900) con un teclado 一–十 + 零 百 barajado | `roundNumbers()` |
-| page | 页 | número de página: construir 第…页 (teclado con 第 y 页) o elegir su pinyin «dì … yè» | `roundNumbers(true)` / `roundPlaques(true)` |
+| page | 页 | número de página: construir 第…页 (teclado con 第 y 页) o elegir su pinyin «dì … yè» | `roundNumbers({ page: true })` / `roundPlaques(true)` |
+| dictation | 听 | dictado: la voz dice un número o una página despacio (`DICTATE_RATE`) y se construye de oído. Solo con voz | `roundNumbers({ audio: true })` |
+| order (w:2) | 句 | ordenar las fichas de una frase de clase (+1 ficha trampa); a veces solo de oído. Acepta 爸爸、妈妈 en los dos órdenes | `roundOrder()` |
 | listen | 听 | audio → carácter (linternas celestes). Solo si el sonido está activado y hay voz china | `roundListen()` |
 | dialog (w:2) | 话 | conversación: «¿Qué contestas?», «Completa la frase», «¿Qué significa?» | `roundDialog()` |
 | pairs (w:2) | 配 | parejas: 4 fichas de marfil ↔ 4 placas lacadas. Subtipos (`&sub=`): `zhEs`, `zhPy`, `esPy`, `numZh`, `numPy`, `mix`. Un fallo termina la ronda | `roundPairs()` |
@@ -44,7 +49,8 @@ Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas us
 
 ## Depuración
 - `index.html?mode=<clave>` fuerza un modo y `?topic=mix|num|char|talk` fuerza un tema. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
-- Probar siempre a tamaño móvil (390×844). El sonido solo se activa tras el primer toque, por eso la primera ronda nunca es `listen`.
+- Probar siempre a tamaño móvil (390×844). El sonido se activa con el toque del sello 开始. En el altavoz, toque = repetir y mantener = repetir despacio (`holdToSlow`).
+- Al probar en el panel del navegador (oculto), `gsap.ticker.lagSmoothing(0)` hace que las animaciones avancen en tiempo real.
 
 ## Publicar
 - Doble clic en `publicar.bat` (git add, commit y push). GitHub Pages se actualiza en 1–2 minutos.

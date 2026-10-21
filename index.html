@@ -79,7 +79,7 @@
     font-size:15px;color:#ffeccc}
   #toast .t-sub b{font-family:var(--zh);font-weight:900;font-size:20px;color:#ffd27a}
   #toast .t-sub i{font-style:normal;font-family:var(--serif);color:#fff}
-  #toast .t-sub span{color:rgba(255,225,190,.7)}
+  #toast .t-sub > span{color:rgba(255,225,190,.7)}
 
   /* ---------- Reveal (fallo) ---------- */
   #reveal{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:7;margin:0 auto;max-width:520px;
@@ -99,6 +99,23 @@
   .rv-txt{min-width:0}
   .rv-py{font-family:var(--serif);font-weight:700;font-size:28px;color:#ffe2a6;line-height:1.1}
   .rv-es{margin-top:4px;font-size:16px;color:rgba(255,232,210,.78)}
+  .rv-char.xl + .rv-txt .rv-py{font-size:20px;line-height:1.25}
+  .rv-char.xl + .rv-txt .rv-es{font-size:14px}
+  .rv-head em{margin-left:auto}
+  .rv-say{flex:none;margin:-6px -6px -6px 10px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;
+    border:1px solid rgba(255,215,140,.35);color:#ffe2a6;background:radial-gradient(circle at 50% 30%,rgba(255,190,90,.28),rgba(120,16,18,.35))}
+  .rv-say:active{transform:scale(.92)}
+  .rv-why{margin-top:12px;font-size:14px;line-height:1.45;color:rgba(255,236,214,.92)}
+  .rv-why:empty{display:none}
+  .rv-was{display:inline-block;margin-right:8px;padding:1px 9px;border-radius:9px;background:rgba(255,90,70,.16);color:rgba(255,196,178,.9);font-size:13px}
+  .rv-was s{font-family:var(--zh);font-weight:700;text-decoration-color:#ff5a46;text-decoration-thickness:2px}
+  #reveal.held .rv-bar i{opacity:.3}
+  /* Tonos en color (solo en las respuestas) */
+  .t1{color:#ffe08a}.t2{color:#8ee6b4}.t3{color:#9fd0ff}.t4{color:#ffa48c}
+  /* Sello 复: esta ronda repasa algo que fallaste hace poco */
+  .review{display:none;margin-left:2px;width:20px;height:20px;border-radius:6px;place-items:center;letter-spacing:0;
+    font-family:var(--zh);font-weight:900;font-size:12px;color:#fff3dc;background:linear-gradient(145deg,#ff5a46,#a3121b)}
+  .review.on{display:grid}
   .rv-bar{margin-top:14px;height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
   .rv-bar i{display:block;height:100%;transform-origin:left;background:linear-gradient(90deg,#f3c56b,#ff7a4a)}
 
@@ -127,14 +144,15 @@
   .bub .es{margin-top:2px;font-size:12.5px;color:rgba(255,226,192,.62)}
   .gap{display:inline-block;min-width:1.15em;margin:0 2px;text-align:center;border-bottom:2px solid #f3c56b;color:#f3c56b;animation:breath 1.6s ease-in-out infinite}
   .bub .wait{font-size:22px;letter-spacing:4px;color:#f3c56b;animation:breath 1.2s ease-in-out infinite}
-  #hint{position:fixed;left:50%;bottom:calc(var(--safe-b) + 18px);transform:translateX(-50%);z-index:4;pointer-events:none;white-space:nowrap;
-    display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:500;color:rgba(255,232,200,.85);
-    background:rgba(38,4,9,.45);border:1px solid var(--hair);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-    animation:breath 2.4s ease-in-out infinite}
   @keyframes breath{50%{opacity:.55}}
   #loader{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#4a0a0f,#140205 70%)}
   #loader .seal{width:76px;height:76px;border-radius:20px;font-size:44px;animation:pulse 1.4s ease-in-out infinite}
   #loader p{margin:18px 0 0;text-align:center;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,220,180,.6)}
+  #loader>div{display:flex;flex-direction:column;align-items:center}
+  /* Sello de entrada 开始: el primer toque activa la voz y los sonidos (iOS lo exige) */
+  #loader.ready{cursor:pointer}
+  #loader.ready .seal{width:112px;height:112px;border-radius:28px;font-size:40px;letter-spacing:-.04em;animation:pulse 1.8s ease-in-out infinite}
+  #loader.ready p{font-size:13px;letter-spacing:.2em;color:rgba(255,226,190,.82);animation:breath 2.4s ease-in-out infinite}
   @keyframes pulse{50%{transform:scale(.92);filter:brightness(1.25)}}
   .ripple{position:fixed;z-index:8;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;
     border:2px solid rgba(255,214,140,.9);box-shadow:0 0 14px rgba(255,180,80,.6);animation:rip .55s cubic-bezier(.2,.7,.3,1) forwards}
@@ -178,7 +196,7 @@
   <div class="hud-row">
     <button id="topic-btn" aria-label="Elegir tema"><span id="topic-seal" class="seal">全</span><span id="topic-name">Mezcla</span>
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span></div>
+    <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span><span id="review" class="review" title="Repaso de un fallo">复</span></div>
   </div>
   <div id="card">
     <div id="card-in"><div id="title" class="title">&nbsp;</div><div id="sub" class="sub">&nbsp;</div><div id="meta" class="meta"></div><div id="chat" class="chat"></div></div>
@@ -194,17 +212,17 @@
 <div id="toast"><div class="t-zh" id="t-zh">对！</div><div class="t-py" id="t-py">duì</div><div class="t-sub" id="t-sub"></div></div>
 
 <div id="reveal">
-  <div class="rv-head"><span>La respuesta era</span><em>toca para seguir</em></div>
+  <div class="rv-head"><span>La respuesta era</span><em>toca para seguir</em><button class="rv-say" id="rv-say" aria-label="Escuchar despacio"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11 5 6.5 9H3.5v6h3l4.5 4V5z"/><path d="M15.5 8.8a4.6 4.6 0 0 1 0 6.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
   <div class="rv-body">
     <div class="rv-char" id="rv-char">马</div>
     <div class="rv-txt"><div class="rv-py" id="rv-py">mǎ</div><div class="rv-es" id="rv-es">Caballo</div></div>
   </div>
+  <div class="rv-why" id="rv-why"></div>
   <div class="rv-bar"><i id="rv-bar"></i></div>
 </div>
 
 <button id="coin-tag" aria-label="Escuchar el carácter"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 5 6.5 9H3.5v6h3l4.5 4V5z"/><path d="M15.5 8.8a4.6 4.6 0 0 1 0 6.4M18.4 5.9a8.8 8.8 0 0 1 0 12.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
 <div id="topics"><div class="sheet"><h2>¿Qué quieres practicar?</h2><div id="topic-list"></div></div></div>
-<div id="hint">🔊 Toca la pantalla para activar el sonido</div>
 <div id="loader"><div><div class="seal">汉</div><p>加载中</p></div></div>
 
 <script type="module">
@@ -342,7 +360,7 @@ function withName(P) {
   const es = P.id === 'ma' ? `${k.es}, ¿qué tal?` : `${k.es}, ${P.es.replace(/^([¿¡]?)(.)/, (m, a, c) => a + c.toLowerCase())}`;
   return { ...P, t, zh: t.map(x => x.c).join(''), py: t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, ''), es };
 }
-const phraseAns = P => ({ chino: P.zh, pinyin: P.py, espanol: P.es });
+const phraseAns = P => ({ chino: P.zh, pinyin: P.py, espanol: P.es, pid: P.id });
 function bubble(cls, who, zh, py, es) {
   return `<div class="bub ${cls}"><span class="who">${who}</span><div class="zh">${zh}</div>${py ? `<div class="py">${py}</div>` : ''}${es ? `<div class="es">${es}</div>` : ''}</div>`;
 }
@@ -362,9 +380,15 @@ const haptic = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (
 
 const recent = [];
 function pickTarget(pool) {
-  let c = pool.filter(v => !recent.includes(v.chino));
-  if (!c.length) c = pool;
-  const t = pick(c); recent.push(t.chino); if (recent.length > 6) recent.shift();
+  const e = Echo.peek('v'), ev = e && vocabOf(e.ans.chino);
+  let t;
+  if (ev && pool.includes(ev)) { e.used = true; t = ev; }
+  else {
+    let c = pool.filter(v => !recent.includes(v.chino));
+    if (!c.length) c = pool;
+    t = wpick(c, v => 'v:' + v.chino);   // lo que fallas sale más; lo dominado, menos
+  }
+  recent.push(t.chino); if (recent.length > 6) recent.shift();
   return t;
 }
 // samePy: false cuando la opción se elige por el sonido o el pinyin (他/她 suenan igual: no pueden salir juntos)
@@ -451,16 +475,149 @@ const NUM_OK = m => m >= 0 && (m <= 100 || (m < 1000 && m % 100 === 0));
 const randNum = () => Math.random() < .25 ? (1 + Math.floor(Math.random() * 9)) * 100 : Math.floor(Math.random() * 101);
 
 /* =====================================================================
+   APRENDIZAJE: tonos en color, por qué has fallado y memoria de errores
+   ===================================================================== */
+const PY_V = 'aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ';
+const SYL = new RegExp(`(?:zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?[${PY_V}]+(?:ng|n(?![${PY_V}])|r(?![${PY_V}]))?`, 'gi');
+const toneOf = syl => { for (const b in TONES) { const i = [...TONES[b]].findIndex(c => syl.includes(c)); if (i >= 0) return i + 1; } return 0; };
+const syllables = p => p.match(SYL) || [];
+// Pinyin con cada sílaba del color de su tono (solo en las respuestas, nunca en la pregunta)
+const pyHTML = p => p.replace(SYL, x => { const t = toneOf(x); return t ? `<span class="t${t}">${x}</span>` : x; });
+const TONE_DESC = ['tono neutro (corto y suave)', '1.er tono: alto y plano', '2.º tono: sube', '3.er tono: baja y sube', '4.º tono: cae'];
+function toneWhy(picked, right) {
+  const a = syllables(picked), b = syllables(right), i = b.findIndex((x, k) => a[k] !== x);
+  if (i < 0 || !a[i]) return '';
+  return `${a[i]} ≠ ${b[i]}: el sonido está bien, el tono no · ${b[i]} = ${TONE_DESC[toneOf(b[i])]}`;
+}
+// Pistas para los pares que más se confunden (se buscan en cualquier orden)
+const HINTS = {};
+[['他', '她', '亻 (persona) → 他 él · 女 (mujer) → 她 ella'],
+ ['他们', '她们', '他们 = ellos (o grupo mixto) · 她们 = solo chicas'],
+ ['木', '林', '木 = un árbol (madera) · 林 = dos árboles (bosque)'],
+ ['人', '大', '人 = persona · 大 = persona con los brazos abiertos (grande)'],
+ ['人', '八', '人 se une arriba · 八 tiene los dos trazos separados'],
+ ['力', '刀', '力 (fuerza) asoma por arriba · 刀 (cuchillo) no'],
+ ['九', '力', '九 = nueve (la cola se curva a la derecha) · 力 = fuerza'],
+ ['十', '土', '十 = diez · 土 = tierra: dos rayas, la de abajo más larga'],
+ ['七', '十', '七 tiene el trazo vertical doblado · 十 lo tiene recto'],
+ ['口', '可', '口 = boca · 可 = 丁 con un 口 dentro'],
+ ['丁', '可', '丁 = clavo · 可 = 丁 con un 口 dentro'],
+ ['吗', '呢', '吗 = pregunta de sí o no · 呢 = ¿y tú…? (devuelve la pregunta)'],
+ ['吗', '妈妈', '吗 lleva 口 (partícula) · 妈 lleva 女 (madre)'],
+ ['吗', '马', '马 = caballo · 吗 = 口 + 马 (partícula de pregunta)'],
+ ['呢', '尼', '尼 = monja · 呢 = 口 + 尼 (partícula ¿y…?)'],
+ ['也', '页', '也 yě = también · 页 yè = página'],
+ ['第', '弟弟', '第 dì = ordinal (第十页) · 弟弟 dìdi = hermano menor'],
+ ['哥哥', '弟弟', '哥哥 = hermano mayor · 弟弟 = hermano menor'],
+ ['女', '她', '女 = mujer · 她 = 女 + 也 (ella)'],
+ ['男', '力', '男 = 田 (campo) + 力 (fuerza): varón'],
+ ['很', '都', '很 = muy · 都 = todos'],
+].forEach(([a, b, h]) => { HINTS[[a, b].sort().join('|')] = h; });
+const hintFor = (a, b) => HINTS[[a, b].sort().join('|')];
+const lowerFirst = x => x.charAt(0).toLowerCase() + x.slice(1);
+const vocabOf = c => VOCAB.find(v => v.chino === c);
+// Por qué has fallado en los modos de vocabulario. via 'py': la pregunta era de pinyin
+function explainPick(ans, picked, via = '') {
+  if (!picked) return '';
+  // Error de tono solo si se elegía por sonido/pinyin (en «significado» 也/页 no es un problema de tono, sino de carácter)
+  const bySound = via || !picked.chino;
+  if (bySound && picked.pinyin && ans.pinyin && picked.pinyin !== ans.pinyin && plain(picked.pinyin) === plain(ans.pinyin)) return toneWhy(picked.pinyin, ans.pinyin);
+  if (picked.chino && picked.chino !== ans.chino) {
+    const same = picked.pinyin && picked.pinyin === ans.pinyin ? `Suenan igual (${ans.pinyin}). ` : '';
+    const h = hintFor(picked.chino, ans.chino); if (h) return same + h;
+    const pv = vocabOf(picked.chino), av = vocabOf(ans.chino); if (!pv || !av) return '';
+    return same + (via === 'py' ? `${pv.chino} se lee ${pv.pinyin} · ${av.chino} se lee ${av.pinyin}`
+                                : `${pv.chino} = ${lowerFirst(pv.espanol)} · ${av.chino} = ${lowerFirst(av.espanol)}`);
+  }
+  if (picked.pinyin && !picked.chino) {
+    const pv = VOCAB.filter(v => v.pinyin === picked.pinyin);   // tā es 他 (él) o 她 (ella)
+    return pv.length ? `${picked.pinyin} es ${pv.map(v => `${v.chino} (${lowerFirst(v.espanol)})`).join(' o ')}` : '';
+  }
+  return '';
+}
+function numberWhy(n, page) {
+  const zh = numZh(n).map(v => v.chino).join(''), d = i => NUMS[i - 1].chino;
+  const h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, u = n % 10;
+  let w;
+  if (n === 0) w = '0 = 零 (líng)';
+  else if (n < 10) w = `${n} = ${zh}`;
+  else if (n === 10) w = '10 = 十, sin 一 delante';
+  else if (n < 20) w = `Del 11 al 19 se empieza por 十: ${n} = 十 + ${d(u)}`;
+  else if (n < 100) w = `${n} = ${d(t)} × 十${u ? ` + ${d(u)}` : ''} → ${zh}`;
+  else if (n % 100 === 0) w = `${n} = ${d(h)} × 百 → ${zh}${h === 1 ? ' (con 一 delante)' : ''}`;
+  else w = `${n} = ${zh}`;
+  return page ? `Página = 第 + número + 页 · ${w}` : w;
+}
+// Conversación: por qué esa respuesta no encaja con la pregunta
+function replyWhy(Q, pickedZh, A) {
+  const X = Object.values(PHRASES).find(x => x.zh === pickedZh); if (!X) return '';
+  const has = c => X.zh.includes(c), q = c => Q.zh.includes(c), isQ = Q.zh.endsWith('？');
+  if (q('妈妈') && !q('爸爸') && /他(?!们)/.test(X.zh)) return '妈妈 es mujer: se dice 她 (ella), no 他';
+  if ((q('爸爸') || q('男朋友')) && !q('妈妈') && has('她')) return `${q('爸爸') ? '爸爸' : '男朋友'} es hombre: se dice 他 (él), no 她`;
+  if (q('爸爸') && q('妈妈') && !has('他们')) return 'Te preguntan por tus padres: se responde con 他们 (ellos)';
+  if (Q.id === 'mangNe' && has('也不')) return '也不 = tampoco: no encaja si el otro sí está ocupado';
+  if (Q.id === 'buMangNe' && has('也很')) return '也很忙 = yo también estoy ocupado: no encaja si el otro no lo está';
+  if (has('也') && isQ && !q('呢')) return '也 (también) solo encaja si el otro ya ha dicho lo mismo';
+  if (isQ && X.zh.endsWith('？')) {
+    if (A && A.zh.endsWith('？')) return `Primero contesta (${A.zh.split('，')[0]}) y luego ya puedes devolver la pregunta con 你呢？`;
+    if (q('呢')) return 'Te preguntan «¿y tú?»: contesta tú, no vuelvas a preguntar';
+    return 'Te han hecho una pregunta: toca responder, no preguntar';
+  }
+  return '';
+}
+// Para qué sirve cada palabra que puede faltar o ir mal colocada
+const WORD_RULE = { '吗': '吗 va al final: convierte la frase en pregunta de sí o no', '呢': '呢 va al final y devuelve la pregunta: ¿y tú…?',
+  '也': '也 (también) va justo después de quién', '很': '很 (muy) va justo delante de 好 / 忙', '都': '都 (todos) va después de 我们 / 他们',
+  '不': '不 (no) va justo delante de 好 / 忙 / 要', '要': '要 = querer', '喝': '喝 = beber', '忙': '忙 = ocupado', '好': '好 = bien',
+  '我': '我 = yo', '你': '你 = tú' };
+const memKey = a => !a ? null : a.pid ? 'p:' + a.pid : a.num != null ? `n:${a.page ? 'p' : ''}${a.num}` : vocabOf(a.chino) ? 'v:' + a.chino : null;
+// Memoria de cada palabra/frase (repetición espaciada en localStorage). Si no se puede guardar, todo sigue al azar.
+const Mem = (() => {
+  const KEY = 'mem:v1', IV = [0, 6e5, 864e5, 3 * 864e5, 7 * 864e5, 21 * 864e5];   // 0, 10 min, 1, 3, 7 y 21 días
+  let d = {}; try { d = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} };
+  return {
+    record(key, ok) {
+      if (!key) return;
+      const r = d[key] || (d[key] = { b: 0, due: 0, n: 0, miss: 0 });
+      r.n++; if (ok) r.b = Math.min(5, r.b + 1); else { r.b = 0; r.miss++; }
+      r.due = Date.now() + IV[r.b]; save();
+    },
+    // Lo que toca repasar pesa 6, lo nunca visto 3 y lo dominado cada vez menos
+    weight(key) { const r = d[key]; return !r ? 3 : r.due <= Date.now() ? 6 : 1 / (r.b + 1); },
+  };
+})();
+function wpick(list, keyFn) {
+  const w = list.map(x => Mem.weight(keyFn(x)));
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < list.length; i++) { r -= w[i]; if (r <= 0) return list[i]; }
+  return list[list.length - 1];
+}
+// Eco del error: lo que fallas vuelve 2-4 rondas después en otro tipo de ejercicio (sello 复)
+const Echo = {
+  q: [], n: 0, active: null,
+  push(ans, mode) {
+    const key = memKey(ans); if (!key || this.q.some(e => e.key === key)) return;
+    const kind = key.startsWith('n:p') ? 'np' : key[0];   // p. ej. 你好！ fallada en conversación no cabe en ningún otro modo
+    if (!ECHO_MODES[kind].some(m => m !== mode && MODES[m] && echoFits({ key, ans }, m))) return;
+    this.q.push({ key, ans, at: this.n + 2 + Math.floor(Math.random() * 3), notMode: mode });
+    if (this.q.length > 3) this.q.shift();
+  },
+  peek(kind) { const e = this.active; return e && !e.used && e.key[0] === kind ? e : null; },
+};
+
+/* =====================================================================
    VOZ (Web Speech API)
    ===================================================================== */
 const Speech = (() => {
   const ok = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  let voice = null, esVoice = null, loaded = false, unlocked = false, pending = null;
+  let voice = null, esVoice = null, loaded = false, unlocked = false, primed = false, pending = null;
   function load() {
     if (!ok) return; const vs = speechSynthesis.getVoices(); if (!vs.length) return; loaded = true;
-    const zh = vs.filter(v => /^(zh|cmn)/i.test(v.lang));
-    voice = zh.find(v => /zh[-_]CN/i.test(v.lang) && /Google|Xiaoxiao|Tingting|Ting-Ting|Yaoyao|Huihui|Lili/i.test(v.name))
-         || zh.find(v => /zh[-_]CN|cmn/i.test(v.lang)) || zh[0] || null;
+    const zh = vs.filter(v => /^(zh|cmn)/i.test(v.lang) && !/HK|yue|MO/i.test(v.lang) && !/Sin-?ji|Cantonese/i.test(v.name));
+    const cn = zh.filter(v => /zh[-_]CN|cmn/i.test(v.lang)), best = /Enhanced|Premium|Mejorad/i;
+    voice = cn.find(v => best.test(v.name)) || cn.find(v => /Google|Xiaoxiao|Tingting|Ting-Ting|Yaoyao|Huihui|Lili|Li-?Mu|Yu-?shu/i.test(v.name))
+         || cn[0] || zh[0] || null;   // zh-TW (Meijia) sigue siendo mandarín: solo como último recurso
     esVoice = vs.find(v => /es[-_]ES/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
   }
   if (ok) { load(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', load) : (speechSynthesis.onvoiceschanged = load); }
@@ -472,13 +629,14 @@ const Speech = (() => {
     const m = text.match(/^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)[，,]\s*(.+)$/);
     const parts = m ? [[m[1], 'es-ES', esVoice, .95], [m[2], 'zh-CN', voice, rate]] : [[text, 'zh-CN', voice, rate]];
     const us = parts.map(([t, lang, v, r]) => { const u = new SpeechSynthesisUtterance(t); u.lang = lang; if (v) u.voice = v; u.rate = r; return u; });
-    us[0].onstart = () => document.body.classList.add('speaking');
+    us[0].onstart = () => { primed = true; document.body.classList.add('speaking'); };
     us[us.length - 1].onend = us[us.length - 1].onerror = () => document.body.classList.remove('speaking');
     setTimeout(() => us.forEach(u => speechSynthesis.speak(u)), 40);
   }
   function unlock() {
-    if (unlocked) return; unlocked = true; if (!ok) return;
-    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {}
+    if (unlocked && primed) return; unlocked = true; if (!ok) return;
+    // Locución muda dentro del gesto: iOS solo deja hablar después de esto. Se reintenta en cada toque hasta que arranque.
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.onstart = u.onend = () => { primed = true; }; speechSynthesis.speak(u); } catch (e) {}
     load();
     if (pending) { const [t, r] = pending; pending = null; setTimeout(() => say(t, r), 150); }
   }
@@ -491,9 +649,11 @@ const Speech = (() => {
 const sfx = (() => {
   let ctx = null, out = null;
   function init() {
-    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+    if (ctx) { if (ctx.state !== 'running') ctx.resume().catch(() => {}); return; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     ctx = new AC(); out = ctx.createGain(); out.gain.value = 0.55;
+    // iOS: reanudar y sonar algo (1 muestra en silencio) dentro del propio gesto
+    try { ctx.resume(); const b = ctx.createBuffer(1, 1, ctx.sampleRate), src = ctx.createBufferSource(); src.buffer = b; src.connect(ctx.destination); src.start(0); } catch (e) {}
     const len = ctx.sampleRate * 1.6, ir = ctx.createBuffer(2, len, ctx.sampleRate);
     for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
     const verb = ctx.createConvolver(); verb.buffer = ir; const wet = ctx.createGain(); wet.gain.value = 0.28;
@@ -528,7 +688,7 @@ const sfx = (() => {
    RENDERER · ESCENA · POSTPROCESO
    ===================================================================== */
 const canvas = document.createElement('canvas'); canvas.id = 'gl'; document.body.prepend(canvas);
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });   // el MSAA lo hace el render target del composer
 const PR = Math.min(window.devicePixelRatio || 1, 2);
 renderer.setPixelRatio(PR);
 renderer.setSize(innerWidth, innerHeight);
@@ -1090,28 +1250,42 @@ const UI = {
   toast(ans) {
     const p = pick(PRAISE);
     $('#t-zh').textContent = p.zh; $('#t-py').textContent = p.py;
-    $('#t-sub').innerHTML = `<b>${ans.chino}</b><i>${ans.pinyin}</i><span>${ans.espanol}</span>`;
+    $('#t-sub').innerHTML = `<b>${ans.chino}</b><i>${pyHTML(ans.pinyin)}</i><span>${ans.espanol}</span>`;
     gsap.killTweensOf('#toast');
     gsap.fromTo('#toast', { opacity: 0, scale: .55, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: .55, ease: 'back.out(2.2)' });
     gsap.to('#toast', { opacity: 0, y: -26, scale: .96, duration: .35, delay: 1.05, ease: 'power2.in' });
   },
-  reveal(ans) {
+  // info: { picked: lo que tocaste, why: por qué no era eso }. Toque corto: seguir. Mantener: congelar para leer.
+  reveal(ans, info = {}) {
     return new Promise(res => {
       const el = $('#reveal'), c = $('#rv-char');
       c.textContent = ans.chino; c.classList.toggle('long', ans.chino.length > 1 && ans.chino.length <= 3); c.classList.toggle('xl', ans.chino.length > 3);
-      $('#rv-py').textContent = ans.pinyin; $('#rv-es').textContent = ans.espanol;
-      el.classList.add('on');
+      $('#rv-py').innerHTML = pyHTML(ans.pinyin); $('#rv-es').textContent = ans.espanol;
+      const was = info.picked ? `<span class="rv-was">Tocaste <s>${info.picked}</s></span>` : '';
+      $('#rv-why').innerHTML = was + (info.why || '');
+      const dur = info.why ? 4200 : 2800;
+      el.classList.remove('held'); el.classList.add('on');
       gsap.fromTo(el, { y: 0, yPercent: 140 }, { yPercent: 0, duration: .65, ease: 'expo.out' });
-      gsap.fromTo('#rv-bar', { scaleX: 1 }, { scaleX: 0, duration: 2.8, ease: 'none' });
-      let done = false;
+      gsap.fromTo('#rv-bar', { scaleX: 1 }, { scaleX: 0, duration: dur / 1000, ease: 'none' });
+      let done = false, hold = null;
       const finish = () => {
-        if (done) return; done = true; state.skip = null; clearTimeout(tm);
+        if (done) return; done = true; state.skip = null; clearTimeout(tm); clearTimeout(hold);
+        el.onpointerdown = el.onpointerup = el.onpointercancel = null;
         gsap.killTweensOf('#rv-bar');
-        gsap.to(el, { yPercent: 140, duration: .4, ease: 'power3.in', onComplete: () => el.classList.remove('on') });
+        gsap.to(el, { yPercent: 140, duration: .4, ease: 'power3.in', onComplete: () => el.classList.remove('on', 'held') });
         res();
       };
-      const tm = setTimeout(finish, 2800);
-      setTimeout(() => { if (!done) { state.skip = finish; el.onpointerdown = finish; } }, 600);
+      const tm = setTimeout(finish, dur);
+      const freeze = () => { clearTimeout(tm); gsap.getTweensOf('#rv-bar').forEach(t => t.pause()); el.classList.add('held'); };
+      const say = $('#rv-say');
+      say.onpointerdown = say.onpointerup = say.onpointercancel = e => e.stopPropagation();
+      say.onclick = e => { e.stopPropagation(); if (done) return; sfx.tap(); freeze(); Speech.say(ans.chino, .5); };
+      setTimeout(() => {
+        if (done) return;
+        state.skip = finish;
+        el.onpointerdown = e => { if (e.target.closest('#rv-say')) return; hold = setTimeout(freeze, 300); };
+        el.onpointerup = el.onpointercancel = e => { if (e.target.closest('#rv-say')) return; clearTimeout(hold); finish(); };
+      }, 600);
     });
   },
 };
@@ -1146,11 +1320,14 @@ function disposeRound(R) {
   world.remove(R.group);
 }
 
-async function resolve(ok, ans) {
+// info: { picked, why } para la tarjeta de fallo; noMem si la ronda ya ha guardado sus aciertos (Parejas)
+async function resolve(ok, ans, info = {}) {
   state.locked = true;
   const R = round;
+  if (!info.noMem) Mem.record(memKey(ans), ok);
+  if (!ok) Echo.push(ans, lastMode);
   if (ok) { sfx.correct(); haptic(14); flashBg(true); UI.toast(ans); await sleep(1300); }
-  else { sfx.wrong(); haptic([30, 50, 30]); flashBg(false); await sleep(550); Speech.say(ans.chino); await UI.reveal(ans); }
+  else { sfx.wrong(); haptic([30, 50, 30]); flashBg(false); await sleep(550); Speech.say(ans.chino, R && R.speakRate); await UI.reveal(ans, info); }
   if (round !== R || R.exiting) return;   // p. ej. se ha cambiado de tema mientras tanto
   await transitionOut();
   startRound();
@@ -1183,16 +1360,28 @@ const MODES = {
   meaning: { create: () => roundMeaning() },
   dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
   pairs:   { create: () => roundPairs(), w: 2 },
-  page:    { create: () => Math.random() < .5 ? roundNumbers(true) : roundPlaques(true) },
+  page:    { create: () => Math.random() < .5 ? roundNumbers({ page: true }) : roundPlaques(true) },
+  order:   { create: () => roundOrder(), w: 2 },
+  dictation: { create: () => { const e = Echo.peek('n'); return roundNumbers({ audio: true, page: e ? !!e.ans.page : Math.random() < .4 }); },
+               ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
 };
+// Qué modos pueden repasar cada tipo de fallo (v: palabra, p: frase, n: número, np: página)
+const ECHO_MODES = { v: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], p: ['dialog', 'order'], n: ['numbers', 'pyNum', 'dictation'], np: ['page', 'dictation'] };
+function echoFits(e, k) {
+  const kind = e.key.startsWith('n:p') ? 'np' : e.key[0];
+  if (!ECHO_MODES[kind].includes(k)) return false;
+  if (kind === 'v') return vocabPool().includes(vocabOf(e.ans.chino));
+  if (kind === 'p') { const P = PHRASES[e.ans.pid]; return topicPhrases().includes(P) && (k !== 'order' || orderWords(P).length >= 3); }
+  return true;
+}
 // Temas: qué tipo de ejercicio sale, siempre con todo el vocabulario de todas las lecciones. «Mezcla» es todo junto.
 const TOPICS = {
   mix:  { seal: '全', name: 'Mezcla', desc: 'Todos los ejercicios mezclados', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页) y parejas',
-          modes: ['numbers', 'pyNum', 'page', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
+  num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页), dictado y parejas',
+          modes: ['numbers', 'pyNum', 'page', 'dictation', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
   char: { seal: '字', name: 'Caracteres', desc: 'Carácter, pinyin, significado, audio y parejas',
           modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !isNumVocab(v), pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
-  talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar y traducir frases', modes: ['dialog'] },
+  talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar, ordenar y traducir frases', modes: ['dialog', 'order'] },
 };
 let topicKey = (() => {
   const q = new URLSearchParams(location.search).get('topic');
@@ -1206,8 +1395,25 @@ function startRound() {
   let keys = (TOPICS[topicKey].modes || Object.keys(MODES)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()));
   if (keys.some(k => k !== lastMode)) keys = keys.filter(k => k !== lastMode);   // nunca el mismo dos veces (si hay otro)
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
-  const k = MODES[forced] ? forced : pick(keys.flatMap(k => Array(MODES[k].w || 1).fill(k))); lastMode = k;
+  Echo.n++; Echo.active = null;
+  let k;
+  if (MODES[forced]) k = forced;
+  else {
+    // Si toca repasar un fallo, se elige un modo distinto del que falló que pueda preguntarlo.
+    // Se recorre toda la cola: un eco que no cabe en este tema no bloquea a los demás (y caduca a las 6 rondas).
+    Echo.q = Echo.q.filter(x => Echo.n <= x.at + 6);
+    let e = null, ek = [];
+    for (const x of Echo.q) {
+      if (x.at > Echo.n) continue;
+      ek = keys.filter(m => m !== x.notMode && echoFits(x, m));
+      if (ek.length) { e = x; break; }
+    }
+    if (e) { Echo.q.splice(Echo.q.indexOf(e), 1); Echo.active = e; k = pick(ek); }
+    else k = pick(keys.flatMap(k => Array(MODES[k].w || 1).fill(k)));
+  }
+  lastMode = k;
   round = MODES[k].create();
+  $('#review').classList.toggle('on', !!(Echo.active && Echo.active.used));
   const R = round;
   // continúa desde donde dejó la cámara la transición anterior (sin saltos)
   gsap.to(rig.rotation, { y: 0, x: 0, z: 0, duration: 1.5, ease: 'expo.out', overwrite: true });
@@ -1264,7 +1470,7 @@ function roundTiles(fromPinyin = false) {
       const ct = tiles.find(x => x.userData.item === target);
       gsap.to(ct.position, { z: 1.1, duration: .7, ease: 'back.out(2)' });
       glowFace(ct, 4); const halo = makeHalo(R, 0xffb050, 3.2, .6); halo.position.z = -.5; ct.userData.float.add(halo);
-      resolve(false, target);
+      resolve(false, target, { picked: item.chino, why: explainPick(target, item, fromPinyin ? 'py' : '') });
     }
   }
   return R;
@@ -1331,7 +1537,7 @@ function roundOrbit() {
       dropLantern(L, .25);
       gsap.to(correct.userData.paperMat, { emissiveIntensity: 4.5, duration: .35, yoyo: true, repeat: 3 });
       gsap.to(correct.scale, { x: ls * 1.3, y: ls * 1.3, z: ls * 1.3, duration: .6, ease: 'back.out(2)' });
-      resolve(false, ans);
+      resolve(false, ans, { picked: L.userData.py, why: explainPick(ans, { pinyin: L.userData.py }) });
     }
   }
   function dropLantern(o, delay) {
@@ -1346,12 +1552,20 @@ function roundOrbit() {
    MODO 3 · 数字 — Constructor de números 0-999
    --------------------------------------------------------------------- */
 // page: «Página 15» → 第十五页 (teclado con 第 y 页 en vez de 零 y 百)
-function roundNumbers(page = false) {
+// audio (听写 dictado): no se ve el número; la voz lo dicta despacio y se construye de oído
+function forcedNum(page) { const e = Echo.peek('n'); if (e && !!e.ans.page === page) { e.used = true; return e.ans.num; } return null; }
+const DICTATE_RATE = .6;   // el dictado va más despacio que el resto (y aún más al mantener pulsado el altavoz)
+function roundNumbers({ page = false, audio = false } = {}) {
   const R = newRound('numbers');
-  const n = page ? pageNum() : randNum();
+  const f = forcedNum(page), n = f != null ? f : page ? pageNum() : randNum();
   const seq = page ? [DI, ...numZh(n), YE] : numZh(n);
-  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)) };
-  if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
+  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
+  if (audio) {
+    UI.prompt({ seal: '听', chip: 'Dictado', title: page ? '¿Qué página oyes?' : '¿Qué número oyes?', long: true, sub: 'Constrúyelo con las fichas', speaker: true });
+    R.speakText = (Math.random() < .25 ? pick(NAMES) + '，' : '') + ans.chino; R.speakRate = DICTATE_RATE;
+    setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, DICTATE_RATE); }, 800);
+  }
+  else if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   else UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   const slotMat = [];
   const slots = seq.map(() => {
@@ -1391,11 +1605,13 @@ function roundNumbers(page = false) {
     keys.forEach(k => idleFloat(k, t, .45));
     slotMat.forEach((m, i) => { if (i === step && !state.locked) m.opacity = .55 + .45 * Math.sin(t * 5); else if (i > step) m.opacity = .45; });
   };
+  // En el dictado, al terminar (bien o mal) se muestra el número que se ha oído
+  const showNum = () => { if (!audio) return; const t = $('#title'); t.textContent = page ? `Página ${n}` : String(n); t.classList.remove('long'); t.classList.add('number'); $('#sub').textContent = ans.espanol; };
   function press(k) {
     if (state.locked) return;
-    const v = k.userData.item; Speech.say(v.chino, .85); sfx.tap();
+    const v = k.userData.item; if (!audio) Speech.say(v.chino, .85); sfx.tap();
     gsap.fromTo(k.userData.float.position, { z: -.3 }, { z: 0, duration: .5, ease: 'back.out(3)' });
-    if (v !== seq[step]) { state.locked = true; rejectTile(k); resolve(false, ans); return; }
+    if (v !== seq[step]) { state.locked = true; rejectTile(k); showNum(); resolve(false, ans, { picked: v.chino, why: numberWhy(n, page) }); return; }
     const sl = slots[step++], h = sl.userData.home, m = sl.userData.mat;
     const t = makeTile(v.chino, R); sl.userData.tile = t; R.group.add(t);
     t.position.copy(k.position); t.scale.setScalar(ks);
@@ -1409,8 +1625,9 @@ function roundNumbers(page = false) {
       .add(() => { sfx.place(); sparks.burst(t.getWorldPosition(new THREE.Vector3()), { count: 40, speed: [.8, 2.4], life: [.4, .8], size: [.03, .08] }); }, .58);
     if (step === seq.length) {
       state.locked = true;
+      showNum();
       setTimeout(() => {
-        Speech.say(ans.chino, .75);
+        Speech.say(ans.chino, audio ? DICTATE_RATE : .75);
         slots.forEach((s, i) => { const tt = s.userData.tile; glowFace(tt, 4); gsap.to(tt.position, { y: '+=.35', duration: .25, delay: i * .09, yoyo: true, repeat: 1, ease: 'sine.out' }); });
         keys.forEach((kk, i) => gsap.to(kk.position, { y: '-=6', duration: .9, delay: .1 + i * .025, ease: 'power2.in' }));
         celebrate(new THREE.Vector3(0, h.y + world.position.y, .5));
@@ -1469,7 +1686,7 @@ function roundListen() {
       gsap.to(L.position, { y: '-=7', duration: 1.6, delay: .3, ease: 'power2.in' });
       gsap.to(correct.position, { z: 1.2, duration: .6, ease: 'back.out(2)' });
       gsap.to(correct.userData.halo.material, { opacity: .9, duration: .35, yoyo: true, repeat: 3 });
-      resolve(false, target);
+      resolve(false, target, { picked: L.userData.item.chino, why: explainPick(target, L.userData.item, 'ear') });
     }
   }
   return R;
@@ -1534,7 +1751,7 @@ function roundMeaning() {
     } else {
       rejectTile(P);
       gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
-      resolve(false, target);
+      resolve(false, target, { picked: P.userData.item.espanol, why: explainPick(target, P.userData.item) });
     }
   }
   return R;
@@ -1544,23 +1761,46 @@ function roundMeaning() {
    MODO 7 · 对话 — Conversación: responder, completar la palabra, traducir
    --------------------------------------------------------------------- */
 function roundDialog() {
-  const sub = new URLSearchParams(location.search).get('sub') || pick(['reply', 'reply', 'blank', 'blank', 'meaning']);
+  const e = Echo.peek('p'), EP = e && PHRASES[e.ans.pid];
+  const sub = new URLSearchParams(location.search).get('sub')
+    || (EP ? (blankIdx(EP).length && Math.random() < .5 ? 'blank' : 'meaning') : pick(['reply', 'reply', 'blank', 'blank', 'meaning']));
   if (sub === 'blank') return dialogBlank();
   return dialogPlaques(sub === 'meaning');
 }
+// Elige frase: primero el eco 复 pendiente; si no, sorteo ponderado sin repetir las 4 últimas ni las que esperan eco
+const recentP = [];
+function pickPhrase(cands) {
+  const e = Echo.peek('p'), EP = e && PHRASES[e.ans.pid];
+  let P;
+  if (EP && cands.includes(EP)) { e.used = true; P = EP; }
+  else {
+    const pend = new Set(Echo.q.map(x => x.key));
+    let c = cands.filter(x => !recentP.includes(x.id) && !pend.has('p:' + x.id));
+    if (!c.length) c = cands.filter(x => !recentP.includes(x.id));
+    if (!c.length) c = cands;
+    P = wpick(c, x => 'p:' + x.id);
+  }
+  recentP.push(P.id); if (recentP.length > 4) recentP.shift();
+  return P;
+}
+// Huecos posibles: palabras con al menos 3 opciones incorrectas que no estén ya en la frase
+const blankWrong = (P, c) => (BLANK_WRONG[c] || []).filter(w => !P.t.some(x => x.c === w));
+const blankIdx = P => P.t.map((x, i) => i).filter(i => blankWrong(P, P.t[i].c).length >= 3);
 // Opciones en placas: respuesta correcta a una frase, o su traducción
 function dialogPlaques(meaning) {
   const R = newRound('dialog');
-  let correct, opts, ans;
+  let correct, opts, ans, Q = null, A = null;
   if (meaning) {
-    const pool = topicPhrases(), P = withName(pick(pool));
+    const pool = topicPhrases(), P = withName(pickPhrase(pool));
     correct = P.es; ans = phraseAns(P);
     opts = shuffle([P.es, ...shuffle(pool.filter(x => x.id !== P.id).map(x => x.es)).slice(0, 3)]);
     UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué significa?', long: true, sub: 'Elige la traducción correcta', speaker: true,
       chat: bubble('a', 'A', P.zh, P.py, '') });
     R.speakText = P.zh;
   } else {
-    const D = pick(REPLIES.filter(D => topicPhrases().includes(PHRASES[D.q]))), Q = withName(PHRASES[D.q]), A = PHRASES[pick(D.ok)];
+    const D = pick(REPLIES.filter(D => topicPhrases().includes(PHRASES[D.q])));
+    A = PHRASES[pick(D.ok)];
+    Q = withName(PHRASES[D.q]);
     correct = A.zh; ans = phraseAns(A);
     opts = shuffle([A.zh, ...shuffle(D.bad).slice(0, 3).map(k => PHRASES[k].zh)]);
     UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué contestas?', long: true, sub: 'Elige la respuesta lógica', speaker: true,
@@ -1603,7 +1843,8 @@ function dialogPlaques(meaning) {
     } else {
       rejectTile(P);
       gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
-      resolve(false, ans);
+      const X = meaning && Object.values(PHRASES).find(x => x.es === P.userData.val);
+      resolve(false, ans, { picked: P.userData.val, why: meaning ? (X ? `«${P.userData.val}» sería ${X.zh}` : '') : replyWhy(Q, P.userData.val, A) });
     }
   }
   return R;
@@ -1611,16 +1852,14 @@ function dialogPlaques(meaning) {
 // Frase con un hueco: tocar la ficha con el carácter que falta
 function dialogBlank() {
   const R = newRound('dialog');
-  // Huecos posibles: palabras con al menos 3 opciones incorrectas que no estén ya en la frase
-  const wrongFor = (P, c) => (BLANK_WRONG[c] || []).filter(w => !P.t.some(x => x.c === w));
-  const blanks = P => P.t.map((x, i) => i).filter(i => wrongFor(P, P.t[i].c).length >= 3);
-  const P = withName(pick(topicPhrases().filter(P => P.id !== 'nihao' && blanks(P).length)));
-  const gi = pick(blanks(P)), miss = P.t[gi], target = { chino: miss.c };
+  const cands = topicPhrases().filter(P => P.id !== 'nihao' && blankIdx(P).length);
+  const P = withName(pickPhrase(cands));
+  const gi = pick(blankIdx(P)), miss = P.t[gi], target = { chino: miss.c };
   const zhHtml = P.t.map((x, i) => i === gi ? '<span class="gap">？</span>' : x.c).join('');
   const pyHtml = P.t.reduce((acc, x, i) => { const v = i === gi ? '<span class="gap">&nbsp;?&nbsp;</span>' : x.p; return isPunct(x) ? acc + v : (acc ? acc + ' ' : '') + v; }, '');
   UI.prompt({ seal: '话', chip: 'Conversación', title: 'Completa la frase', long: true, sub: 'Toca el carácter que falta',
     chat: bubble('a', 'A', zhHtml, pyHtml, P.es) });
-  const opts = shuffle([target, ...shuffle(wrongFor(P, miss.c)).slice(0, 3).map(c => ({ chino: c }))]);
+  const opts = shuffle([target, ...shuffle(blankWrong(P, miss.c)).slice(0, 3).map(c => ({ chino: c }))]);
   const ans = phraseAns(P);
   const tiles = opts.map(o => { const t = makeTile(o.chino, R); t.userData.item = o; t.userData.onTap = () => choose(t); R.group.add(t); R.pick.push(t); return t; });
   let s = 1;
@@ -1655,7 +1894,120 @@ function dialogBlank() {
       const ct = tiles.find(x => x.userData.item === target);
       gsap.to(ct.position, { z: 1.1, duration: .7, ease: 'back.out(2)' }); glowFace(ct, 4);
       setTimeout(fill, 500);
-      resolve(false, ans);
+      const c = tile.userData.item.chino;
+      resolve(false, ans, { picked: c, why: hintFor(c, miss.c) || WORD_RULE[miss.c] || '' });
+    }
+  }
+  return R;
+}
+
+/* ---------------------------------------------------------------------
+   MODO 9 · 句 — Constructor de frases: ordenar las fichas de una frase de clase
+   --------------------------------------------------------------------- */
+const orderWords = P => P.t.filter(x => !isPunct(x));
+// Fichas trampa: palabras de clase que no están en la frase (la frase pedida está en español, así que no hay ambigüedad)
+const ORDER_TRAPS = ['吗', '呢', '也', '都', '不', '很', '要', '喝', '忙', '好', '我', '你', '他', '她'];
+function orderWhy(c, expected, seq) {
+  if (!seq.includes(c)) return `Sobra ${c}: no está en la frase`;
+  if (WORD_RULE[expected] && /很|也|都|不|吗|呢/.test(expected)) return WORD_RULE[expected];
+  if (WORD_RULE[c] && /很|也|都|不|吗|呢/.test(c)) return WORD_RULE[c];
+  if (expected === seq[0]) {
+    if (expected === '好' && seq.length > 1) return `好 («vale») abre la frase, seguido de coma; después va quién: ${seq[1]}`;
+    const OWN = { '我': 'mi', '你': 'tu' }, N = OWN[expected] && ['爸爸', '妈妈', '男朋友'].includes(seq[1]) && vocabOf(seq[1]);
+    if (N) return `Primero va de quién se habla: ${expected}${seq[1]} = ${OWN[expected]} ${lowerFirst(N.espanol)}`;
+    if (/^[我你他她]们?$/.test(expected)) return 'Primero va quién (el sujeto)';
+  }
+  return `Orden: ${seq.join(' ')}`;
+}
+function roundOrder() {
+  const R = newRound('order');
+  const cands = topicPhrases().filter(P => orderWords(P).length >= 3), P = pickPhrase(cands);
+  const seq = orderWords(P).map(x => x.c), ans = phraseAns(P);
+  // Órdenes válidos: el de la frase y, si hay «A、B» (爸爸、妈妈), también «B、A»
+  const valid = [seq], ti = P.t.findIndex(x => x.c === '、');
+  if (ti > 0) { const w = orderWords({ t: P.t.slice(0, ti) }).length - 1, alt = seq.slice(); [alt[w], alt[w + 1]] = [alt[w + 1], alt[w]]; valid.push(alt); }
+  const audio = Speech.ok && Speech.unlocked && !Speech.knownNoZh() && Math.random() < .25;   // variante difícil: solo de oído
+  const sounds = new Set(seq.map(w => vocabOf(w) && vocabOf(w).pinyin).filter(Boolean));
+  const trap = pick(ORDER_TRAPS.filter(c => !seq.includes(c) && !(audio && sounds.has(vocabOf(c) && vocabOf(c).pinyin))));   // de oído, 他/她 suenan igual
+  if (audio) {
+    UI.prompt({ seal: '句', chip: 'Ordena la frase', title: '¿Qué has oído?', long: true, sub: 'Ordena las fichas · toca el altavoz para repetir', speaker: true });
+    R.speakText = P.zh; R.speakRate = .7;
+    setTimeout(() => { if (round === R && !R.exiting) Speech.say(P.zh, .7); }, 800);
+  } else UI.prompt({ seal: '句', chip: 'Ordena la frase', title: P.es, long: true, sub: 'Toca las fichas en orden' });
+  const slotMat = [];
+  const slots = seq.map(() => {
+    const m = new THREE.MeshBasicMaterial({ map: slotTex(), transparent: true, depthWrite: false, color: new THREE.Color(1.5, 1.15, .7) });
+    R.disposables.push(m); slotMat.push(m);
+    const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); R.group.add(g); return g;
+  });
+  const keys = shuffle([...seq, trap]).map(c => { const k = makeTile(c, R); k.userData.c = c; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const placed = [];
+  let ks = .8, ss = 1;
+  const cols = keys.length <= 4 ? keys.length : Math.ceil(keys.length / 2);
+  R.layout = () => {
+    const A = area(), rows = Math.ceil(keys.length / cols);
+    ks = Math.min(.95, (A.w * .9) / (cols * TILE.w + (cols - 1) * .2));
+    const rowY = r => A.bottom + TILE.h * ks * (rows - r - .5) + .15 + (rows - r - 1) * .2;
+    const freeTop = A.top, freeBot = rowY(0) + TILE.h * ks * .5 + .3;
+    ss = Math.min(1.05, (A.w * .9) / (seq.length * TILE.w + (seq.length - 1) * .2), (freeTop - freeBot) / TILE.h * .9);
+    const sy = (freeTop + freeBot) / 2;
+    slots.forEach((sl, i) => { sl.userData.home = new THREE.Vector3((i - (seq.length - 1) / 2) * (TILE.w + .2) * ss, sy, 0); sl.position.copy(sl.userData.home); sl.scale.setScalar(ss); });
+    keys.forEach((k, i) => {
+      const r = Math.floor(i / cols), c = i % cols, inRow = Math.min(cols, keys.length - r * cols);
+      k.userData.home = new THREE.Vector3((c - (inRow - 1) / 2) * (TILE.w + .2) * ks, rowY(r), 0);
+      if (k.userData.slot != null && k.userData.placed) { k.position.copy(slots[k.userData.slot].userData.home); k.scale.setScalar(ss); }
+      else if (k.userData.entered && k.userData.slot == null) { k.position.copy(k.userData.home); k.scale.setScalar(ks); }
+    });
+  };
+  R.layout();
+  slots.forEach((sl, i) => gsap.fromTo(sl.scale, { x: 0, y: 0, z: 0 }, { x: ss, y: ss, z: ss, duration: .8, delay: .2 + i * .08, ease: 'back.out(2)' }));
+  keys.forEach((k, i) => {
+    const h = k.userData.home, d = .1 + i * .05; k.scale.setScalar(ks);
+    k.position.set(h.x, h.y - 5, -3); k.rotation.set(-Math.PI * 1.5, 0, rand(-.4, .4));
+    gsap.to(k.position, { y: h.y, z: 0, duration: 1.1, delay: d, ease: 'expo.out', onComplete: () => k.userData.entered = true });
+    gsap.to(k.rotation, { x: 0, z: 0, duration: 1.2, delay: d, ease: 'expo.out' });
+  });
+  R.update = t => {
+    keys.forEach(k => { if (k.userData.slot == null) idleFloat(k, t, .45); });
+    slotMat.forEach((m, i) => { if (i === placed.length && !state.locked) m.opacity = .55 + .45 * Math.sin(t * 5); else if (i > placed.length) m.opacity = .45; });
+  };
+  function press(k) {
+    if (state.locked || k.userData.slot != null) return;
+    const c = k.userData.c, next = [...placed, c]; sfx.tap();
+    const okSeq = valid.find(v => next.every((x, i) => v[i] === x));
+    if (!okSeq) {
+      state.locked = true; rejectTile(k);
+      const exp = (valid.find(v => placed.every((x, i) => v[i] === x)) || seq)[placed.length];
+      const ek = keys.find(x => x.userData.slot == null && x.userData.c === exp);
+      if (ek) { gsap.to(ek.position, { z: 1.1, duration: .7, ease: 'back.out(2)' }); glowFace(ek, 4); }
+      resolve(false, ans, { picked: c, why: orderWhy(c, exp, seq) });
+      return;
+    }
+    if (!audio) Speech.say(c, .85);
+    const i = placed.length; placed.push(c); k.userData.slot = i; R.pick.splice(R.pick.indexOf(k), 1);
+    const h = slots[i].userData.home;
+    gsap.killTweensOf(k.position); gsap.killTweensOf(k.scale);
+    gsap.to(k.userData.float.position, { y: 0, z: 0, duration: .3 }); gsap.to(k.userData.float.rotation, { x: 0, y: 0, duration: .3 });
+    gsap.timeline({ onComplete: () => k.userData.placed = true })
+      .to(k.position, { x: h.x, y: h.y, duration: .6, ease: 'power3.inOut' }, 0)
+      .to(k.position, { z: 1.4, duration: .3, ease: 'sine.out' }, 0)
+      .to(k.position, { z: 0, duration: .3, ease: 'sine.in' }, .3)
+      .to(k.scale, { x: ss, y: ss, z: ss, duration: .6, ease: 'power3.inOut' }, 0)
+      .fromTo(k.rotation, { x: -TAU }, { x: 0, duration: .6, ease: 'power3.out' }, 0)
+      .to(slotMat[i], { opacity: 0, duration: .2 }, .45)
+      .add(() => { sfx.place(); sparks.burst(k.getWorldPosition(new THREE.Vector3()), { count: 40, speed: [.8, 2.4], life: [.4, .8], size: [.03, .08] }); }, .58);
+    if (placed.length === seq.length) {
+      state.locked = true;
+      setTimeout(() => {
+        Speech.say(P.zh, .8);
+        $('#chat').innerHTML = bubble('b', 'Tú', P.zh, P.py, audio ? P.es : '');
+        gsap.fromTo('#chat .bub', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .5, ease: 'expo.out' });
+        keys.filter(x => x.userData.slot != null).sort((a, b) => a.userData.slot - b.userData.slot)
+          .forEach((x, j) => { glowFace(x, 4); gsap.to(x.position, { y: '+=.35', duration: .25, delay: j * .09, yoyo: true, repeat: 1, ease: 'sine.out' }); });
+        keys.filter(x => x.userData.slot == null).forEach(x => gsap.to(x.position, { y: '-=6', duration: .9, ease: 'power2.in' }));
+        celebrate(new THREE.Vector3(0, h.y + world.position.y, .5));
+        resolve(true, ans);
+      }, 680);
     }
   }
   return R;
@@ -1666,8 +2018,8 @@ function dialogBlank() {
    --------------------------------------------------------------------- */
 function roundPlaques(page = false) {
   const R = newRound('pyNum');
-  const n = page ? pageNum() : randNum(), seq = page ? [DI, ...numZh(n), YE] : numZh(n);
-  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)) };
+  const f = forcedNum(page), n = f != null ? f : page ? pageNum() : randNum(), seq = page ? [DI, ...numZh(n), YE] : numZh(n);
+  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
   if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: '¿Cómo se dice «página» en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
   else UI.prompt({ seal: '拼', chip: 'Pinyin de números', title: String(n), number: true, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
   const plaques = (page ? pagePinyinOptions(n) : numberPinyinOptions(n)).map(o => { const P = makePlaque(o, R); P.userData.py = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
@@ -1702,7 +2054,10 @@ function roundPlaques(page = false) {
     } else {
       rejectTile(P);
       gsap.to(correct.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(correct, 2.5);
-      resolve(false, ans);
+      const py = P.userData.py;
+      const why = plain(py) === plain(ans.pinyin) ? toneWhy(py, ans.pinyin)
+        : page && !/^dì .+ yè$/.test(py) ? 'Las páginas empiezan por 第 (dì) y acaban en 页 (yè)' : numberWhy(n, page);
+      resolve(false, ans, { picked: py, why });
     }
   }
   return R;
@@ -1793,7 +2148,8 @@ function roundPairs() {
   const R = newRound('pairs');
   const sub = new URLSearchParams(location.search).get('sub');
   const allowed = TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES);
-  const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : pick(allowed);
+  const vocabTypes = allowed.filter(t => t !== 'mix' && PAIR_TYPES[t][0] !== 'num');   // un repaso 复 de palabra necesita parejas de vocabulario
+  const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : Echo.peek('v') && vocabTypes.length ? pick(vocabTypes) : pick(allowed);
   const pairs = pairSet(type, allowed.filter(k => k !== 'mix'));
   UI.prompt({ seal: '配', chip: 'Parejas', title: 'Une las parejas', long: true, sub: type === 'mix' ? 'Mezcla de todo' : PAIR_TYPES[type][2] });
   const mk = (p, i, side) => {
@@ -1839,7 +2195,7 @@ function roundPairs() {
       return;
     }
     // Pareja correcta: se juntan en el centro, chispas y desaparecen
-    const ans = C.userData.ans; left--;
+    const ans = C.userData.ans; left--; Mem.record(memKey(ans), true);
     [a, C].forEach(x => { x.userData.matched = true; R.pick.splice(R.pick.indexOf(x), 1); gsap.killTweensOf(x.position); gsap.killTweensOf(x.rotation); glowFace(x, 2.5); });
     Speech.say(ans.chino, .85); haptic(10);
     const mid = a.position.clone().add(C.position).multiplyScalar(.5); mid.z = .8;
@@ -1853,7 +2209,7 @@ function roundPairs() {
     if (!left) {
       state.locked = true;
       setTimeout(() => { if (!R.exiting) celebrate(new THREE.Vector3(0, area().cy + world.position.y, .5)); }, 900);
-      setTimeout(() => resolve(true, ans), 700);
+      setTimeout(() => resolve(true, ans, { noMem: true }), 700);
     }
   }
   return R;
@@ -1865,13 +2221,19 @@ function roundPairs() {
 const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), pointer = { x: 0, y: 0 };
 function ripple(x, y) { const d = document.createElement('div'); d.className = 'ripple'; d.style.left = x + 'px'; d.style.top = y + 'px'; document.body.appendChild(d); setTimeout(() => d.remove(), 600); }
 
-window.addEventListener('pointerdown', () => {
-  Speech.unlock(); sfx.init();
-  const h = $('#hint'); if (h && !h.dataset.gone) { h.dataset.gone = 1; gsap.to(h, { opacity: 0, y: 10, duration: .4, onComplete: () => h.remove() }); }
-}, { capture: true });
+// En iOS, pointerdown/touchstart no cuentan como gesto para el audio: se desbloquea al soltar el dedo (y con ratón, al pulsar)
+const unlockAll = () => { Speech.unlock(); sfx.init(); };
+['pointerup', 'touchend', 'click', 'keydown'].forEach(t => window.addEventListener(t, unlockAll, { capture: true }));
+window.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') unlockAll(); }, { capture: true });
+// Al bloquear el móvil o cambiar de app: se calla la voz y se congelan las animaciones; al volver, el audio se reanuda
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { try { speechSynthesis.cancel(); } catch (e) {} gsap.globalTimeline.pause(); }
+  else { gsap.globalTimeline.resume(); sfx.init(); }
+});
+let lastOrient = 0, touchTilt = false;
 
 canvas.addEventListener('pointerdown', e => {
-  ripple(e.clientX, e.clientY);
+  ripple(e.clientX, e.clientY); touchTilt = e.pointerType !== 'mouse';
   pointer.x = e.clientX / innerWidth * 2 - 1; pointer.y = -(e.clientY / innerHeight * 2 - 1);
   if (state.skip) { state.skip(); return; }
   if (state.locked || !round || round.exiting) return;
@@ -1883,14 +2245,27 @@ canvas.addEventListener('pointerdown', e => {
 });
 window.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { pointer.x = e.clientX / innerWidth * 2 - 1; pointer.y = -(e.clientY / innerHeight * 2 - 1); } });
 window.addEventListener('deviceorientation', e => {
-  if (e.gamma == null) return;
+  if (e.gamma == null) return; lastOrient = performance.now();
   pointer.x = THREE.MathUtils.clamp(e.gamma / 30, -1, 1); pointer.y = THREE.MathUtils.clamp((e.beta - 45) / 30, -1, 1);
 });
-$('#speak').addEventListener('click', e => {
-  e.stopPropagation();
-  if (!round || round.exiting) return;
+// Toque: repetir. Mantener pulsado medio segundo: repetir despacio
+function holdToSlow(el, onTap) {
+  let tm = null, held = false;
+  el.addEventListener('pointerdown', e => {
+    e.stopPropagation(); held = false; clearTimeout(tm);
+    tm = setTimeout(() => {
+      held = true; if (!round || round.exiting || !round.speakText) return;
+      sfx.tap(); Speech.say(round.speakText, Math.max(.42, (round.speakRate || .78) * .6));
+      gsap.fromTo(el, { scale: .86 }, { scale: 1, duration: .5, ease: 'back.out(3)', clearProps: 'transform' });
+    }, 450);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => el.addEventListener(t, () => clearTimeout(tm)));
+  el.addEventListener('click', e => { e.stopPropagation(); if (held) { held = false; return; } if (round && !round.exiting) onTap(); });
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+holdToSlow($('#speak'), () => {
   if (round.mode === 'orbit') round.group.children[0].userData.onTap();
-  else if (round.speakText) { sfx.tap(); Speech.say(round.speakText); }
+  else if (round.speakText) { sfx.tap(); Speech.say(round.speakText, round.speakRate); }
 });
 
 // Selector de temas
@@ -1908,7 +2283,7 @@ function openTopics(open) {
 function setTopic(k) {
   openTopics(false);
   if (k === topicKey) return;
-  topicKey = k; paintTopicBtn(); lastMode = null; recent.length = 0;
+  topicKey = k; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
   try { localStorage.setItem('topic', k); } catch (e) {}
   if (!round || round.exiting) return;
   const R = round;
@@ -1944,16 +2319,14 @@ function placeCoinTag() {
   const c = round.coin; c.getWorldPosition(_tagV); _tagV.x += c.scale.x * .72; _tagV.y -= c.scale.y * .72; _tagV.project(camera);
   tagEl.style.left = (_tagV.x + 1) / 2 * innerWidth + 'px'; tagEl.style.top = (1 - _tagV.y) / 2 * innerHeight + 'px';
 }
-tagEl.addEventListener('click', e => {
-  e.stopPropagation();
-  if (round && round.coin && !round.exiting) round.coin.userData.onTap();
-});
+holdToSlow(tagEl, () => { if (round.coin) round.coin.userData.onTap(); });
 const clock = new THREE.Clock();
 function frame() {
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), 1 / 20), t = clock.elapsedTime;
   U.time.value = t; bgMat.uniforms.uTime.value = t;
   const k = Math.min(1, dt * 2.5);
+  if (touchTilt && performance.now() - lastOrient > 1000) { const d = Math.max(0, 1 - dt * 1.2); pointer.x *= d; pointer.y *= d; }
   world.rotation.y += (pointer.x * .12 - world.rotation.y) * k;
   world.rotation.x += (-pointer.y * .07 - world.rotation.x) * k;
   if (round && !round.exiting) round.update(t, dt);
@@ -1967,7 +2340,7 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + Object.values(PHRASES).map(P => P.zh).join('') + '福对很好太棒了真汉字音数听拼对话义配全页哥弟！？，。、';
+  const zh = VOCAB.map(v => v.chino).join('') + Object.values(PHRASES).map(P => P.zh).join('') + '福对很好太棒了真汉字音数听拼对话义配全页哥弟开始复句写！？，。、';
   const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü0123456789';
   try {
     await Promise.race([
@@ -1991,8 +2364,16 @@ async function loadFonts() {
   renderer.compile(scene, camera);
   tmp.forEach(o => scene.remove(o)); warm.disposables.forEach(m => m.dispose());
   rig.rotation.set(rand(-.1, .05), (Math.random() < .5 ? -1 : 1) * .32, 0); rig.position.z = 3;
-  gsap.to('#loader', { opacity: 0, duration: .7, ease: 'power2.out', onComplete: () => $('#loader').remove() });
+  // Sello 开始: ese primer toque desbloquea la voz y los sonidos (listener global en captura), así la 1.ª ronda ya puede ser de escucha
+  const L = $('#loader'), seal = L.querySelector('.seal');
+  seal.textContent = '开始'; L.querySelector('p').textContent = 'Toca para empezar'; L.classList.add('ready');
+  gsap.fromTo(seal, { scale: .6, rotate: -8 }, { scale: 1, rotate: 0, duration: .7, ease: 'back.out(2.4)' });
+  await new Promise(res => L.addEventListener('pointerup', e => { ripple(e.clientX, e.clientY); res(); }, { once: true }));
+  sfx.place();
+  gsap.to(seal, { scale: 1.25, duration: .35, ease: 'back.in(2)' });
+  gsap.to(L, { opacity: 0, duration: .55, delay: .15, ease: 'power2.out', onComplete: () => L.remove() });
   startRound();
+  if (!round.speakText) Speech.say('你好！', .85);   // si la ronda habla, el saludo la cortaría
   // Sube a la GPU las texturas de todos los caracteres en ratos libres, para que ninguna ronda nueva tartamudee
   const queue = VOCAB.flatMap(v => [() => tileFaceTex(v.chino), () => inkTex(v.chino), () => labelTex(v.pinyin)]);
   const idle = window.requestIdleCallback || (f => setTimeout(f, 150));
