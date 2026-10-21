@@ -139,6 +139,30 @@
   .ripple{position:fixed;z-index:8;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;
     border:2px solid rgba(255,214,140,.9);box-shadow:0 0 14px rgba(255,180,80,.6);animation:rip .55s cubic-bezier(.2,.7,.3,1) forwards}
   @keyframes rip{to{transform:scale(7);opacity:0;border-width:.5px}}
+
+  /* ---------- Temas ---------- */
+  .hud-row{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}
+  #topic-btn{pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;border-radius:999px;
+    font:600 13px var(--sans);color:#fff1d2;white-space:nowrap;
+    background:linear-gradient(180deg,rgba(243,197,107,.30),rgba(150,70,20,.28));border:1px solid rgba(255,214,140,.5);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,240,210,.2),0 8px 20px -10px rgba(0,0,0,.8)}
+  #topic-btn:active{transform:scale(.95)}
+  #topic-btn svg{opacity:.8}
+  @media (max-width:370px){#topic-name{display:none}}
+  #topics{position:fixed;inset:0;z-index:15;display:none;align-items:flex-end;justify-content:center;
+    background:rgba(12,1,3,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  #topics.on{display:flex}
+  .sheet{width:min(520px,100%);margin:0 12px calc(var(--safe-b) + 12px);padding:18px 14px 14px;border-radius:30px;
+    background:linear-gradient(180deg,rgba(80,12,16,.92),rgba(26,3,7,.96));border:1px solid var(--hair);
+    box-shadow:inset 0 1px 0 rgba(255,220,200,.12),0 -10px 60px -20px rgba(0,0,0,.8)}
+  .sheet h2{margin:0 6px 12px;font:600 11.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,215,160,.75)}
+  .topic{display:flex;align-items:center;gap:14px;width:100%;margin-top:8px;padding:11px 14px;border-radius:20px;text-align:left;cursor:pointer;
+    background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14);color:#fff;font-family:var(--sans)}
+  .topic:active{transform:scale(.98)}
+  .topic.on{background:linear-gradient(180deg,rgba(243,197,107,.24),rgba(190,110,40,.16));border-color:rgba(255,214,140,.55)}
+  .topic .seal{flex:none;width:40px;height:40px;border-radius:12px;font-size:22px}
+  .topic b{display:block;font-size:16px;font-weight:600;color:#fff1d2}
+  .topic span{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:rgba(255,226,192,.65)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="importmap">
@@ -151,7 +175,11 @@
 <body>
 
 <header id="hud">
-  <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span></div>
+  <div class="hud-row">
+    <button id="topic-btn" aria-label="Elegir tema"><span id="topic-seal" class="seal">全</span><span id="topic-name">Mezcla</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span></div>
+  </div>
   <div id="card">
     <div id="card-in"><div id="title" class="title">&nbsp;</div><div id="sub" class="sub">&nbsp;</div><div id="meta" class="meta"></div><div id="chat" class="chat"></div></div>
     <button id="speak" aria-label="Escuchar otra vez">
@@ -175,6 +203,7 @@
 </div>
 
 <button id="coin-tag" aria-label="Escuchar el carácter"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 5 6.5 9H3.5v6h3l4.5 4V5z"/><path d="M15.5 8.8a4.6 4.6 0 0 1 0 6.4M18.4 5.9a8.8 8.8 0 0 1 0 12.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+<div id="topics"><div class="sheet"><h2>¿Qué quieres practicar?</h2><div id="topic-list"></div></div></div>
 <div id="hint">🔊 Toca la pantalla para activar el sonido</div>
 <div id="loader"><div><div class="seal">汉</div><p>加载中</p></div></div>
 
@@ -202,42 +231,116 @@ const VOCAB = [
   { espanol: "Madera", chino: "木", pinyin: "mù" }, { espanol: "Bosque", chino: "林", pinyin: "lín" },
   { espanol: "Mujer", chino: "女", pinyin: "nǚ" }, { espanol: "Fuego", chino: "火", pinyin: "huǒ" },
   { espanol: "Persona", chino: "人", pinyin: "rén" },
-  { espanol: "Cero", chino: "零", pinyin: "líng" }, { espanol: "Cien", chino: "百", pinyin: "bǎi" }
+  { espanol: "Cero", chino: "零", pinyin: "líng" }, { espanol: "Cien", chino: "百", pinyin: "bǎi" },
+  { espanol: "Yo", chino: "我", pinyin: "wǒ" }, { espanol: "Tú", chino: "你", pinyin: "nǐ" },
+  { espanol: "Bien, bueno", chino: "好", pinyin: "hǎo" }, { espanol: "Muy", chino: "很", pinyin: "hěn" },
+  // Lección 2 (l: 2): 你忙吗 · 你要咖啡吗 · caracteres básicos · número de página
+  { espanol: "Ocupado", chino: "忙", pinyin: "máng", l: 2 }, { espanol: "Partícula ¿sí o no?", chino: "吗", pinyin: "ma", l: 2 },
+  { espanol: "Partícula ¿y…?", chino: "呢", pinyin: "ne", l: 2 }, { espanol: "No", chino: "不", pinyin: "bù", l: 2 },
+  { espanol: "Padre", chino: "爸爸", pinyin: "bàba", l: 2 }, { espanol: "Madre", chino: "妈妈", pinyin: "māma", l: 2 },
+  { espanol: "Hermano mayor", chino: "哥哥", pinyin: "gēge", l: 2 }, { espanol: "Hermano menor", chino: "弟弟", pinyin: "dìdi", l: 2 },
+  { espanol: "Él", chino: "他", pinyin: "tā", l: 2 }, { espanol: "Ella", chino: "她", pinyin: "tā", l: 2 },
+  { espanol: "Ellos", chino: "他们", pinyin: "tāmen", l: 2 }, { espanol: "Ellas", chino: "她们", pinyin: "tāmen", l: 2 },
+  { espanol: "Nosotros", chino: "我们", pinyin: "wǒmen", l: 2 }, { espanol: "Vosotros", chino: "你们", pinyin: "nǐmen", l: 2 },
+  { espanol: "Todos, ambos", chino: "都", pinyin: "dōu", l: 2 }, { espanol: "Varón", chino: "男", pinyin: "nán", l: 2 },
+  { espanol: "Amigo", chino: "朋友", pinyin: "péngyou", l: 2 }, { espanol: "Novio", chino: "男朋友", pinyin: "nánpéngyou", l: 2 },
+  { espanol: "Querer", chino: "要", pinyin: "yào", l: 2 }, { espanol: "Beber", chino: "喝", pinyin: "hē", l: 2 },
+  { espanol: "Café", chino: "咖啡", pinyin: "kāfēi", l: 2 },
+  { espanol: "Clavo", chino: "丁", pinyin: "dīng", l: 2 }, { espanol: "Cuchillo", chino: "刀", pinyin: "dāo", l: 2 },
+  { espanol: "Otra vez", chino: "又", pinyin: "yòu", l: 2 }, { espanol: "Grande", chino: "大", pinyin: "dà", l: 2 },
+  { espanol: "Boca", chino: "口", pinyin: "kǒu", l: 2 }, { espanol: "Tierra", chino: "土", pinyin: "tǔ", l: 2 },
+  { espanol: "Monja budista", chino: "尼", pinyin: "ní", l: 2 }, { espanol: "Poder", chino: "可", pinyin: "kě", l: 2 },
+  { espanol: "Ordinal (第…)", chino: "第", pinyin: "dì", l: 2 }, { espanol: "Página", chino: "页", pinyin: "yè", l: 2 },
 ];
 const NUMS = VOCAB.slice(0, 10);
 const ZERO = VOCAB.find(v => v.chino === '零'), BAI = VOCAB.find(v => v.chino === '百');
-// Caracteres que se confunden a simple vista: distractores más interesantes
-const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火','力'], '八':['人','六'], '力':['九','也'],
-  '九':['力'], '女':['也','马'], '一':['二','三'], '二':['三','一'], '三':['二','一'], '十':['七'], '七':['十'], '火':['人','木'] };
+const DI = VOCAB.find(v => v.chino === '第'), YE = VOCAB.find(v => v.chino === '页');
+const isNumVocab = v => NUMS.includes(v) || [ZERO, BAI, DI, YE].includes(v);
+// Caracteres que se confunden a simple vista (o que se oyen parecido): distractores más interesantes
+const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火','力','大'], '八':['人','六'], '力':['九','也','刀'],
+  '九':['力','刀'], '女':['也','马','她'], '一':['二','三'], '二':['三','一'], '三':['二','一'], '十':['七','土'], '七':['十'], '火':['人','木'],
+  '他':['她','你'], '她':['他','女','妈妈'], '他们':['她们','我们','你们'], '她们':['他们','我们'], '我们':['你们','他们'], '你们':['我们','他们'],
+  '哥哥':['弟弟','爸爸'], '弟弟':['哥哥','第'], '爸爸':['妈妈','哥哥'], '妈妈':['爸爸','她','吗'], '刀':['力','九','又'], '又':['刀','力'],
+  '大':['人','六','不'], '土':['十','丁'], '丁':['可','十'], '可':['丁','口','喝'], '口':['可','喝'], '不':['大','木'], '吗':['妈妈','马','呢'],
+  '呢':['尼','吗'], '尼':['呢','你'], '喝':['可','口'], '男':['力','女'], '朋友':['男朋友'], '男朋友':['朋友','男'], '第':['弟弟','页'],
+  '页':['第','也'], '也':['页'], '你':['他','尼'], '很':['都'], '都':['很'] };
 // Frases de conversación, como tokens [carácter, pinyin] para poder dejar huecos
 const T = (c, p) => ({ c, p });
 const PHRASES = {
+  // Lección 1
   nihao: { t: [T('你','Nǐ'), T('好','hǎo'), T('！','!')], es: '¡Hola!' },
-  ma:    { t: [T('你','Nǐ'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal? ¿Cómo estás?' },
+  ma:    { t: [T('你','Nǐ'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal? ¿Cómo estás?', voc: true },
   ne:    { t: [T('我','Wǒ'), T('很','hěn'), T('好','hǎo'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy bien, ¿y tú?' },
   ye:    { t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Yo también estoy bien.' },
   bu:    { t: [T('我','Wǒ'), T('不','bù'), T('好','hǎo'), T('。','.')], es: 'No estoy bien.' },
+  // Lección 2 · 你忙吗
+  mangQ:    { l: 2, voc: true, t: [T('你','Nǐ'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Estás ocupado?' },
+  henMang:  { l: 2, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Estoy muy ocupado.' },
+  buMang:   { l: 2, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'No estoy ocupado.' },
+  yeMang:   { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Yo también estoy muy ocupado.' },
+  yeBuMang: { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Yo tampoco estoy ocupado.' },
+  mangNe:   { l: 2, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy muy ocupado, ¿y tú?' },
+  buMangNe: { l: 2, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'No estoy ocupado, ¿y tú?' },
+  fumuQ:    { l: 2, t: [T('你','Nǐ'), T('爸爸','bàba'), T('、',','), T('妈妈','māma'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal tus padres?' },
+  tamenHao: { l: 2, t: [T('他们','Tāmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Están todos bien.' },
+  womenHao: { l: 2, t: [T('我们','Wǒmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Todos estamos bien.' },
+  babaQ:    { l: 2, t: [T('你','Nǐ'), T('爸爸','bàba'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu padre está ocupado?' },
+  mamaQ:    { l: 2, t: [T('你','Nǐ'), T('妈妈','māma'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu madre está ocupada?' },
+  babaMang: { l: 2, t: [T('我','Wǒ'), T('爸爸','bàba'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi padre está muy ocupado.' },
+  mamaMang: { l: 2, t: [T('我','Wǒ'), T('妈妈','māma'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi madre está muy ocupada.' },
+  taMang:   { l: 2, t: [T('他','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Él está muy ocupado.' },
+  taBuMang: { l: 2, t: [T('他','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Él no está ocupado.' },
+  ta2Mang:  { l: 2, t: [T('她','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Ella está muy ocupada.' },
+  ta2BuMang:{ l: 2, t: [T('她','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Ella no está ocupada.' },
+  npyNe:    { l: 2, t: [T('你','Nǐ'), T('男朋友','nánpéngyou'), T('呢','ne'), T('？','?')], es: '¿Y tu novio?' },
+  // Lección 2 · 你要咖啡吗
+  yaoQ:     { l: 2, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres café?' },
+  heQ:      { l: 2, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres beber café?' },
+  yao:      { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero café.' },
+  yaoHe:    { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero beber café.' },
+  yeYao:    { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Yo también quiero café.' },
+  douHe:    { l: 2, t: [T('好','Hǎo'), T('，',','), T('我们','wǒmen'), T('都','dōu'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Vale, todos bebemos café.' },
 };
-const isPunct = tok => /[！？，。]/.test(tok.c);
+const isPunct = tok => /[！？，。、]/.test(tok.c);
 for (const k in PHRASES) {
-  const P = PHRASES[k]; P.id = k;
+  const P = PHRASES[k]; P.id = k; P.l = P.l || 1;
   P.zh = P.t.map(x => x.c).join('');
   P.py = P.t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, '');
 }
-const WORDS = [['我','wǒ'],['你','nǐ'],['很','hěn'],['好','hǎo'],['吗','ma'],['呢','ne'],['也','yě'],['不','bù']].map(([c, p]) => ({ chino: c, pinyin: p }));
-// Qué respuestas encajan con cada frase (y cuáles no pueden salir como distractor por ser también válidas)
+// Qué respuestas encajan con cada frase (ok) y cuáles son claramente incorrectas (bad).
+// Las dudosas no van en ninguna lista: así nunca hay dos opciones correctas.
 const REPLIES = [
-  { q: 'nihao', ok: ['nihao'], bad: ['ye', 'bu', 'ne', 'ma'] },
-  { q: 'ma', ok: ['ne', 'bu'], bad: ['ma', 'ye', 'nihao'] },
-  { q: 'ne', ok: ['ye', 'bu'], bad: ['ma', 'ne', 'nihao'] },
+  { q: 'nihao', ok: ['nihao'], bad: ['ye', 'bu', 'ne', 'ma', 'henMang', 'yao'] },
+  { q: 'ma', ok: ['ne', 'bu'], bad: ['ma', 'ye', 'nihao', 'yao', 'tamenHao', 'yeMang'] },
+  { q: 'ne', ok: ['ye', 'bu'], bad: ['ma', 'ne', 'nihao', 'yaoQ', 'tamenHao'] },
+  { q: 'mangQ', ok: ['henMang', 'buMang', 'mangNe', 'buMangNe'], bad: ['yeMang', 'yeBuMang', 'ye', 'nihao', 'yao', 'tamenHao', 'mangQ'] },
+  { q: 'mangNe', ok: ['yeMang', 'buMang'], bad: ['yeBuMang', 'mangQ', 'nihao', 'yao', 'ma', 'ta2Mang'] },
+  { q: 'buMangNe', ok: ['yeBuMang', 'henMang'], bad: ['yeMang', 'mangQ', 'nihao', 'yao', 'ma'] },
+  { q: 'fumuQ', ok: ['tamenHao'], bad: ['ye', 'bu', 'ne', 'womenHao', 'yao', 'nihao'] },
+  { q: 'babaQ', ok: ['taMang', 'taBuMang', 'babaMang'], bad: ['ta2Mang', 'ta2BuMang', 'mamaMang', 'yeMang', 'yao'] },
+  { q: 'mamaQ', ok: ['ta2Mang', 'ta2BuMang', 'mamaMang'], bad: ['taMang', 'taBuMang', 'babaMang', 'yeMang', 'yao'] },
+  { q: 'npyNe', ok: ['taMang', 'taBuMang'], bad: ['ta2Mang', 'ta2BuMang', 'yeMang', 'mamaMang', 'nihao'] },
+  { q: 'yaoQ', ok: ['yao'], bad: ['yeYao', 'ma', 'henMang', 'tamenHao', 'nihao', 'yaoQ'] },
+  { q: 'heQ', ok: ['yaoHe'], bad: ['yeYao', 'ma', 'buMang', 'nihao', 'tamenHao'] },
+  { q: 'yao', ok: ['yeYao'], bad: ['yaoQ', 'mangQ', 'ye', 'nihao', 'fumuQ'] },
 ];
-// Compañeros de clase: a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
+// Completar la frase: para cada palabra que puede faltar, opciones que NUNCA forman una frase correcta
+// (por eso 很 no tiene 不/也/都 ni 也 tiene 们: 我不忙, 我都好 o 我们很好 también serían válidas)
+const BLANK_WRONG = {
+  '吗': ['也', '很', '都', '们'], '呢': ['吗', '很', '都', '们'], '也': ['吗', '呢', '喝', '男'],
+  '很': ['吗', '呢', '们', '男'], '都': ['吗', '呢', '们', '忙'], '不': ['吗', '呢', '男', '口'],
+  '忙': ['吗', '呢', '们', '都'], '好': ['吗', '呢', '们', '都'], '要': ['吗', '呢', '忙', '大'],
+  '喝': ['吗', '呢', '们', '忙', '都'], '我': ['吗', '呢', '们', '忙'], '你': ['吗', '呢', '们', '忙'],
+};
+// Compañeros de clase (y 哥哥/弟弟): a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
 const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea', 'Irati', 'Mikel', 'Cristina'];
+const KIN = [{ c: '哥哥', p: 'Gēge', es: 'Hermano' }, { c: '弟弟', p: 'Dìdi', es: 'Hermanito' }];
 function withName(P) {
-  if (P.id !== 'ma' || Math.random() < .25) return P;
-  const n = pick(NAMES), t = [T(n + '，', n + ','), ...P.t.map((x, i) => i === 0 ? T(x.c, x.p.toLowerCase()) : x)];
-  return { ...P, t, zh: t.map(x => x.c).join(''),
-    py: t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, ''), es: `${n}, ¿qué tal?` };
+  if (!P.voc || Math.random() < .25) return P;
+  const k = Math.random() < .25 ? pick(KIN) : (n => ({ c: n, p: n, es: n }))(pick(NAMES));
+  const t = [T(k.c + '，', k.p + ','), ...P.t.map((x, i) => i === 0 ? T(x.c, x.p.toLowerCase()) : x)];
+  const es = P.id === 'ma' ? `${k.es}, ¿qué tal?` : `${k.es}, ${P.es.replace(/^([¿¡]?)(.)/, (m, a, c) => a + c.toLowerCase())}`;
+  return { ...P, t, zh: t.map(x => x.c).join(''), py: t.reduce((acc, x) => isPunct(x) ? acc + x.p : (acc ? acc + ' ' : '') + x.p, ''), es };
 }
 const phraseAns = P => ({ chino: P.zh, pinyin: P.py, espanol: P.es });
 function bubble(cls, who, zh, py, es) {
@@ -264,17 +367,20 @@ function pickTarget(pool) {
   const t = pick(c); recent.push(t.chino); if (recent.length > 6) recent.shift();
   return t;
 }
-function charDistractors(target, n) {
-  const out = shuffle((CONFUSABLE[target.chino] || []).map(c => VOCAB.find(v => v.chino === c))).slice(0, 2);
-  for (const v of shuffle(VOCAB)) { if (out.length >= n) break; if (v !== target && !out.includes(v)) out.push(v); }
+// samePy: false cuando la opción se elige por el sonido o el pinyin (他/她 suenan igual: no pueden salir juntos)
+function charDistractors(target, n, samePy = true, pool = vocabPool()) {
+  const okV = v => v && v !== target && pool.includes(v) && (samePy || v.pinyin !== target.pinyin);
+  const out = shuffle((CONFUSABLE[target.chino] || []).map(c => VOCAB.find(v => v.chino === c)).filter(okV)).slice(0, 2);
+  for (const v of shuffle(pool)) { if (out.length >= n) break; if (okV(v) && !out.includes(v) && (samePy || !out.some(o => o.pinyin === v.pinyin))) out.push(v); }
   return out;
 }
 // Distractores cuyo pinyin se parece (misma inicial o misma última letra): obliga a leer el pinyin entero
 const plain = p => p.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-function pinyinDistractors(target, n) {
-  const t = plain(target.pinyin);
-  const out = shuffle(VOCAB.filter(v => v !== target && (plain(v.pinyin)[0] === t[0] || plain(v.pinyin).slice(-1) === t.slice(-1)))).slice(0, 2);
-  for (const v of shuffle(VOCAB)) { if (out.length >= n) break; if (v !== target && !out.includes(v)) out.push(v); }
+function pinyinDistractors(target, n, pool = vocabPool()) {
+  const t = plain(target.pinyin), okV = v => v !== target && v.pinyin !== target.pinyin;
+  const out = [], add = (v, max) => { if (out.length < max && okV(v) && !out.includes(v) && !out.some(o => o.pinyin === v.pinyin)) out.push(v); };
+  shuffle(pool.filter(v => plain(v.pinyin)[0] === t[0] || plain(v.pinyin).slice(-1) === t.slice(-1))).forEach(v => add(v, 2));
+  shuffle(pool).forEach(v => add(v, n));
   return out;
 }
 // Pinyin de números con errores típicos: tono cambiado, cifras al revés, "yī shí" sobrante, cifra vecina
@@ -305,6 +411,7 @@ function toneVariants(p) {
 function pinyinOptions(target) {
   const set = new Set([target.pinyin]);
   shuffle(toneVariants(target.pinyin)).slice(0, Math.random() < .5 ? 1 : 2).forEach(v => set.add(v));
+  for (const o of shuffle(vocabPool())) { if (set.size >= 4) break; set.add(o.pinyin); }
   for (const o of shuffle(VOCAB)) { if (set.size >= 4) break; set.add(o.pinyin); }
   return shuffle([...set]);
 }
@@ -332,6 +439,14 @@ function numZh(n) {
   return s;
 }
 // De momento: 0-100 y centenas redondas (100, 200 … 900). numZh ya sabe hacer 0-999.
+// Páginas 1-99: 第十五页 dì shí wǔ yè
+const pageNum = () => 1 + Math.floor(Math.random() * 99);
+function pagePinyinOptions(n) {
+  const num = numZh(n).map(v => v.pinyin).join(' '), ok = `dì ${num} yè`;
+  const others = numberPinyinOptions(n).filter(o => o !== num).map(o => `dì ${o} yè`);
+  const errs = shuffle([`${num} yè`, `dì ${num} yě`, `dí ${num} yè`, `dì ${num}`]).slice(0, 2);   // sin 第, 也 por 页, tono, sin 页
+  return shuffle([ok, ...shuffle([...new Set([...errs, ...others])]).slice(0, 3)]);
+}
 const NUM_OK = m => m >= 0 && (m <= 100 || (m < 1000 && m % 100 === 0));
 const randNum = () => Math.random() < .25 ? (1 + Math.floor(Math.random() * 9)) * 100 : Math.floor(Math.random() * 101);
 
@@ -1036,7 +1151,7 @@ async function resolve(ok, ans) {
   const R = round;
   if (ok) { sfx.correct(); haptic(14); flashBg(true); UI.toast(ans); await sleep(1300); }
   else { sfx.wrong(); haptic([30, 50, 30]); flashBg(false); await sleep(550); Speech.say(ans.chino); await UI.reveal(ans); }
-  if (round !== R) return;
+  if (round !== R || R.exiting) return;   // p. ej. se ha cambiado de tema mientras tanto
   await transitionOut();
   startRound();
 }
@@ -1068,9 +1183,30 @@ const MODES = {
   meaning: { create: () => roundMeaning() },
   dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
   pairs:   { create: () => roundPairs(), w: 2 },
+  page:    { create: () => Math.random() < .5 ? roundNumbers(true) : roundPlaques(true) },
 };
+// Temas: qué modos salen y con qué vocabulario/frases. «Mezcla» es todo junto (como siempre).
+const TOPICS = {
+  mix:  { seal: '全', name: 'Mezcla', desc: 'Todos los ejercicios mezclados', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
+  new:  { seal: '新', name: 'Lección 2', desc: 'Solo lo nuevo: 你忙吗, 你要咖啡吗, 丁刀又大口土尼可 y 第…页',
+          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'dialog', 'page'], vocab: v => v.l === 2, phrases: P => P.l === 2, pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
+  num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页) y parejas',
+          modes: ['numbers', 'pyNum', 'page', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
+  char: { seal: '字', name: 'Caracteres', desc: 'Carácter, pinyin, significado, audio y parejas',
+          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !isNumVocab(v), pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
+  talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar y traducir frases', modes: ['dialog'] },
+};
+let topicKey = (() => {
+  const q = new URLSearchParams(location.search).get('topic');
+  if (TOPICS[q]) return q;
+  try { const s = localStorage.getItem('topic'); if (TOPICS[s]) return s; } catch (e) {}
+  return 'mix';
+})();
+function vocabPool() { const f = TOPICS[topicKey].vocab; return f ? VOCAB.filter(f) : VOCAB; }
+function topicPhrases() { const f = TOPICS[topicKey].phrases, all = Object.values(PHRASES); return f ? all.filter(f) : all; }
 function startRound() {
-  const keys = Object.keys(MODES).filter(k => k !== lastMode && (!MODES[k].ok || MODES[k].ok()));
+  let keys = (TOPICS[topicKey].modes || Object.keys(MODES)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()));
+  if (keys.some(k => k !== lastMode)) keys = keys.filter(k => k !== lastMode);   // nunca el mismo dos veces (si hay otro)
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
   const k = MODES[forced] ? forced : pick(keys.flatMap(k => Array(MODES[k].w || 1).fill(k))); lastMode = k;
   round = MODES[k].create();
@@ -1086,7 +1222,7 @@ function startRound() {
    --------------------------------------------------------------------- */
 function roundTiles(fromPinyin = false) {
   const R = newRound(fromPinyin ? 'pyChar' : 'tiles');
-  const target = pickTarget(VOCAB);
+  const target = pickTarget(vocabPool());
   const opts = shuffle([target, ...(fromPinyin ? pinyinDistractors(target, 3) : charDistractors(target, 3))]);
   if (fromPinyin) UI.prompt({ seal: '拼', chip: 'Pinyin → carácter', title: target.pinyin, sub: '¿Qué carácter se pronuncia así?' });
   else UI.prompt({ seal: '字', chip: 'Elige el carácter', title: target.espanol, sub: '¿Qué carácter significa esto?' });
@@ -1141,7 +1277,7 @@ function roundTiles(fromPinyin = false) {
    --------------------------------------------------------------------- */
 function roundOrbit() {
   const R = newRound('orbit');
-  const target = pickTarget(VOCAB);
+  const target = pickTarget(vocabPool());
   const opts = pinyinOptions(target);
   UI.prompt({ seal: '音', chip: 'Pinyin', title: '¿Cómo se pronuncia?', long: true, sub: 'Toca la linterna con el pinyin correcto', meta: `Significa <b>${target.espanol}</b>` });
   UI.coinTag(true);
@@ -1211,19 +1347,21 @@ function roundOrbit() {
 /* ---------------------------------------------------------------------
    MODO 3 · 数字 — Constructor de números 0-999
    --------------------------------------------------------------------- */
-function roundNumbers() {
+// page: «Página 15» → 第十五页 (teclado con 第 y 页 en vez de 零 y 百)
+function roundNumbers(page = false) {
   const R = newRound('numbers');
-  const n = randNum();
-  const seq = numZh(n);
-  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap(numES(n)) };
-  UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
+  const n = page ? pageNum() : randNum();
+  const seq = page ? [DI, ...numZh(n), YE] : numZh(n);
+  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)) };
+  if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
+  else UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   const slotMat = [];
   const slots = seq.map(() => {
     const m = new THREE.MeshBasicMaterial({ map: slotTex(), transparent: true, depthWrite: false, color: new THREE.Color(1.5, 1.15, .7) });
     R.disposables.push(m); slotMat.push(m);
     const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); g.userData.mat = m; R.group.add(g); return g;
   });
-  const keys = shuffle([...NUMS, ZERO, BAI]).map(v => { const k = makeTile(v.chino, R); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const keys = shuffle([...NUMS, ...(page ? [DI, YE] : [ZERO, BAI])]).map(v => { const k = makeTile(v.chino, R); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
   let ks = .74, ss = 1, step = 0;
   R.layout = () => {
     const A = area();
@@ -1290,8 +1428,8 @@ function roundNumbers() {
    --------------------------------------------------------------------- */
 function roundListen() {
   const R = newRound('listen');
-  const target = pickTarget(VOCAB);
-  const opts = shuffle([target, ...charDistractors(target, 3)]);
+  const target = pickTarget(vocabPool());
+  const opts = shuffle([target, ...charDistractors(target, 3, false)]);   // 他/她 suenan igual: nunca juntos
   UI.prompt({ seal: '听', chip: 'Escucha', title: '¿Qué has oído?', sub: 'Toca el altavoz para repetir', speaker: true });
   R.speakText = target.chino;
   setTimeout(() => { if (round === R && !R.exiting) Speech.say(target.chino); }, 800);
@@ -1344,7 +1482,7 @@ function roundListen() {
    --------------------------------------------------------------------- */
 function roundMeaning() {
   const R = newRound('meaning');
-  const target = pickTarget(VOCAB);
+  const target = pickTarget(vocabPool());
   // distractores visualmente parecidos (木 → Bosque/Fuego/Persona): hay que leer el carácter con atención
   const opts = shuffle([target, ...charDistractors(target, 3)]);
   UI.prompt({ seal: '义', chip: 'Significado', title: '¿Qué significa?', long: true, sub: 'Elige la traducción correcta', speaker: true });
@@ -1417,14 +1555,14 @@ function dialogPlaques(meaning) {
   const R = newRound('dialog');
   let correct, opts, ans;
   if (meaning) {
-    const P = withName(pick(Object.values(PHRASES)));
+    const pool = topicPhrases(), P = withName(pick(pool));
     correct = P.es; ans = phraseAns(P);
-    opts = shuffle([P.es, ...shuffle(Object.values(PHRASES).filter(x => x.id !== P.id).map(x => x.es)).slice(0, 3)]);
+    opts = shuffle([P.es, ...shuffle(pool.filter(x => x.id !== P.id).map(x => x.es)).slice(0, 3)]);
     UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué significa?', long: true, sub: 'Elige la traducción correcta', speaker: true,
       chat: bubble('a', 'A', P.zh, P.py, '') });
     R.speakText = P.zh;
   } else {
-    const D = pick(REPLIES), Q = withName(PHRASES[D.q]), A = PHRASES[pick(D.ok)];
+    const D = pick(REPLIES.filter(D => topicPhrases().includes(PHRASES[D.q]))), Q = withName(PHRASES[D.q]), A = PHRASES[pick(D.ok)];
     correct = A.zh; ans = phraseAns(A);
     opts = shuffle([A.zh, ...shuffle(D.bad).slice(0, 3).map(k => PHRASES[k].zh)]);
     UI.prompt({ seal: '话', chip: 'Conversación', title: '¿Qué contestas?', long: true, sub: 'Elige la respuesta lógica', speaker: true,
@@ -1475,14 +1613,16 @@ function dialogPlaques(meaning) {
 // Frase con un hueco: tocar la ficha con el carácter que falta
 function dialogBlank() {
   const R = newRound('dialog');
-  const P = withName(PHRASES[pick(['ma', 'ma', 'ne', 'ne', 'ye', 'ye', 'bu'])]);
-  const idxs = P.t.map((x, i) => i).filter(i => !isPunct(P.t[i]));
-  const gi = pick(idxs), miss = P.t[gi], target = WORDS.find(w => w.chino === miss.c);
+  // Huecos posibles: palabras con al menos 3 opciones incorrectas que no estén ya en la frase
+  const wrongFor = (P, c) => (BLANK_WRONG[c] || []).filter(w => !P.t.some(x => x.c === w));
+  const blanks = P => P.t.map((x, i) => i).filter(i => wrongFor(P, P.t[i].c).length >= 3);
+  const P = withName(pick(topicPhrases().filter(P => P.id !== 'nihao' && blanks(P).length)));
+  const gi = pick(blanks(P)), miss = P.t[gi], target = { chino: miss.c };
   const zhHtml = P.t.map((x, i) => i === gi ? '<span class="gap">？</span>' : x.c).join('');
   const pyHtml = P.t.reduce((acc, x, i) => { const v = i === gi ? '<span class="gap">&nbsp;?&nbsp;</span>' : x.p; return isPunct(x) ? acc + v : (acc ? acc + ' ' : '') + v; }, '');
   UI.prompt({ seal: '话', chip: 'Conversación', title: 'Completa la frase', long: true, sub: 'Toca el carácter que falta',
     chat: bubble('a', 'A', zhHtml, pyHtml, P.es) });
-  const opts = shuffle([target, ...shuffle(WORDS.filter(w => w !== target && !P.t.some(x => x.c === w.chino))).slice(0, 3)]);
+  const opts = shuffle([target, ...shuffle(wrongFor(P, miss.c)).slice(0, 3).map(c => ({ chino: c }))]);
   const ans = phraseAns(P);
   const tiles = opts.map(o => { const t = makeTile(o.chino, R); t.userData.item = o; t.userData.onTap = () => choose(t); R.group.add(t); R.pick.push(t); return t; });
   let s = 1;
@@ -1526,12 +1666,13 @@ function dialogBlank() {
 /* ---------------------------------------------------------------------
    MODO 6 · 拼 — Pinyin de números (número → pinyin)
    --------------------------------------------------------------------- */
-function roundPlaques() {
+function roundPlaques(page = false) {
   const R = newRound('pyNum');
-  const n = randNum(), seq = numZh(n);
-  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap(numES(n)) };
-  UI.prompt({ seal: '拼', chip: 'Pinyin de números', title: String(n), number: true, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
-  const plaques = numberPinyinOptions(n).map(o => { const P = makePlaque(o, R); P.userData.py = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
+  const n = page ? pageNum() : randNum(), seq = page ? [DI, ...numZh(n), YE] : numZh(n);
+  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)) };
+  if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: '¿Cómo se dice «página» en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
+  else UI.prompt({ seal: '拼', chip: 'Pinyin de números', title: String(n), number: true, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
+  const plaques = (page ? pagePinyinOptions(n) : numberPinyinOptions(n)).map(o => { const P = makePlaque(o, R); P.userData.py = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
   let s = 1;
   R.layout = () => {
     const A = area(); s = Math.min(1.15, (A.w * .9) / PLQ.w, A.h / (4 * (PLQ.h + .3)));
@@ -1628,33 +1769,34 @@ function numberSet(k) {
   while (out.length < k) { const m = randNum(); if (!out.includes(m)) out.push(m); }
   return shuffle(out).map(numItem);
 }
-function pairSet(sub) {
+function pairSet(sub, types = Object.keys(PAIR_TYPES)) {
   if (sub !== 'mix') {
     const [l, r] = PAIR_TYPES[sub];
     let items;
     if (l === 'num') items = numberSet(4);
-    else { const t = pickTarget(VOCAB); items = [t, ...(r === 'py' ? pinyinDistractors(t, 3) : charDistractors(t, 3))]; }
+    else { const t = pickTarget(vocabPool()); items = [t, ...(r === 'py' || l === 'py' ? pinyinDistractors(t, 3) : charDistractors(t, 3))]; }
     return items.map(ans => ({ ans, l, r }));
   }
   // Mezcla: cada pareja de un tipo; conceptos distintos (por carácter) y ningún texto repetido, así nunca hay dos parejas válidas
   for (let tries = 0; tries < 40; tries++) {
     const out = [], zhs = new Set(), txt = new Set();
-    for (const type of shuffle(Object.keys(PAIR_TYPES).concat(Object.keys(PAIR_TYPES))).slice(0, 4)) {
+    for (const type of shuffle(types.concat(types, types, types)).slice(0, 4)) {
       const [l, r] = PAIR_TYPES[type];
-      const ans = l === 'num' ? numItem(randNum()) : pick(VOCAB);
+      const ans = l === 'num' ? numItem(randNum()) : pick(vocabPool());
       const a = cardText(ans, l), b = cardText(ans, r);
-      if (zhs.has(ans.chino) || txt.has(a) || txt.has(b)) break;
+      if (zhs.has(ans.chino) || txt.has(a) || txt.has(b) || out.some(o => o.ans.pinyin === ans.pinyin)) break;
       zhs.add(ans.chino); txt.add(a); txt.add(b); out.push({ ans, l, r });
     }
     if (out.length === 4) return out;
   }
-  return pairSet('zhEs');
+  return pairSet(types.includes('zhEs') ? 'zhEs' : types[0]);
 }
 function roundPairs() {
   const R = newRound('pairs');
   const sub = new URLSearchParams(location.search).get('sub');
-  const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : pick(['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix']);
-  const pairs = pairSet(type);
+  const allowed = TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES);
+  const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : pick(allowed);
+  const pairs = pairSet(type, allowed.filter(k => k !== 'mix'));
   UI.prompt({ seal: '配', chip: 'Parejas', title: 'Une las parejas', long: true, sub: type === 'mix' ? 'Mezcla de todo' : PAIR_TYPES[type][2] });
   const mk = (p, i, side) => {
     const kind = side ? p.r : p.l, C = makeCard(cardText(p.ans, kind), kind, !side, R);
@@ -1753,6 +1895,35 @@ $('#speak').addEventListener('click', e => {
   else if (round.speakText) { sfx.tap(); Speech.say(round.speakText); }
 });
 
+// Selector de temas
+function paintTopicBtn() { $('#topic-seal').textContent = TOPICS[topicKey].seal; $('#topic-name').textContent = TOPICS[topicKey].name; }
+function openTopics(open) {
+  const el = $('#topics');
+  if (open) {
+    $('#topic-list').innerHTML = Object.entries(TOPICS).map(([k, t]) =>
+      `<button class="topic${k === topicKey ? ' on' : ''}" data-k="${k}"><span class="seal">${t.seal}</span><div><b>${t.name}</b><span>${t.desc}</span></div></button>`).join('');
+    el.classList.add('on');
+    gsap.fromTo('#topics .sheet', { yPercent: 110 }, { yPercent: 0, duration: .5, ease: 'expo.out' });
+    gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: .25 });
+  } else gsap.to('#topics .sheet', { yPercent: 110, duration: .3, ease: 'power3.in', onComplete: () => el.classList.remove('on') });
+}
+function setTopic(k) {
+  openTopics(false);
+  if (k === topicKey) return;
+  topicKey = k; paintTopicBtn(); lastMode = null; recent.length = 0;
+  try { localStorage.setItem('topic', k); } catch (e) {}
+  if (!round || round.exiting) return;
+  const R = round;
+  transitionOut().then(() => { if (round === R) startRound(); });
+  if (state.skip) state.skip();   // cierra la tarjeta de respuesta si estaba abierta
+}
+$('#topic-btn').addEventListener('click', e => { e.stopPropagation(); sfx.tap(); openTopics(true); });
+$('#topics').addEventListener('click', e => {
+  const b = e.target.closest('.topic');
+  if (b) setTopic(b.dataset.k); else if (e.target.id === 'topics') openTopics(false);
+});
+paintTopicBtn();
+
 function resize() {
   const w = innerWidth, h = innerHeight, aspect = w / h;
   renderer.setSize(w, h); composer.setSize(w, h);
@@ -1798,7 +1969,7 @@ function frame() {
    ARRANQUE
    ===================================================================== */
 async function loadFonts() {
-  const zh = VOCAB.map(v => v.chino).join('') + '福对很好太棒了真汉字音数听拼对话我你吗呢不义配！？，。';
+  const zh = VOCAB.map(v => v.chino).join('') + Object.values(PHRASES).map(P => P.zh).join('') + '福对很好太棒了真汉字音数听拼对话义配全新页哥弟！？，。、';
   const py = VOCAB.map(v => v.pinyin).join('') + 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü0123456789';
   try {
     await Promise.race([
