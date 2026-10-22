@@ -1655,7 +1655,7 @@ function roundNumbers({ page = false, audio = false } = {}) {
     R.speakText = ans.chino; R.speakRate = DICTATE_RATE;   // solo el número: sin nombres que distraigan
     setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, DICTATE_RATE); }, 800);
   }
-  else if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
+  else if (page) UI.prompt({ seal: '页', chip: 'Página', title: `Página ${n}`, sub: `${ans.espanol} · constrúyelo en chino` });
   else UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   const slotMat = [];
   const slots = seq.map(() => {
