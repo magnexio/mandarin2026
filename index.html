@@ -79,7 +79,7 @@
   .rv-body{display:flex;align-items:center;gap:18px;margin-top:10px}
   .rv-char{flex:none;min-width:88px;height:88px;padding:0 14px;border-radius:22px;display:grid;place-items:center;
     font-family:var(--zh);font-weight:900;font-size:58px;line-height:1;color:#7d0f14;
-    background:linear-gradient(180deg,#fbf3df,#e8dbbb);box-shadow:inset 0 -6px 0 #0d6a4c,inset 0 1px 0 #fff,0 10px 24px -10px rgba(0,0,0,.8)}
+    background:linear-gradient(180deg,#fbf3df,#e8dbbb);box-shadow:inset 0 -6px 0 #1b4f9c,inset 0 1px 0 #fff,0 10px 24px -10px rgba(0,0,0,.8)}
   .rv-char.long{font-size:40px}
   .rv-char.xl{font-size:26px;height:auto;min-height:88px;max-width:58%;padding:10px 14px;line-height:1.25}
   .rv-txt{min-width:0}
@@ -1060,11 +1060,12 @@ function flashBg(ok) {
   gsap.fromTo(bgMat.uniforms.uFlash, { value: ok ? 1 : .8 }, { value: 0, duration: 1.3, ease: 'power2.out' });
 }
 const _v = new THREE.Vector3();
+const OK_SPARKS = ['#eafff1', '#9dffc0', '#4fe48a'];   // acierto: verde y blanco, a juego con el halo
 function celebrate(obj, opts = {}) {
   const p = obj.isVector3 ? obj.clone() : obj.getWorldPosition(_v).clone();
-  sparks.burst(p, { count: 190, ...opts });
-  sparks.burst(p, { count: 70, speed: [.4, 1.6], life: [1.4, 2.4], size: [.03, .07], grav: .5, palette: ['#ffe9b0', '#ffd27a'] });
-  shockwave(p);
+  sparks.burst(p, { count: 190, ...opts, palette: OK_SPARKS });
+  sparks.burst(p, { count: 70, speed: [.4, 1.6], life: [1.4, 2.4], size: [.03, .07], grav: .5, palette: ['#f2fff6', '#b6ffd0'] });
+  shockwave(p, [.6, 2.2, 1]);
   gsap.fromTo(camera.position, { x: rand(-.08, .08), y: rand(-.06, .06) }, { x: 0, y: 0, duration: .5, ease: 'elastic.out(1,.3)' });
 }
 
@@ -1096,7 +1097,7 @@ function tileAssets() {
     jade: SH(new RoundedBoxGeometry(TILE.w * .995, TILE.h * .995, .34, 6, .15)),
     face: SH(new THREE.PlaneGeometry(TILE.w * .82, TILE.h * .86)),
     ivoryMat: new THREE.MeshPhysicalMaterial({ color: 0xf3ead2, roughness: .34, clearcoat: .8, clearcoatRoughness: .2, envMapIntensity: .7 }),
-    jadeMat: new THREE.MeshPhysicalMaterial({ color: 0x0c6549, roughness: .2, clearcoat: 1, clearcoatRoughness: .08, envMapIntensity: 1.3 }),
+    jadeMat: new THREE.MeshPhysicalMaterial({ color: 0x1b4f9c, roughness: .2, clearcoat: 1, clearcoatRoughness: .08, envMapIntensity: 1.3 }),
   };
 }
 function makeTile(ch, R, py = '') {
@@ -1122,18 +1123,23 @@ function makeHalo(R, color = 0xffa040, size = 2.4, opacity = .5) {
   const m = new THREE.SpriteMaterial({ map: glowTex(), color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
   R.disposables.push(m); const s = new THREE.Sprite(m); s.scale.setScalar(size); return s;
 }
-// Ilumina la pieza correcta: brillo en la cara y un halo verde detrás (una sola vez por pieza)
-const _box = new THREE.Box3(), _size = new THREE.Vector3();
-function glowFace(tile, k = 6) {
-  const m = tile.userData.faceMat;
-  gsap.to(m.emissive, { r: .55, g: 1, b: .6, duration: .35 });
-  m.emissiveIntensity = k;
-  if (tile.userData.okHalo || !round) return;
-  _box.setFromObject(tile.userData.float).getSize(_size);
-  const halo = makeHalo(round, 0x3fe07c, Math.max(_size.x, _size.y) / (tile.scale.x || 1) * 2.4, .95);
-  halo.position.z = -.5; tile.userData.float.add(halo); tile.userData.okHalo = halo;
-  gsap.fromTo(halo.material, { opacity: 0 }, { opacity: .95, duration: .3 });
+// Tiñe el cuerpo de la pieza (marfil/laca delante, trasera detrás); la cara con el carácter se queda igual para leerse.
+// Los materiales del cuerpo son compartidos: se clona el de esta pieza (y se libera con la ronda).
+const TINT = { ok: [0x6fdc95, 0x1f8a4c], bad: [0xff6e5e, 0xa3121b] };
+function tintPiece(tile, kind) {
+  if (!round || tile.userData.tint === kind) return; tile.userData.tint = kind;
+  const [front, back] = TINT[kind];
+  tile.userData.float.traverse(o => {
+    if (!o.isMesh || o.material === tile.userData.faceMat || o.material === gold) return;
+    const m = o.userData.ownMat || (o.userData.ownMat = o.material = o.material.clone());
+    if (!round.disposables.includes(m)) round.disposables.push(m);
+    const c = new THREE.Color(o.position.z < 0 ? back : front);
+    gsap.to(m.color, { r: c.r, g: c.g, b: c.b, duration: .3 });
+    if (m.emissive) { m.emissive.copy(c); gsap.fromTo(m, { emissiveIntensity: 0 }, { emissiveIntensity: .35, duration: .3 }); }
+  });
 }
+// La pieza correcta (al acertar) se pone verde
+function glowFace(tile) { tintPiece(tile, 'ok'); }
 // Placa lacada (opciones largas de pinyin)
 const PLQ = { w: 3.4, h: .78 };
 const plaqueTex = (text, sub = '') => cached('plq:' + text + '|' + sub, () => canvasTexture(1024, 236, (g, W, H) => {
@@ -1165,13 +1171,15 @@ function makePlaque(text, R, sub = '') {
   Object.assign(root.userData, { float, faceMat, phase: rand(0, 10) });
   return root;
 }
+// La pieza elegida mal: tiembla, se pone roja y se hunde un poco.
+// La correcta NO se marca: ya la enseña la tarjeta de fallo, y lo importante es que se vea el error.
 function rejectTile(tile) {
   const h = tile.userData.home || tile.position.clone();
   gsap.killTweensOf(tile.position); gsap.killTweensOf(tile.rotation);
   gsap.fromTo(tile.position, { x: h.x + .2 }, { x: h.x, duration: .8, ease: 'elastic.out(1.6,.22)' });
   gsap.fromTo(tile.rotation, { z: -.22 }, { z: 0, duration: .9, ease: 'elastic.out(1.4,.25)' });
-  gsap.to(tile.position, { z: -1.1, duration: .7, delay: .25, ease: 'power2.out' });
-  gsap.to(tile.userData.faceMat.color, { r: .62, g: .32, b: .32, duration: .4 });
+  gsap.to(tile.position, { z: -.5, duration: .7, delay: .25, ease: 'power2.out' });
+  tintPiece(tile, 'bad');
 }
 
 // Moneda dorada
@@ -1554,9 +1562,6 @@ function roundTiles(fromPinyin = false) {
       resolve(true, target);
     } else {
       rejectTile(tile);
-      const ct = tiles.find(x => x.userData.item === target);
-      gsap.to(ct.position, { z: 1.1, duration: .7, ease: 'back.out(2)' });
-      glowFace(ct, 4);
       resolve(false, target, { picked: item.chino, why: explainPick(target, item, fromPinyin ? 'py' : '') });
     }
   }
@@ -1619,11 +1624,9 @@ function roundOrbit() {
       lanterns.filter(x => x !== L).forEach((o, i) => dropLantern(o, i * .06));
       resolve(true, ans);
     } else {
-      gsap.to(L.userData.paperMat, { emissiveIntensity: .18, duration: .5 });
-      gsap.to(L.userData.halo.material, { opacity: 0, duration: .5 });
-      dropLantern(L, .25);
-      gsap.to(correct.userData.paperMat, { emissiveIntensity: 4.5, duration: .35, yoyo: true, repeat: 3 });
-      gsap.to(correct.scale, { x: ls * 1.3, y: ls * 1.3, z: ls * 1.3, duration: .6, ease: 'back.out(2)' });
+      gsap.to(L.userData.paperMat.emissive, { r: 1, g: .1, b: .06, duration: .3 });   // la linterna elegida se pone roja y cae
+      gsap.to(L.userData.halo.material.color, { r: 1, g: .1, b: .05, duration: .3 });
+      dropLantern(L, .6);
       resolve(false, ans, { picked: L.userData.py, why: explainPick(ans, { pinyin: L.userData.py }) });
     }
   }
@@ -1769,10 +1772,9 @@ function roundListen() {
       ls.filter(x => x !== L).forEach((o, i) => { o.userData.dead = true; gsap.to(o.position, { y: '-=7', duration: 1.3, delay: .1 + i * .06, ease: 'power2.in' }); });
       resolve(true, target);
     } else {
-      L.userData.dead = true; gsap.to(L.userData.flame.material, { opacity: 0, duration: .4 }); gsap.to(L.userData.halo.material, { opacity: 0, duration: .4 });
+      L.userData.dead = true; gsap.to(L.userData.flame.material, { opacity: 0, duration: .4 });
+      gsap.to(L.userData.halo.material.color, { r: 1, g: .1, b: .05, duration: .3 }); gsap.to(L.userData.halo.material, { opacity: .95, duration: .3 });   // halo rojo en la elegida
       gsap.to(L.position, { y: '-=7', duration: 1.6, delay: .3, ease: 'power2.in' });
-      gsap.to(correct.position, { z: 1.2, duration: .6, ease: 'back.out(2)' });
-      gsap.to(correct.userData.halo.material, { opacity: .9, duration: .35, yoyo: true, repeat: 3 });
       resolve(false, target, { picked: L.userData.item.chino, why: explainPick(target, L.userData.item, 'ear') });
     }
   }
@@ -1837,7 +1839,6 @@ function roundMeaning() {
       resolve(true, target);
     } else {
       rejectTile(P);
-      gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
       resolve(false, target, { picked: P.userData.item.espanol, why: explainPick(target, P.userData.item) });
     }
   }
@@ -1929,7 +1930,6 @@ function dialogPlaques(meaning) {
       resolve(true, ans);
     } else {
       rejectTile(P);
-      gsap.to(C.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(C, 2.5);
       const X = meaning && Object.values(PHRASES).find(x => x.es === P.userData.val);
       resolve(false, ans, { picked: P.userData.val, why: meaning ? (X ? `«${P.userData.val}» sería ${X.zh}` : '') : replyWhy(Q, P.userData.val, A) });
     }
@@ -1978,8 +1978,6 @@ function dialogBlank() {
       resolve(true, ans);
     } else {
       rejectTile(tile);
-      const ct = tiles.find(x => x.userData.item === target);
-      gsap.to(ct.position, { z: 1.1, duration: .7, ease: 'back.out(2)' }); glowFace(ct, 4);
       setTimeout(fill, 500);
       const c = tile.userData.item.chino;
       resolve(false, ans, { picked: c, why: hintFor(c, miss.c) || WORD_RULE[miss.c] || '' });
@@ -2067,7 +2065,6 @@ function roundOrder() {
       state.locked = true; rejectTile(k);
       const exp = (valid.find(v => placed.every((x, i) => v[i] === x)) || seq)[placed.length];
       const ek = keys.find(x => x.userData.slot == null && x.userData.c === exp);
-      if (ek) { gsap.to(ek.position, { z: 1.1, duration: .7, ease: 'back.out(2)' }); glowFace(ek, 4); }
       resolve(false, ans, { picked: c, why: orderWhy(c, exp, seq) });
       return;
     }
@@ -2141,7 +2138,6 @@ function roundPlaques(page = false) {
       resolve(true, ans);
     } else {
       rejectTile(P);
-      gsap.to(correct.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(correct, 2.5);
       const py = P.userData.py;
       const why = plain(py) === plain(ans.pinyin) ? toneWhy(py, ans.pinyin)
         : page && !/^dì .+ yè$/.test(py) ? 'Las páginas empiezan por 第 (dì) y acaban en 页 (yè)' : numberWhy(n, page);
@@ -2276,9 +2272,7 @@ function roundPairs() {
     const a = sel; sel = null;
     if (a.userData.pid !== C.userData.pid) {
       state.locked = true;
-      const partner = cards.find(x => x.userData.pid === a.userData.pid && x !== a);
-      rejectTile(C);
-      gsap.to(partner.position, { z: .9, duration: .6, ease: 'back.out(2)' }); glowFace(partner, 2.5); glowFace(a, 2.5);
+      rejectTile(C); rejectTile(a);   // la pareja elegida, en rojo
       resolve(false, a.userData.ans);
       return;
     }

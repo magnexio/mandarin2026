@@ -54,7 +54,7 @@ Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas us
 - `texCache` = `{ t, used }` con presupuesto (`trimTex`) solo para `coin:`, `plq:`, `card:` y `py:` fuera del vocabulario.
 - Precalentado con `setRenderTarget(composer.readBuffer)` y sin liberar los materiales de muestra; precarga en ratos quietos (`warmList`) con las mismas claves que las rondas.
 - Piezas doradas fusionadas (`mergeGeo`). En segundo plano se liberan los RT del postproceso.
-- Al acertar: «chiklink» y halo verde en la pieza (`glowFace`), sin cartel. Al fallar: sin sonido, destello rojo.
+- Al acertar: «chiklink», la propia pieza se tiñe de verde (`glowFace` → `tintPiece`) y explosión verde y blanca (`OK_SPARKS`), sin cartel. Al fallar: sin sonido, destello rojo y la pieza elegida se tiñe de rojo (`rejectTile`); la correcta NO se marca (ya la enseña la tarjeta). Trasera de las fichas: azul.
 
 ## Depuración
 - `?perf`: FPS, ms, draw calls y el peor fotograma de cada ronda; `__bench(n, pr)` mide n renders; `__ab(a, b)` compara dos configuraciones píxel a píxel; `__dbg` expone renderer/composer/round.
