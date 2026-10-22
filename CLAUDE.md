@@ -48,7 +48,16 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 
 Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas usando `area()`, es decir, el hueco libre entre la tarjeta superior y el borde inferior, y `update(t, dt)`. La ronda termina llamando a `resolve(ok, { chino, pinyin, espanol })`. Las transiciones entre rondas son un único barrido continuo de cámara (`transitionOut` → `startRound`), sin saltos.
 
+## Rendimiento (móvil): no deshacer
+- `OutputPass.needsSwap = false` (un solo RT MSAA), bloom sumado en el shader del OutputPass (`bloom.fused`), RT del bloom y canvas sin profundidad, `__ignoreDepthValues` en cada render.
+- `canvasTexture` encoge el lienzo tras subirlo (`onUpdate`) y guarda `userData.redraw` para `webglcontextrestored`. Nunca poner `needsUpdate` a una textura ya subida.
+- `texCache` = `{ t, used }` con presupuesto (`trimTex`) solo para `coin:`, `plq:`, `card:` y `py:` fuera del vocabulario.
+- Precalentado con `setRenderTarget(composer.readBuffer)` y sin liberar los materiales de muestra; precarga en ratos quietos (`warmList`) con las mismas claves que las rondas.
+- Piezas doradas fusionadas (`mergeGeo`). En segundo plano se liberan los RT del postproceso.
+- Al acertar: «chiklink» y halo verde en la pieza (`glowFace`), sin cartel. Al fallar: sin sonido, destello rojo.
+
 ## Depuración
+- `?perf`: FPS, ms, draw calls y el peor fotograma de cada ronda; `__bench(n, pr)` mide n renders; `__ab(a, b)` compara dos configuraciones píxel a píxel; `__dbg` expone renderer/composer/round.
 - `index.html?mode=<clave>` fuerza un modo y `?topic=mix|num|char|talk` fuerza un tema. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
 - Probar siempre a tamaño móvil (390×844). El sonido se activa con el toque del sello 开始. En el altavoz, toque = repetir y mantener = repetir despacio (`holdToSlow`).
 - Al probar en el panel del navegador (oculto), `gsap.ticker.lagSmoothing(0)` hace que las animaciones avancen en tiempo real.
