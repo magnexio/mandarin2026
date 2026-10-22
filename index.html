@@ -2105,7 +2105,7 @@ function roundPlaques(page = false) {
   const R = newRound('pyNum');
   const f = forcedNum(page), n = f != null ? f : page ? pageNum() : randNum(), seq = page ? [DI, ...numZh(n), YE] : numZh(n);
   const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
-  if (page) UI.prompt({ seal: '页', chip: 'Página', title: String(n), number: true, sub: '¿Cómo se dice «página» en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
+  if (page) UI.prompt({ seal: '页', chip: 'Página', title: `Página ${n}`, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
   else UI.prompt({ seal: '拼', chip: 'Pinyin de números', title: String(n), number: true, sub: '¿Cómo se escribe en pinyin?', meta: `En chino: <b>${ans.chino}</b>` });
   const plaques = (page ? pagePinyinOptions(n) : numberPinyinOptions(n)).map(o => { const P = makePlaque(o, R); P.userData.py = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P; });
   let s = 1;
