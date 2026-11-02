@@ -16,19 +16,19 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - GSAP 3.12.5 (cdnjs) para todas las animaciones.
 - Web Speech API para pronunciar en chino (`zh-CN`). Si una frase empieza por un nombre latino («Lorea，你好吗？»), el nombre se lee con voz `es-ES` y el resto en chino.
 - SFX sintetizados con Web Audio (escala pentatónica).
-- Fuentes de Google: Noto Serif SC (caracteres), Noto Serif (pinyin), Inter (interfaz).
+- Fuentes de Google: Noto Sans SC (caracteres), Noto Sans (pinyin y títulos), Inter (interfaz). Letra sencilla tipo Arial/heiti a propósito: el usuario no quiere tipografías caligráficas (cuesta leer).
 - El texto de los objetos 3D se dibuja con Canvas 2D a texturas de 512–1024 px (`layoutGlyph` centra según la caja real del glifo).
 - Fichas con pinyin debajo (`makeTile(ch, R, py)`) solo en los ejercicios de estructura: construir frases, completar la frase y teclados de números/páginas/dictado. Nunca donde el objetivo es reconocer el carácter (tiles, pyChar, meaning, orbit, listen, pairs), porque daría la respuesta.
 
 ## Dónde tocar en `index.html`
-- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`), 百 (`BAI`), 第 (`DI`) y 页 (`YE`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas. Las palabras de la lección 2 llevan `l: 2` (solo como referencia; ningún tema filtra por lección). Puede haber palabras de varios caracteres (爸爸, 男朋友) y pinyin repetido (他/她 = tā): los modos que eligen por sonido o pinyin excluyen distractores con el mismo pinyin.
+- `VOCAB`: vocabulario `{ espanol, chino, pinyin }`. Los 10 primeros deben ser los números 一 a 十, porque `NUMS = VOCAB.slice(0, 10)`. 零 (`ZERO`), 百 (`BAI`), 第 (`DI`) y 页 (`YE`) también están en `VOCAB`; `numZh(n)` sabe construir 0–999, pero `randNum()` de momento solo saca 0–100 y centenas redondas. Cada palabra lleva la lección donde apareció por primera vez: `l: 2` o `l: 3` (sin `l` = lección 1). Lección 1: 力 门 也 马 女 木 火 人 林, números 0-100 y centenas, 我 你 好 很. Lección 2: 丁 刀 又 大 口 土 尼 不 可 吗 呢 妈妈 哥哥, 你忙吗/你要咖啡吗 y 第…页. Lección 3: 是 哪 国 那 谁 老师 中国 中国人 西班牙 巴斯克 您 y las bebidas (白酒 = «vino blanco», como en clase). Puede haber palabras de varios caracteres (爸爸, 男朋友) y pinyin repetido (他/她 = tā): los modos que eligen por sonido o pinyin excluyen distractores con el mismo pinyin.
 - `CONFUSABLE`: caracteres parecidos (o que se oyen igual), que se usan como distractores.
-- `PHRASES`: frases de conversación como tokens `T(carácter, pinyin)`, para poder dejar huecos (`l: 2` = lección 2, solo como referencia; `voc: true` = puede ir dirigida a alguien). `REPLIES` define qué respuestas son válidas (`ok`) o claramente incorrectas (`bad`) para cada frase; las dudosas no van en ninguna lista, así nunca hay dos correctas. `BLANK_WRONG` da, para cada palabra que puede faltar en «Completa la frase», opciones que nunca forman una frase válida.
+- `PHRASES`: frases de conversación como tokens `T(carácter, pinyin)`, para poder dejar huecos (`l` = lección; `voc: true` = puede ir dirigida a alguien). `REPLIES` define qué respuestas son válidas (`ok`) o claramente incorrectas (`bad`) para cada frase; las dudosas no van en ninguna lista, así nunca hay dos correctas. `BLANK_WRONG` da, para cada palabra que puede faltar en «Completa la frase», opciones que nunca forman una frase válida.
 - `NAMES` (compañeros de clase) y `KIN` (哥哥, 弟弟): aparecen en «(nombre)，你忙吗？» y similares.
 - `MODES`: registro de modos. `w` es el peso (cuántas veces más sale) y `ok()` indica si está disponible.
 - Aprendizaje (sección «APRENDIZAJE»): `pyHTML` colorea el pinyin por tono (solo en respuestas); `explainPick`, `toneWhy`, `numberWhy`, `replyWhy`, `orderWhy`, `HINTS` (pares que se confunden) y `WORD_RULE` generan la explicación del fallo, que se pasa como `resolve(false, ans, { picked, why })`. Nunca deben enseñar algo falso.
 - `Mem` (localStorage `mem:v1`): repetición espaciada por palabra/frase/número (`memKey`), cajas 0-5; `wpick` sortea dando más peso a lo que toca repasar. `Echo`: cola de fallos que vuelven en otro modo (`ECHO_MODES`, `echoFits`, consumo con `Echo.peek` en `pickTarget`, diálogo, `roundOrder` y `forcedNum`). Si localStorage falla, todo sigue al azar.
-- `TOPICS`: temas del selector (`mix` Mezcla, `num` Números, `char` Caracteres, `talk` Conversación). Los temas separan por tipo de ejercicio, nunca por lección: siempre entra el vocabulario de todas las lecciones. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
+- `TOPICS`: temas del selector (`mix` Mezcla, `num` Números, `char` Caracteres, `talk` Conversación), por tipo de ejercicio. Se combinan con la lección (`lessonKey`: `all` por defecto, `1`-`3`, botones arriba del menú; `inLesson`, `modeFits`, `modesFor`): lo que no tiene material con la otra elección sale desactivado. Números 0-100 = lección 1, páginas = lección 2. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
 
 ## Modos (bucle aleatorio dentro del tema, nunca el mismo dos veces seguidas si hay otro)
 | clave | sello | ejercicio | función |
@@ -58,7 +58,7 @@ Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas us
 
 ## Depuración
 - `?perf`: FPS, ms, draw calls y el peor fotograma de cada ronda; `__bench(n, pr)` mide n renders; `__ab(a, b)` compara dos configuraciones píxel a píxel; `__dbg` expone renderer/composer/round.
-- `index.html?mode=<clave>` fuerza un modo y `?topic=mix|num|char|talk` fuerza un tema. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
+- `index.html?mode=<clave>` fuerza un modo, `?topic=mix|num|char|talk` un tema y `?lesson=1|2|3` una lección. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
 - Probar siempre a tamaño móvil (390×844). El sonido se activa con el toque del sello 开始. En el altavoz, toque = repetir y mantener = repetir despacio (`holdToSlow`).
 - Al probar en el panel del navegador (oculto), `gsap.ticker.lagSmoothing(0)` hace que las animaciones avancen en tiempo real.
 

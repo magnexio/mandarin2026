@@ -10,14 +10,15 @@
 <title>汉字 · Repaso de Chino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@600;700&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans:wght@500;600;700&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --gold:#f3c56b; --gold-hi:#fff1cc; --gold-lo:#b8812c;
     --ink:#22030a; --hair:rgba(255,212,145,.22);
     --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
-    --zh:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
-    --serif:"Noto Serif","Noto Serif SC",Georgia,serif;
+    /* Letra sencilla y legible (tipo Arial/heiti), sin trazos caligráficos: para aprender a leer */
+    --zh:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --serif:"Noto Sans","Noto Sans SC",Inter,-apple-system,sans-serif;
     --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box}
@@ -36,7 +37,7 @@
     font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,232,195,.86);
     box-shadow:inset 0 1px 0 rgba(255,240,210,.08),0 10px 24px -12px rgba(0,0,0,.7)}
   .seal{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;letter-spacing:0;
-    font-family:var(--zh);font-weight:900;font-size:14px;color:#ffe7b3;
+    font-family:var(--zh);font-weight:700;font-size:14px;color:#ffe7b3;
     background:linear-gradient(145deg,#e0402f,#8a0d14);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.25),0 2px 8px rgba(120,0,0,.55)}
   #card{position:relative;width:min(520px,100%);padding:16px 22px 18px;border-radius:26px;text-align:center;overflow:hidden;
@@ -78,7 +79,7 @@
   .rv-head em{font-style:normal;letter-spacing:.02em;text-transform:none;font-weight:500;color:rgba(255,225,200,.45)}
   .rv-body{display:flex;align-items:center;gap:18px;margin-top:10px}
   .rv-char{flex:none;min-width:88px;height:88px;padding:0 14px;border-radius:22px;display:grid;place-items:center;
-    font-family:var(--zh);font-weight:900;font-size:58px;line-height:1;color:#7d0f14;
+    font-family:var(--zh);font-weight:700;font-size:58px;line-height:1;color:#7d0f14;
     background:linear-gradient(180deg,#fbf3df,#e8dbbb);box-shadow:inset 0 -6px 0 #1b4f9c,inset 0 1px 0 #fff,0 10px 24px -10px rgba(0,0,0,.8)}
   .rv-char.long{font-size:40px}
   .rv-char.xl{font-size:26px;height:auto;min-height:88px;max-width:58%;padding:10px 14px;line-height:1.25}
@@ -100,7 +101,7 @@
   .t1{color:#ffe08a}.t2{color:#8ee6b4}.t3{color:#9fd0ff}.t4{color:#ffa48c}
   /* Sello 复: esta ronda repasa algo que fallaste hace poco */
   .review{display:none;margin-left:2px;width:20px;height:20px;border-radius:6px;place-items:center;letter-spacing:0;
-    font-family:var(--zh);font-weight:900;font-size:12px;color:#fff3dc;background:linear-gradient(145deg,#ff5a46,#a3121b)}
+    font-family:var(--zh);font-weight:700;font-size:12px;color:#fff3dc;background:linear-gradient(145deg,#ff5a46,#a3121b)}
   .review.on{display:grid}
   .rv-bar{margin-top:14px;height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
   .rv-bar i{display:block;height:100%;transform-origin:left;background:linear-gradient(90deg,#f3c56b,#ff7a4a)}
@@ -167,6 +168,11 @@
   .topic .seal{flex:none;width:40px;height:40px;border-radius:12px;font-size:22px}
   .topic b{display:block;font-size:16px;font-weight:600;color:#fff1d2}
   .topic span{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:rgba(255,226,192,.65)}
+  .topic:disabled,.lesson:disabled{opacity:.35;cursor:default}
+  .lessons{display:flex;gap:8px;margin:0 2px 6px}
+  .lesson{flex:1;padding:10px 0;border-radius:14px;cursor:pointer;font:600 12.5px var(--sans);white-space:nowrap;color:#fff1d2;
+    background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14)}
+  .lesson.on{background:linear-gradient(180deg,rgba(243,197,107,.3),rgba(190,110,40,.2));border-color:rgba(255,214,140,.6)}
 </style>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -270,6 +276,19 @@ const VOCAB = [
   { espanol: "Boca", chino: "口", pinyin: "kǒu", l: 2 }, { espanol: "Tierra", chino: "土", pinyin: "tǔ", l: 2 },
   { espanol: "Monja budista", chino: "尼", pinyin: "ní", l: 2 }, { espanol: "Poder", chino: "可", pinyin: "kě", l: 2 },
   { espanol: "Ordinal (1.º, 2.º…)", chino: "第", pinyin: "dì", l: 2 }, { espanol: "Página", chino: "页", pinyin: "yè", l: 2 },
+  // Lección 3 (l: 3): 她是哪国人 · bebidas
+  { espanol: "Ser", chino: "是", pinyin: "shì", l: 3 }, { espanol: "¿Cuál?, ¿de qué?", chino: "哪", pinyin: "nǎ", l: 3 },
+  { espanol: "País", chino: "国", pinyin: "guó", l: 3 }, { espanol: "Ese, eso", chino: "那", pinyin: "nà", l: 3 },
+  { espanol: "¿Quién?", chino: "谁", pinyin: "shéi", l: 3 }, { espanol: "Profesor", chino: "老师", pinyin: "lǎoshī", l: 3 },
+  { espanol: "China", chino: "中国", pinyin: "Zhōngguó", l: 3 }, { espanol: "Chino (persona)", chino: "中国人", pinyin: "Zhōngguórén", l: 3 },
+  { espanol: "España", chino: "西班牙", pinyin: "Xībānyá", l: 3 }, { espanol: "País Vasco", chino: "巴斯克", pinyin: "Bāsīkè", l: 3 },
+  { espanol: "Usted", chino: "您", pinyin: "nín", l: 3 },
+  { espanol: "Leche", chino: "牛奶", pinyin: "niúnǎi", l: 3 }, { espanol: "Té", chino: "茶", pinyin: "chá", l: 3 },
+  { espanol: "Agua", chino: "水", pinyin: "shuǐ", l: 3 }, { espanol: "Zumo", chino: "果汁", pinyin: "guǒzhī", l: 3 },
+  { espanol: "Coca-Cola", chino: "可乐", pinyin: "kělè", l: 3 }, { espanol: "Alcohol", chino: "酒", pinyin: "jiǔ", l: 3 },
+  { espanol: "Vino tinto", chino: "红酒", pinyin: "hóngjiǔ", l: 3 }, { espanol: "Vino blanco", chino: "白酒", pinyin: "báijiǔ", l: 3 },
+  { espanol: "Cerveza", chino: "啤酒", pinyin: "píjiǔ", l: 3 }, { espanol: "Sidra", chino: "苹果酒", pinyin: "píngguǒjiǔ", l: 3 },
+  { espanol: "Zumo de uva", chino: "葡萄汁", pinyin: "pútaozhī", l: 3 },
 ];
 const NUMS = VOCAB.slice(0, 10);
 const ZERO = VOCAB.find(v => v.chino === '零'), BAI = VOCAB.find(v => v.chino === '百');
@@ -282,7 +301,11 @@ const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火
   '哥哥':['弟弟','爸爸'], '弟弟':['哥哥','第'], '爸爸':['妈妈','哥哥'], '妈妈':['爸爸','她','吗'], '刀':['力','九','又'], '又':['刀','力'],
   '大':['人','六','不'], '土':['十','丁'], '丁':['可','十'], '可':['丁','口','喝'], '口':['可','喝'], '不':['大','木'], '吗':['妈妈','马','呢'],
   '呢':['尼','吗'], '尼':['呢','你'], '喝':['可','口'], '男':['力','女'], '朋友':['男朋友'], '男朋友':['朋友','男'], '第':['弟弟','页'],
-  '页':['第','也'], '也':['页'], '你':['他','尼'], '很':['都'], '都':['很'] };
+  '页':['第','也'], '也':['页'], '你':['他','尼','您'], '很':['都'], '都':['很'],
+  '那':['哪','他'], '哪':['那','吗'], '您':['你','他'], '是':['十','不'], '谁':['那','哪'], '国':['中国','口'], '中国':['中国人','国'],
+  '中国人':['中国','人'], '西班牙':['巴斯克','中国'], '巴斯克':['西班牙','中国'], '老师':['朋友','男朋友'],
+  '酒':['九','红酒','啤酒'], '红酒':['白酒','啤酒','苹果酒'], '白酒':['红酒','啤酒'], '啤酒':['红酒','白酒','苹果酒'], '苹果酒':['啤酒','红酒'],
+  '果汁':['葡萄汁','牛奶'], '葡萄汁':['果汁','红酒'], '牛奶':['茶','水'], '茶':['水','咖啡'], '水':['茶','牛奶'], '可乐':['可','咖啡'] };
 // Frases de conversación, como tokens [carácter, pinyin] para poder dejar huecos
 const T = (c, p) => ({ c, p });
 const PHRASES = {
@@ -319,6 +342,29 @@ const PHRASES = {
   yaoHe:    { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero beber café.' },
   yeYao:    { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Yo también quiero café.' },
   douHe:    { l: 2, t: [T('好','Hǎo'), T('，',','), T('我们','wǒmen'), T('都','dōu'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Vale, todos bebemos café.' },
+  // Lección 3 · 她是哪国人
+  naguoQ:   { l: 3, t: [T('她','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es ella?' },
+  naguoQ2:  { l: 3, t: [T('他','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es él?' },
+  niNaguoQ: { l: 3, voc: true, t: [T('你','Nǐ'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país eres?' },
+  taZgr:    { l: 3, t: [T('她','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Ella es china.' },
+  taZgr2:   { l: 3, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él es chino.' },
+  taXby:    { l: 3, t: [T('他','Tā'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Él es español.' },
+  zgrQ:     { l: 3, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('吗','ma'), T('？','?')], es: '¿Él es chino?' },
+  buZgr:    { l: 3, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él no es chino.' },
+  woXby:    { l: 3, t: [T('我','Wǒ'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Soy español.' },
+  woBsk:    { l: 3, t: [T('我','Wǒ'), T('是','shì'), T('巴斯克','Bāsīkè'), T('人','rén'), T('。','.')], es: 'Soy vasco.' },
+  sheiQ:    { l: 3, t: [T('那','Nà'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es ese?' },
+  laoshi:   { l: 3, t: [T('那','Nà'), T('是','shì'), T('我们','wǒmen'), T('老师','lǎoshī'), T('。','.')], es: 'Ese es nuestro profesor.' },
+  douZgr:   { l: 3, t: [T('我们','Wǒmen'), T('老师','lǎoshī'), T('都','dōu'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Todos nuestros profesores son chinos.' },
+  ninhao:   { l: 3, t: [T('您','Nín'), T('好','hǎo'), T('！','!')], es: '¡Hola! (de usted)' },
+  yeLaoshiQ:{ l: 3, voc: true, t: [T('你','Nǐ'), T('也','yě'), T('是','shì'), T('老师','lǎoshī'), T('吗','ma'), T('？','?')], es: '¿Tú también eres profesor?' },
+  buLaoshi: { l: 3, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('。','.')], es: 'No soy profesor.' },
+  // Lección 3 · bebidas
+  chaQ:     { l: 3, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('吗','ma'), T('？','?')], es: '¿Quieres beber té?' },
+  yaoCha:   { l: 3, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('。','.')], es: 'Quiero beber té.' },
+  yaoShui:  { l: 3, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Quiero beber agua.' },
+  yeShui:   { l: 3, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Yo también quiero beber agua.' },
+  piJiu:    { l: 3, t: [T('他','Tā'), T('要','yào'), T('喝','hē'), T('啤酒','píjiǔ'), T('。','.')], es: 'Él quiere beber cerveza.' },
 };
 const isPunct = tok => /[！？，。、]/.test(tok.c);
 for (const k in PHRASES) {
@@ -342,14 +388,25 @@ const REPLIES = [
   { q: 'yaoQ', ok: ['yao'], bad: ['yeYao', 'ma', 'henMang', 'tamenHao', 'nihao', 'yaoQ'] },
   { q: 'heQ', ok: ['yaoHe'], bad: ['yeYao', 'ma', 'buMang', 'nihao', 'tamenHao'] },
   { q: 'yao', ok: ['yeYao'], bad: ['yaoQ', 'mangQ', 'ye', 'nihao', 'fumuQ'] },
+  // Lección 3 (他/她 importa: «¿de qué país es ella?» no se contesta con 他)
+  { q: 'naguoQ', ok: ['taZgr'], bad: ['taZgr2', 'taXby', 'zgrQ', 'nihao', 'yao', 'sheiQ', 'buLaoshi'] },
+  { q: 'naguoQ2', ok: ['taZgr2', 'taXby'], bad: ['taZgr', 'naguoQ', 'nihao', 'yao', 'henMang', 'laoshi'] },
+  { q: 'niNaguoQ', ok: ['woXby', 'woBsk'], bad: ['taZgr', 'taZgr2', 'taXby', 'nihao', 'yao', 'henMang'] },
+  { q: 'zgrQ', ok: ['taZgr2', 'buZgr'], bad: ['taZgr', 'naguoQ', 'nihao', 'yao', 'henMang'] },
+  { q: 'sheiQ', ok: ['laoshi'], bad: ['naguoQ', 'yaoQ', 'nihao', 'henMang', 'buMang', 'sheiQ'] },
+  { q: 'ninhao', ok: ['nihao', 'ninhao'], bad: ['ye', 'bu', 'yao', 'taZgr', 'sheiQ'] },
+  { q: 'yeLaoshiQ', ok: ['buLaoshi'], bad: ['ye', 'nihao', 'yao', 'naguoQ', 'taZgr', 'yeLaoshiQ'] },
+  { q: 'chaQ', ok: ['yaoCha'], bad: ['ye', 'nihao', 'mangQ', 'taZgr', 'naguoQ', 'yeShui'] },
+  { q: 'yaoShui', ok: ['yeShui'], bad: ['chaQ', 'ye', 'nihao', 'fumuQ', 'sheiQ'] },
 ];
 // Completar la frase: para cada palabra que puede faltar, opciones que NUNCA forman una frase correcta
 // (por eso 很 no tiene 不/也/都 ni 也 tiene 们: 我不忙, 我都好 o 我们很好 también serían válidas)
 const BLANK_WRONG = {
   '吗': ['也', '很', '都', '们'], '呢': ['吗', '很', '都', '们'], '也': ['吗', '呢', '喝', '男'],
-  '很': ['吗', '呢', '们', '男'], '都': ['吗', '呢', '们', '忙'], '不': ['吗', '呢', '男', '口'],
+  '很': ['吗', '呢', '们', '男'], '都': ['吗', '呢', '喝', '忙'], '不': ['吗', '呢', '男', '口'],
   '忙': ['吗', '呢', '们', '都'], '好': ['吗', '呢', '们', '都'], '要': ['吗', '呢', '忙', '大'],
   '喝': ['吗', '呢', '们', '忙', '都'], '我': ['吗', '呢', '们', '忙'], '你': ['吗', '呢', '们', '忙'],
+  '是': ['吗', '呢', '喝', '忙'], '哪': ['吗', '很', '都', '不'], '谁': ['吗', '很', '都', '们'],
 };
 // Compañeros de clase (y 哥哥/弟弟): a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
 const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea', 'Irati', 'Mikel', 'Cristina'];
@@ -492,6 +549,13 @@ function toneWhy(picked, right) {
 // Pistas para los pares que más se confunden (se buscan en cualquier orden)
 const HINTS = {};
 [['他', '她', '亻 (persona) → 他 él · 女 (mujer) → 她 ella'],
+ ['那', '哪', '那 nà = eso · 哪 nǎ = ¿cuál? (lleva 口: pregunta)'],
+ ['你', '您', '您 = 你 + 心: forma respetuosa (usted)'],
+ ['九', '酒', 'Suenan igual (jiǔ): 九 = nueve · 酒 = alcohol (lleva 氵, agua)'],
+ ['中国', '中国人', '中国 = China · 中国人 = persona china (+ 人)'],
+ ['红酒', '白酒', '红 = rojo · 白 = blanco'],
+ ['果汁', '葡萄汁', '果汁 = zumo · 葡萄汁 = zumo de uva (葡萄 = uva)'],
+ ['是', '十', 'shì (4.º tono) = ser · shí (2.º tono) = diez'],
  ['他们', '她们', '他们 = ellos (o grupo mixto) · 她们 = solo chicas'],
  ['木', '林', '木 = un árbol (madera) · 林 = dos árboles (bosque)'],
  ['人', '大', '人 = persona · 大 = persona con los brazos abiertos (grande)'],
@@ -567,7 +631,8 @@ function replyWhy(Q, pickedZh, A) {
   return '';
 }
 // Para qué sirve cada palabra que puede faltar o ir mal colocada
-const WORD_RULE = { '吗': '吗 va al final: convierte la frase en pregunta de sí o no', '呢': '呢 va al final y devuelve la pregunta: ¿y tú…?',
+const WORD_RULE = { '是': '是 = ser: va entre quién y qué es (他是中国人)', '哪': '哪 = ¿cuál?: 哪国人 = ¿de qué país?', '谁': '谁 = ¿quién?',
+  '吗': '吗 va al final: convierte la frase en pregunta de sí o no', '呢': '呢 va al final y devuelve la pregunta: ¿y tú…?',
   '也': '也 (también) va justo después de quién', '很': '很 (muy) va justo delante de 好 / 忙', '都': '都 (todos) va después de 我们 / 他们',
   '不': '不 (no) va justo delante de 好 / 忙 / 要', '要': '要 = querer', '喝': '喝 = beber', '忙': '忙 = ocupado', '好': '好 = bien',
   '我': '我 = yo', '你': '你 = tú' };
@@ -785,8 +850,8 @@ function canvasTexture(w, h, draw, srgb = true) {
   t.onUpdate = () => { c.width = c.height = 1; };
   return t;
 }
-const FONT_ZH = '"Noto Serif SC","Songti SC","STSong","SimSun",serif';
-const FONT_PY = '"Noto Serif","Noto Serif SC",Georgia,serif';
+const FONT_ZH = '"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';   // sencilla, sin trazos caligráficos
+const FONT_PY = '"Noto Sans","Noto Sans SC",Inter,sans-serif';
 // Centra ópticamente un glifo usando su caja real (no la del font), y lo ajusta al ancho máximo.
 function layoutGlyph(g, text, cx, cy, size, maxW, font) {
   g.textAlign = 'center'; g.textBaseline = 'alphabetic';
@@ -808,7 +873,7 @@ const tileFaceTex = (ch, py = '') => cached('tile:' + ch + '|' + py, () => canva
     g.fillStyle = '#8a2a16'; g.fillText(py, P.x, P.y);
     g.beginPath(); g.moveTo(W * .3, H * .68); g.lineTo(W * .7, H * .68); g.strokeStyle = 'rgba(190,140,60,.35)'; g.lineWidth = 2.5; g.stroke();
   }
-  const f = s => `900 ${s}px ${FONT_ZH}`;
+  const f = s => `700 ${s}px ${FONT_ZH}`;
   const { x, y, size } = py ? layoutGlyph(g, ch, W / 2, H * .36, 280, W * .72, f) : layoutGlyph(g, ch, W / 2, H / 2, 390, W * 0.72, f);
   g.font = f(size);
   g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(ch, x + 3, y + 4);          // bisel inferior (grabado)
@@ -818,7 +883,7 @@ const tileFaceTex = (ch, py = '') => cached('tile:' + ch + '|' + py, () => canva
 }));
 
 const coinTex = (ch, glow) => cached(`coin:${ch}:${glow}`, () => canvasTexture(1024, 1024, (g, W) => {
-  const c = W / 2, f = s => `900 ${s}px ${FONT_ZH}`;
+  const c = W / 2, f = s => `700 ${s}px ${FONT_ZH}`;
   if (glow) { g.fillStyle = '#000'; g.fillRect(0, 0, W, W); }
   else {
     let gr = g.createRadialGradient(c, c, 380, c, c, 512);
@@ -850,7 +915,7 @@ const labelTex = text => cached('py:' + text, () => canvasTexture(640, 280, (g, 
 }));
 
 const inkTex = ch => cached('ink:' + ch, () => canvasTexture(512, 512, (g, W) => {
-  const f = s => `900 ${s}px ${FONT_ZH}`;
+  const f = s => `700 ${s}px ${FONT_ZH}`;
   const { x, y, size } = layoutGlyph(g, ch, W / 2, W / 2, 380, W * .8, f); g.font = f(size);
   g.save(); g.shadowColor = 'rgba(255,240,200,.9)'; g.shadowBlur = 14; g.fillStyle = '#5c0a0d'; g.fillText(ch, x, y); g.restore();
   g.fillStyle = '#3a0407'; g.fillText(ch, x, y);
@@ -863,7 +928,7 @@ const lanternPaperTex = fu => cached('paper:' + fu, () => canvasTexture(1024, 51
   g.strokeStyle = 'rgba(70,0,0,.5)'; g.lineWidth = 7;
   for (let i = 0; i < 16; i++) { const x = i / 16 * W; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
   if (fu) {
-    const f = s => `900 ${s}px ${FONT_ZH}`;
+    const f = s => `700 ${s}px ${FONT_ZH}`;
     [W * .25, W * .75].forEach(cx => {
       g.beginPath(); g.arc(cx, H / 2, 120, 0, TAU); g.fillStyle = 'rgba(255,214,120,.18)'; g.fill();
       const { x, y, size } = layoutGlyph(g, '福', cx, H / 2, 190, 220, f); g.font = f(size);
@@ -1457,7 +1522,8 @@ const MODES = {
   pairs:   { create: () => roundPairs(), w: 2 },
   page:    { create: () => Math.random() < .5 ? roundNumbers({ page: true }) : roundPlaques(true) },
   order:   { create: () => roundOrder(), w: 2 },
-  dictation: { create: () => { const e = Echo.peek('n'); return roundNumbers({ audio: true, page: e ? !!e.ans.page : Math.random() < .4 }); },
+  dictation: { create: () => { const e = Echo.peek('n'), both = numsInLesson() && pagesInLesson();
+                 return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesInLesson() }); },
                ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
 };
 // Qué modos pueden repasar cada tipo de fallo (v: palabra, p: frase, n: número, np: página)
@@ -1484,10 +1550,56 @@ let topicKey = (() => {
   try { const s = localStorage.getItem('topic'); if (TOPICS[s]) return s; } catch (e) {}
   return 'mix';
 })();
-function vocabPool() { const f = TOPICS[topicKey].vocab; return f ? VOCAB.filter(f) : VOCAB; }
-function topicPhrases() { const f = TOPICS[topicKey].phrases, all = Object.values(PHRASES); return f ? all.filter(f) : all; }
+// Lección (se combina con el tema): 'all' o '1'-'3'. Cada palabra/frase lleva la lección donde apareció por primera vez (l, por defecto 1).
+const LESSONS = { all: 'Todas', 1: 'Lección 1', 2: 'Lección 2', 3: 'Lección 3' };
+let lessonKey = (() => {
+  const q = new URLSearchParams(location.search).get('lesson');
+  if (LESSONS[q]) return q;
+  try { const s = localStorage.getItem('lesson'); if (LESSONS[s]) return s; } catch (e) {}
+  return 'all';
+})();
+const inLesson = x => lessonKey === 'all' || String(x.l || 1) === lessonKey;
+const numsInLesson = () => lessonKey === 'all' || lessonKey === '1';    // números 0-100 y centenas: lección 1
+const pagesInLesson = () => lessonKey === 'all' || lessonKey === '2';   // 第…页: lección 2
+function vocabPool() { const f = TOPICS[topicKey].vocab; return VOCAB.filter(v => (!f || f(v)) && inLesson(v)); }
+function topicPhrases() { const f = TOPICS[topicKey].phrases; return Object.values(PHRASES).filter(P => (!f || f(P)) && inLesson(P)); }
+function pairTypes() {   // tipos de parejas posibles con el tema y la lección actuales
+  const pool = vocabPool(), py = new Set(pool.map(v => v.pinyin)).size;
+  const ok = (TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES)).filter(t => t === 'mix' ||
+    (PAIR_TYPES[t][0] === 'num' ? numsInLesson() : PAIR_TYPES[t].includes('py') ? py >= 4 : pool.length >= 4));
+  return ok.some(t => t !== 'mix') ? ok : [];
+}
+// ¿Hay material para este modo con el tema y la lección actuales?
+function modeFits(k) {
+  const pool = vocabPool(), py = new Set(pool.map(v => v.pinyin)).size, ph = topicPhrases();
+  switch (k) {
+    case 'numbers': case 'pyNum': return numsInLesson();
+    case 'page': return pagesInLesson();
+    case 'dictation': return numsInLesson() || pagesInLesson();
+    case 'tiles': case 'meaning': return pool.length >= 4;
+    case 'pyChar': case 'orbit': case 'listen': return py >= 4;
+    case 'pairs': return pairTypes().length > 0;
+    case 'dialog': return dialogSubs().length > 0;
+    case 'order': return ph.some(P => orderWords(P).length >= 3);
+  }
+  return true;
+}
+function dialogSubs() {
+  const ph = topicPhrases(), subs = [];
+  if (REPLIES.some(D => ph.includes(PHRASES[D.q]))) subs.push('reply', 'reply');
+  if (ph.some(P => P.id !== 'nihao' && P.id !== 'ninhao' && blankIdx(P).length)) subs.push('blank', 'blank');
+  if (ph.length >= 4) subs.push('meaning');
+  return subs;
+}
+// Modos jugables para una combinación tema + lección (sin cambiar la actual)
+function modesFor(tk, lk) {
+  const T0 = topicKey, L0 = lessonKey; topicKey = tk; lessonKey = lk;
+  try { return (TOPICS[tk].modes || Object.keys(MODES)).filter(k => MODES[k] && modeFits(k)); } finally { topicKey = T0; lessonKey = L0; }
+}
 function startRound() {
-  let keys = (TOPICS[topicKey].modes || Object.keys(MODES)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()));
+  if (!modesFor(topicKey, lessonKey).length) lessonKey = 'all';   // combinación sin material (no debería pasar: el menú la desactiva)
+  let keys = (TOPICS[topicKey].modes || Object.keys(MODES)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()) && modeFits(k));
+  if (!keys.length) keys = modesFor(topicKey, lessonKey);
   if (keys.some(k => k !== lastMode)) keys = keys.filter(k => k !== lastMode);   // nunca el mismo dos veces (si hay otro)
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
   Echo.n++; Echo.active = null;
@@ -1850,8 +1962,9 @@ function roundMeaning() {
    --------------------------------------------------------------------- */
 function roundDialog() {
   const e = Echo.peek('p'), EP = e && PHRASES[e.ans.pid];
+  const subs = dialogSubs();
   const sub = new URLSearchParams(location.search).get('sub')
-    || (EP ? (blankIdx(EP).length && Math.random() < .5 ? 'blank' : 'meaning') : pick(['reply', 'reply', 'blank', 'blank', 'meaning']));
+    || (EP ? (blankIdx(EP).length && Math.random() < .5 ? 'blank' : 'meaning') : pick(subs.length ? subs : ['meaning']));
   if (sub === 'blank') return dialogBlank();
   return dialogPlaques(sub === 'meaning');
 }
@@ -1939,7 +2052,7 @@ function dialogPlaques(meaning) {
 // Frase con un hueco: tocar la ficha con el carácter que falta
 function dialogBlank() {
   const R = newRound('dialog');
-  const cands = topicPhrases().filter(P => P.id !== 'nihao' && blankIdx(P).length);
+  const cands = topicPhrases().filter(P => P.id !== 'nihao' && P.id !== 'ninhao' && blankIdx(P).length);
   const P = withName(pickPhrase(cands));
   const gi = pick(blankIdx(P)), miss = P.t[gi], target = { chino: miss.c };
   const zhHtml = P.t.map((x, i) => i === gi ? '<span class="gap">？</span>' : x.c).join('');
@@ -1991,7 +2104,7 @@ function dialogBlank() {
    --------------------------------------------------------------------- */
 const orderWords = P => P.t.filter(x => !isPunct(x));
 // Fichas trampa: palabras de clase que no están en la frase (la frase pedida está en español, así que no hay ambigüedad)
-const ORDER_TRAPS = ['吗', '呢', '也', '都', '不', '很', '要', '喝', '忙', '好', '我', '你', '他', '她'];
+const ORDER_TRAPS = ['吗', '呢', '也', '都', '不', '很', '要', '喝', '忙', '好', '我', '你', '他', '她', '是', '那'];
 function orderWhy(c, expected, seq) {
   if (!seq.includes(c)) return `Sobra ${c}: no está en la frase`;
   if (WORD_RULE[expected] && /很|也|都|不|吗|呢/.test(expected)) return WORD_RULE[expected];
@@ -2164,7 +2277,7 @@ const cardTex = (text, kind, ivory) => cached(`card:${ivory}:${kind}:${text}`, (
   g.lineJoin = 'round';
   rr(g, 16, 16, W - 32, H - 32, 52); g.strokeStyle = ivory ? 'rgba(150,32,30,.55)' : 'rgba(246,206,120,.9)'; g.lineWidth = 6; g.stroke();
   rr(g, 34, 34, W - 68, H - 68, 38); g.strokeStyle = ivory ? 'rgba(190,140,60,.45)' : 'rgba(246,206,120,.35)'; g.lineWidth = 2.5; g.stroke();
-  const zh = kind === 'zh', f = s => zh ? `900 ${s}px ${FONT_ZH}` : `700 ${s}px ${FONT_PY}`;
+  const zh = kind === 'zh', f = s => zh ? `700 ${s}px ${FONT_ZH}` : `700 ${s}px ${FONT_PY}`;
   const { x, y, size } = layoutGlyph(g, text, W / 2, H / 2, zh ? 270 : kind === 'num' ? 220 : 150, W * .8, f); g.font = f(size);
   if (ivory) {
     g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(text, x + 3, y + 4);
@@ -2231,7 +2344,7 @@ function pairSet(sub, types = Object.keys(PAIR_TYPES)) {
 function roundPairs() {
   const R = newRound('pairs');
   const sub = new URLSearchParams(location.search).get('sub');
-  const allowed = TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES);
+  const allowed = pairTypes().length ? pairTypes() : (TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES));
   const vocabTypes = allowed.filter(t => t !== 'mix' && PAIR_TYPES[t][0] !== 'num');   // un repaso 复 de palabra necesita parejas de vocabulario
   const type = (PAIR_TYPES[sub] || sub === 'mix') ? sub : Echo.peek('v') && vocabTypes.length ? pick(vocabTypes) : pick(allowed);
   const pairs = pairSet(type, allowed.filter(k => k !== 'mix'));
@@ -2359,22 +2472,29 @@ holdToSlow($('#speak'), () => {
 });
 
 // Selector de temas
-function paintTopicBtn() { $('#topic-seal').textContent = TOPICS[topicKey].seal; $('#topic-name').textContent = TOPICS[topicKey].name; }
+function paintTopicBtn() {
+  $('#topic-seal').textContent = TOPICS[topicKey].seal;
+  $('#topic-name').textContent = TOPICS[topicKey].name + (lessonKey === 'all' ? '' : ' · L' + lessonKey);
+}
 function openTopics(open) {
   const el = $('#topics');
   if (open) {
-    $('#topic-list').innerHTML = Object.entries(TOPICS).map(([k, t]) =>
-      `<button class="topic${k === topicKey ? ' on' : ''}" data-k="${k}"><span class="seal">${t.seal}</span><div><b>${t.name}</b><span>${t.desc}</span></div></button>`).join('');
+    // Lección arriba (se combina con el tema); lo que no tiene material con la otra elección sale desactivado
+    $('#topic-list').innerHTML =
+      `<div class="lessons">${['all', '1', '2', '3'].map(k =>
+        `<button class="lesson${k === lessonKey ? ' on' : ''}" data-l="${k}"${modesFor(topicKey, k).length ? '' : ' disabled'}>${k === 'all' ? 'Todas' : 'Lección ' + k}</button>`).join('')}</div>` +
+      Object.entries(TOPICS).map(([k, t]) =>
+        `<button class="topic${k === topicKey ? ' on' : ''}" data-k="${k}"${modesFor(k, lessonKey).length ? '' : ' disabled'}><span class="seal">${t.seal}</span><div><b>${t.name}</b><span>${t.desc}</span></div></button>`).join('');
     el.classList.add('on');
     gsap.fromTo('#topics .sheet', { yPercent: 110 }, { yPercent: 0, duration: .5, ease: 'expo.out' });
     gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: .25 });
   } else gsap.to('#topics .sheet', { yPercent: 110, duration: .3, ease: 'power3.in', onComplete: () => el.classList.remove('on') });
 }
-function setTopic(k) {
+function setTopic(k, lk = lessonKey) {
   openTopics(false);
-  if (k === topicKey) return;
-  topicKey = k; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
-  try { localStorage.setItem('topic', k); } catch (e) {}
+  if (k === topicKey && lk === lessonKey) return;
+  topicKey = k; lessonKey = lk; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
+  try { localStorage.setItem('topic', k); localStorage.setItem('lesson', lk); } catch (e) {}
   if (!round || round.exiting) return;
   const R = round;
   transitionOut().then(() => { if (round === R) startRound(); });
@@ -2382,8 +2502,15 @@ function setTopic(k) {
 }
 $('#topic-btn').addEventListener('click', e => { e.stopPropagation(); sfx.tap(); openTopics(true); });
 $('#topics').addEventListener('click', e => {
-  const b = e.target.closest('.topic');
-  if (b) setTopic(b.dataset.k); else if (e.target.id === 'topics') openTopics(false);
+  const b = e.target.closest('.topic'), l = e.target.closest('.lesson');
+  if (b && !b.disabled) setTopic(b.dataset.k);
+  else if (l && !l.disabled) {   // elegir lección deja el menú abierto para elegir también el tema
+    lessonKey = l.dataset.l; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
+    try { localStorage.setItem('lesson', lessonKey); } catch (e) {}
+    openTopics(true);
+    if (round && !round.exiting) { const R = round; transitionOut().then(() => { if (round === R) startRound(); }); if (state.skip) state.skip(); }
+  }
+  else if (e.target.id === 'topics') openTopics(false);
 });
 paintTopicBtn();
 
@@ -2508,8 +2635,8 @@ async function loadFonts() {
   try {
     await Promise.race([
       Promise.all([
-        document.fonts.load(`900 64px "Noto Serif SC"`, zh), document.fonts.load(`700 64px "Noto Serif SC"`, zh),
-        document.fonts.load(`700 64px "Noto Serif"`, py), document.fonts.load(`600 16px Inter`, 'Aa'),
+        document.fonts.load(`700 64px "Noto Sans SC"`, zh), document.fonts.load(`500 64px "Noto Sans SC"`, zh),
+        document.fonts.load(`700 64px "Noto Sans"`, py), document.fonts.load(`600 16px Inter`, 'Aa'),
       ]),
       sleep(4000),
     ]);
