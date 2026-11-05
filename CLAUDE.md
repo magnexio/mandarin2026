@@ -28,7 +28,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 - `MODES`: registro de modos. `w` es el peso (cuántas veces más sale) y `ok()` indica si está disponible.
 - Aprendizaje (sección «APRENDIZAJE»): `pyHTML` colorea el pinyin por tono (solo en respuestas); `explainPick`, `toneWhy`, `numberWhy`, `replyWhy`, `orderWhy`, `HINTS` (pares que se confunden) y `WORD_RULE` generan la explicación del fallo, que se pasa como `resolve(false, ans, { picked, why })`. Nunca deben enseñar algo falso.
 - `Mem` (localStorage `mem:v1`): repetición espaciada por palabra/frase/número (`memKey`), cajas 0-5; `wpick` sortea dando más peso a lo que toca repasar. `Echo`: cola de fallos que vuelven en otro modo (`ECHO_MODES`, `echoFits`, consumo con `Echo.peek` en `pickTarget`, diálogo, `roundOrder` y `forcedNum`). Si localStorage falla, todo sigue al azar.
-- `TOPICS`: temas del selector (`mix` Mezcla, `words` Vocabulario, `char` Caracteres para escribir, `num` Números, `talk` Conversación), por tipo de ejercicio. Se combinan con la lección (`lessonKey`: `all` por defecto, `1`-`4`, botones arriba del menú; `inLesson`, `modeFits`, `modesFor`): lo que no tiene material con la otra elección sale desactivado. Números 0-100 = lección 1, páginas = lección 2. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
+- `TOPICS`: temas del selector (`mix` Mezcla, `words` Vocabulario, `char` Caracteres para escribir, `num` Números, `talk` Conversación, `write` Escritura), por tipo de ejercicio. Se combinan con la lección (`lessonKey`: `all` por defecto, `1`-`4`, botones arriba del menú; `inLesson`, `modeFits`, `modesFor`): lo que no tiene material con la otra elección sale desactivado. Números 0-100 = lección 1, páginas = lección 2. Cada uno define sus `modes`, el filtro de `vocab` y `phrases`, y los tipos de `pairs`. `vocabPool()` y `topicPhrases()` devuelven lo del tema activo; se guarda en `localStorage`.
 
 ## Modos (bucle aleatorio dentro del tema, nunca el mismo dos veces seguidas si hay otro)
 | clave | sello | ejercicio | función |
@@ -44,6 +44,7 @@ Publicada en GitHub Pages: https://magnexio.github.io/mandarin2026/ (repo `magne
 | order (w:2) | 句 | ordenar las fichas de una frase de clase (+1 ficha trampa); a veces solo de oído. Acepta 爸爸、妈妈 en los dos órdenes | `roundOrder()` |
 | listen | 听 | audio → carácter (linternas celestes). Solo si el sonido está activado y hay voz china | `roundListen()` |
 | dialog (w:2) | 话 | conversación: «¿Qué contestas?», «Completa la frase», «¿Qué significa?» | `roundDialog()` |
+| write (solo) | 写 | escritura: orden de trazos con Hanzi Writer (jsDelivr) — 1) ver trazo a trazo, 2) calcar sobre la silueta, 3) de memoria (pista tras 3 fallos). Solo en el tema Escritura (`solo: true`, nunca en Mezcla). Caracteres en `WRITE_LESSONS` (lección en que se aprendieron a escribir); trazos guardados en `trazos/<carácter>.json` (licencia `trazos/ARPHICPL.TXT`) | `roundWrite()` |
 | pairs (w:2) | 配 | parejas: 4 fichas de marfil ↔ 4 placas lacadas. Subtipos (`&sub=`): `zhEs`, `zhPy`, `esPy`, `numZh`, `numPy`, `mix`. Un fallo termina la ronda | `roundPairs()` |
 
 Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas usando `area()`, es decir, el hueco libre entre la tarjeta superior y el borde inferior, y `update(t, dt)`. La ronda termina llamando a `resolve(ok, { chino, pinyin, espanol })`. Las transiciones entre rondas son un único barrido continuo de cámara (`transitionOut` → `startRound`), sin saltos.
@@ -58,7 +59,7 @@ Cada ronda se crea con `newRound()`. Define `layout()`, que coloca las piezas us
 
 ## Depuración
 - `?perf`: FPS, ms, draw calls y el peor fotograma de cada ronda; `__bench(n, pr)` mide n renders; `__ab(a, b)` compara dos configuraciones píxel a píxel; `__dbg` expone renderer/composer/round.
-- `index.html?mode=<clave>` fuerza un modo, `?topic=mix|words|char|num|talk` un tema y `?lesson=1|2|3|4` una lección. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
+- `index.html?mode=<clave>` fuerza un modo, `?topic=mix|words|char|num|talk|write` un tema y `?lesson=1|2|3|4` una lección. `&sub=reply|blank|meaning` fuerza el subtipo de conversación; en `pairs`, `&sub=zhEs|zhPy|esPy|numZh|numPy|mix`.
 - Probar siempre a tamaño móvil (390×844). El sonido se activa con el toque del sello 开始. En el altavoz, toque = repetir y mantener = repetir despacio (`holdToSlow`).
 - Al probar en el panel del navegador (oculto), `gsap.ticker.lagSmoothing(0)` hace que las animaciones avancen en tiempo real.
 

@@ -169,6 +169,21 @@
   .topic b{display:block;font-size:16px;font-weight:600;color:#fff1d2}
   .topic span{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:rgba(255,226,192,.65)}
   .topic:disabled,.lesson:disabled{opacity:.35;cursor:default}
+  /* ---------- 写 Escritura: papel con cuadrícula 米字格 y trazos con el dedo ---------- */
+  .write{position:fixed;left:50%;z-index:5;display:flex;flex-direction:column;align-items:center;gap:12px;transform:translateX(-50%);opacity:0}
+  .write .steps{display:flex;gap:6px}
+  .write .step{padding:5px 11px;border-radius:999px;font:600 12px var(--sans);color:rgba(255,226,192,.55);
+    background:rgba(38,4,9,.45);border:1px solid var(--hair);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .write .step.on{color:#fff1d2;border-color:rgba(255,214,140,.65);background:linear-gradient(180deg,rgba(243,197,107,.32),rgba(190,110,40,.22))}
+  .write .step.done{color:#9dffc0;border-color:rgba(120,230,160,.45)}
+  .write .paper{position:relative;border-radius:22px;overflow:hidden;touch-action:none;
+    background:linear-gradient(180deg,#fbf3e2,#efe2c4);box-shadow:inset 0 0 0 3px rgba(150,32,30,.5),inset 0 0 0 9px #fbf3e2,inset 0 0 0 10px rgba(190,140,60,.45),0 24px 50px -18px rgba(0,0,0,.85)}
+  .write .paper svg.grid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .write .paper .hw{position:relative}
+  .write .info{min-height:20px;font:600 14px var(--sans);color:rgba(255,232,200,.88);text-align:center}
+  .write .again{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;cursor:pointer;font:600 13px var(--sans);color:#fff1d2;
+    background:rgba(38,4,9,.5);border:1px solid rgba(255,214,140,.4);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .write .again:active{transform:scale(.95)}
   .lessons{display:flex;gap:8px;margin:0 2px 10px}
   .lesson-h{margin:4px 6px 6px;font:600 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,215,160,.55)}
   .lesson{flex:1;padding:10px 0;border-radius:14px;cursor:pointer;font:600 15px var(--sans);white-space:nowrap;color:#fff1d2;
@@ -319,6 +334,14 @@ VOCAB.find(v => v.chino === '老师').syn = 'prof';   // 老师 y 师 = «Profes
 const WRITE_CHARS = ['力', '门', '也', '马', '木', '林', '女', '火', '人', '丁', '刀', '又', '大', '口', '土', '尼', '不', '可', '吗', '呢', '妈妈', '哥哥',
   '匕', '中', '日', '贝', '玉', '矢', '生', '者', '老', '师', '医', '他', '她', '你', '那', '哪', '都', '国', '是'];
 VOCAB.forEach(v => { if (WRITE_CHARS.includes(v.chino)) v.c = true; });
+// 写 Escritura: caracteres cuyo orden de trazos se practica, con la lección en que se aprendieron a ESCRIBIR.
+// Los trazos están en trazos/<carácter>.json (datos de Hanzi Writer, licencia en trazos/ARPHICPL.TXT).
+const WRITE_LESSONS = { 1: '力门也马女木火人林一二三四五六七八九十零百', 2: '丁刀又大口土不可吗呢妈哥', 4: '匕中日贝玉矢生者他她们你那哪都老师国医是' };
+const WRITE_EXTRA = { '妈': ['mā', 'Mamá (de 妈妈)'], '哥': ['gē', 'Hermano mayor (de 哥哥)'], '们': ['men', 'Plural de personas (我们, 他们)'] };
+const WRITE = Object.entries(WRITE_LESSONS).flatMap(([l, str]) => [...str].map(c => {
+  const v = VOCAB.find(x => x.chino === c), x = WRITE_EXTRA[c];
+  return { chino: c, pinyin: v ? v.pinyin : x[0], espanol: v ? v.espanol : x[1], l: +l };
+}));
 const NUMS = VOCAB.slice(0, 10);
 const ZERO = VOCAB.find(v => v.chino === '零'), BAI = VOCAB.find(v => v.chino === '百');
 const DI = VOCAB.find(v => v.chino === '第'), YE = VOCAB.find(v => v.chino === '页');
@@ -1553,7 +1576,7 @@ async function resolve(ok, ans, info = {}) {
   state.locked = true;
   const R = round;
   if (!info.noMem) Mem.record(memKey(ans), ok);
-  if (!ok) Echo.push(ans, lastMode);
+  if (!ok && !info.noEcho) Echo.push(ans, lastMode);
   if (ok) { sfx.correct(); haptic(14); await sleep(1300); }   // sin cartel de 很好/对 (distraía): el verde lo pone el halo de la pieza
   else { haptic([30, 50, 30]); flashBg(false); await sleep(550); Speech.say(ans.chino, R && R.speakRate); await UI.reveal(ans, info); }
   if (round !== R || R.exiting) return;   // p. ej. se ha cambiado de tema mientras tanto
@@ -1564,7 +1587,7 @@ async function resolve(ok, ans, info = {}) {
 // la ronda nueva se crea a mitad del barrido y la cámara vuelve al centro sin ningún salto.
 let sweepDir = 1;
 function transitionOut() {
-  const R = round; R.exiting = true; sfx.whoosh(); UI.hidePrompt();
+  const R = round; R.exiting = true; sfx.whoosh(); UI.hidePrompt(); if (R.onExit) R.onExit();
   sweepDir = Math.random() < .5 ? -1 : 1;
   gsap.to(rig.rotation, { y: sweepDir * .3, x: -.04, z: 0, duration: .75, ease: 'power2.in', overwrite: true });
   gsap.to(rig.position, { z: 2.4, duration: .75, ease: 'power2.in', overwrite: true });
@@ -1590,6 +1613,7 @@ const MODES = {
   pairs:   { create: () => roundPairs(), w: 2 },
   page:    { create: () => Math.random() < .5 ? roundNumbers({ page: true }) : roundPlaques(true) },
   order:   { create: () => roundOrder(), w: 2 },
+  write:   { create: () => roundWrite(), solo: true },   // solo en su tema: las rondas son largas
   dictation: { create: () => { const e = Echo.peek('n'), both = numsInLesson() && pagesInLesson();
                  return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesInLesson() }); },
                ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
@@ -1613,6 +1637,7 @@ const TOPICS = {
   num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页), dictado y parejas',
           modes: ['numbers', 'pyNum', 'page', 'dictation', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
   talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar, ordenar y traducir frases', modes: ['dialog', 'order'] },
+  write: { seal: '写', name: 'Escritura', desc: 'Orden de trazos: míralo, cálcalo y escríbelo de memoria', modes: ['write'] },
 };
 let topicKey = (() => {
   const q = new URLSearchParams(location.search).get('topic');
@@ -1651,6 +1676,7 @@ function modeFits(k) {
     case 'pairs': return pairTypes().length > 0;
     case 'dialog': return dialogSubs().length > 0;
     case 'order': return ph.some(P => orderWords(P).length >= 3);
+    case 'write': return writePool().length > 0;
   }
   return true;
 }
@@ -1664,11 +1690,11 @@ function dialogSubs() {
 // Modos jugables para una combinación tema + lección (sin cambiar la actual)
 function modesFor(tk, lk) {
   const T0 = topicKey, L0 = lessonKey; topicKey = tk; lessonKey = lk;
-  try { return (TOPICS[tk].modes || Object.keys(MODES)).filter(k => MODES[k] && modeFits(k)); } finally { topicKey = T0; lessonKey = L0; }
+  try { return (TOPICS[tk].modes || Object.keys(MODES).filter(k => !MODES[k].solo)).filter(k => MODES[k] && modeFits(k)); } finally { topicKey = T0; lessonKey = L0; }
 }
 function startRound() {
   if (!modesFor(topicKey, lessonKey).length) lessonKey = 'all';   // combinación sin material (no debería pasar: el menú la desactiva)
-  let keys = (TOPICS[topicKey].modes || Object.keys(MODES)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()) && modeFits(k));
+  let keys = (TOPICS[topicKey].modes || Object.keys(MODES).filter(k => !MODES[k].solo)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()) && modeFits(k));
   if (!keys.length) keys = modesFor(topicKey, lessonKey);
   if (keys.some(k => k !== lastMode)) keys = keys.filter(k => k !== lastMode);   // nunca el mismo dos veces (si hay otro)
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
@@ -2278,6 +2304,116 @@ function roundOrder() {
       }, 680);
     }
   }
+  return R;
+}
+
+/* ---------------------------------------------------------------------
+   MODO 10 · 写 — Escritura: orden de trazos con el dedo (Hanzi Writer)
+   1) Ver: se dibuja solo, trazo a trazo · 2) Calcar sobre la silueta · 3) De memoria
+   --------------------------------------------------------------------- */
+const writePool = () => WRITE.filter(inLesson);
+const HW_URL = 'https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.3/dist/hanzi-writer.min.js';
+let _hw = null;
+const loadHanziWriter = () => _hw || (_hw = new Promise((res, rej) => {
+  const sc = document.createElement('script'); sc.src = HW_URL; sc.onload = () => res(window.HanziWriter); sc.onerror = () => { _hw = null; rej(); };
+  document.head.appendChild(sc);
+}));
+// Trazos guardados en el repo (funciona sin conexión); si faltase alguno, se pide al CDN
+const hwLoader = (c, onLoad, onError) => fetch('trazos/' + encodeURIComponent(c) + '.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .catch(() => fetch('https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/' + encodeURIComponent(c) + '.json').then(r => r.json()))
+  .then(onLoad, onError);
+const GRID_SVG = '<svg class="grid" viewBox="0 0 100 100" preserveAspectRatio="none"><g stroke="rgba(170,40,30,.28)" stroke-width=".5" stroke-dasharray="2.2 2" fill="none">' +
+  '<line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><line x1="0" y1="0" x2="100" y2="100"/><line x1="100" y1="0" x2="0" y2="100"/></g></svg>';
+const recentW = [];
+function roundWrite() {
+  const R = newRound('write');
+  const pool = writePool(), fresh = pool.filter(v => !recentW.includes(v.chino));
+  const item = wpick(fresh.length ? fresh : pool, v => 'w:' + v.chino);
+  recentW.push(item.chino); if (recentW.length > 6) recentW.shift();
+  UI.prompt({ seal: '写', chip: 'Escritura', title: item.espanol, long: true, sub: `${item.pinyin} · mira el orden de los trazos`, speaker: true });
+  R.speakText = item.chino;
+  setTimeout(() => { if (round === R && !R.exiting) Speech.say(item.chino); }, 700);
+  const el = document.createElement('div'); el.className = 'write';
+  el.innerHTML = `<div class="steps"><span class="step on">1 · Ver</span><span class="step">2 · Calcar</span><span class="step">3 · De memoria</span></div>
+    <div class="paper">${GRID_SVG}<div class="hw"></div></div><div class="info">Cargando…</div>
+    <button class="again"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Ver otra vez</button>`;
+  document.body.appendChild(el);
+  // Los toques en el papel son trazos: que no lleguen al lienzo 3D
+  el.addEventListener('pointerdown', e => e.stopPropagation());
+  const $w = q => el.querySelector(q), steps = [...el.querySelectorAll('.step')], info = t => { $w('.info').textContent = t; };
+  let writer = null, N = 0, phase = 0, mistakes = 0, size = 260, run = 0;
+  R.layout = () => {
+    const top = $('#card').getBoundingClientRect().bottom + 14, bottom = innerHeight - safeBottom() - 16;
+    size = Math.round(Math.max(180, Math.min(innerWidth - 48, 380, bottom - top - 112)));
+    el.style.top = top + 'px'; $w('.paper').style.width = $w('.paper').style.height = size + 'px';
+    if (writer) writer.updateDimensions({ width: size, height: size });
+  };
+  R.layout();
+  gsap.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .6, ease: 'expo.out', delay: .15 });
+  R.onExit = () => { run++; try { writer && writer.cancelQuiz(); } catch (e) {} gsap.to(el, { opacity: 0, y: -20, duration: .35, ease: 'power2.in', onComplete: () => el.remove() }); };
+  const setPhase = i => { phase = i; steps.forEach((st, k) => { st.classList.toggle('on', k === i); st.classList.toggle('done', k < i); }); };
+  // 1 · Ver: el carácter se dibuja solo, trazo a trazo
+  async function watch() {
+    const my = ++run; try { writer.cancelQuiz(); } catch (e) {}
+    writer.hideOutline(); writer.hideCharacter({ duration: 0 });
+    for (let k = 0; k < N; k++) {
+      if (my !== run || R.exiting) return false;
+      info(`Trazo ${k + 1} de ${N}`);
+      await writer.animateStroke(k);
+      await sleep(260);
+    }
+    return my === run && !R.exiting;
+  }
+  // 2 · Calcar sobre la silueta · 3 · De memoria (con pista tras varios fallos)
+  function quiz(memory) {
+    const my = run;
+    setPhase(memory ? 2 : 1);
+    writer.hideCharacter({ duration: 0 }); memory ? writer.hideOutline() : writer.showOutline();
+    info(memory ? `Escríbelo de memoria · ${N} trazos` : `Calca el trazo 1 de ${N}`);
+    writer.quiz({
+      showHintAfterMisses: memory ? 3 : 2, leniency: 1.2, highlightOnComplete: true,
+      onMistake: () => { if (memory) mistakes++; sfx.tap(); },
+      onCorrectStroke: d => { sfx.place(); if (d.strokesRemaining) info(memory ? `Bien · quedan ${d.strokesRemaining}` : `Calca el trazo ${d.strokeNum + 2} de ${N}`); },
+      onComplete: () => {
+        if (my !== run || R.exiting) return;
+        if (!memory) { info('¡Bien! Ahora sin ayuda'); setTimeout(() => { if (my === run && !R.exiting) quiz(true); }, 700); return; }
+        finish();
+      },
+    });
+  }
+  function finish() {
+    state.locked = true;
+    steps.forEach(st => { st.classList.remove('on'); st.classList.add('done'); });
+    writer.updateColor('strokeColor', '#1f8a4c'); writer.showCharacter();
+    const ok = mistakes <= Math.max(2, Math.ceil(N / 2));
+    Mem.record('w:' + item.chino, ok);
+    if (ok) {
+      info(mistakes ? `Hecho · ${mistakes} ${mistakes === 1 ? 'fallo' : 'fallos'}` : '¡Perfecto!');
+      Speech.say(item.chino);
+      celebrate(new THREE.Vector3(0, area().cy + world.position.y, .5));
+      resolve(true, item, { noMem: true });
+    } else {
+      info(`${mistakes} fallos: mira otra vez el orden`);
+      resolve(false, item, { noMem: true, noEcho: true, why: `${item.chino} tiene ${N} trazos. Repite «Ver» y fíjate en el orden: de arriba abajo y de izquierda a derecha` });
+    }
+  }
+  $w('.again').addEventListener('click', async e => {
+    e.stopPropagation(); if (!writer || state.locked) return; sfx.tap();
+    const back = phase; setPhase(0);
+    if (await watch()) quiz(back === 2);
+  });
+  // Arranque: carga la librería y los trazos, y empieza por «Ver»
+  loadHanziWriter().then(HW => HW.loadCharacterData(item.chino, { charDataLoader: hwLoader }).then(data => {
+    if (R.exiting) return;
+    N = data.strokes.length;
+    writer = HW.create($w('.hw'), item.chino, {
+      width: size, height: size, padding: Math.round(size * .08), showCharacter: false, showOutline: false,
+      strokeColor: '#3a0a0a', outlineColor: 'rgba(120,40,30,.16)', drawingColor: '#b3121b', drawingWidth: 10,
+      highlightColor: '#e0402f', strokeAnimationSpeed: .9, delayBetweenStrokes: 0, charDataLoader: hwLoader,
+    });
+    setTimeout(async () => { if (await watch()) quiz(false); }, 900);
+  })).catch(() => { if (!R.exiting) info('No se han podido cargar los trazos (¿sin conexión?)'); });
   return R;
 }
 
