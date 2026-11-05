@@ -169,8 +169,9 @@
   .topic b{display:block;font-size:16px;font-weight:600;color:#fff1d2}
   .topic span{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:rgba(255,226,192,.65)}
   .topic:disabled,.lesson:disabled{opacity:.35;cursor:default}
-  .lessons{display:flex;gap:8px;margin:0 2px 6px}
-  .lesson{flex:1;padding:10px 0;border-radius:14px;cursor:pointer;font:600 12.5px var(--sans);white-space:nowrap;color:#fff1d2;
+  .lessons{display:flex;gap:8px;margin:0 2px 10px}
+  .lesson-h{margin:4px 6px 6px;font:600 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,215,160,.55)}
+  .lesson{flex:1;padding:10px 0;border-radius:14px;cursor:pointer;font:600 15px var(--sans);white-space:nowrap;color:#fff1d2;
     background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14)}
   .lesson.on{background:linear-gradient(180deg,rgba(243,197,107,.3),rgba(190,110,40,.2));border-color:rgba(255,214,140,.6)}
 </style>
@@ -289,7 +290,35 @@ const VOCAB = [
   { espanol: "Vino tinto", chino: "红酒", pinyin: "hóngjiǔ", l: 3 }, { espanol: "Vino blanco", chino: "白酒", pinyin: "báijiǔ", l: 3 },
   { espanol: "Cerveza", chino: "啤酒", pinyin: "píjiǔ", l: 3 }, { espanol: "Sidra", chino: "苹果酒", pinyin: "píngguǒjiǔ", l: 3 },
   { espanol: "Zumo de uva", chino: "葡萄汁", pinyin: "pútaozhī", l: 3 },
+  // Lección 4 (l: 4): 这是谁 · países e idiomas (país + 语/文) · caracteres para escribir
+  { espanol: "Este, esto", chino: "这", pinyin: "zhè", l: 4 }, { espanol: "Médico", chino: "医生", pinyin: "yīshēng", l: 4 },
+  { espanol: "Abuela paterna", chino: "奶奶", pinyin: "nǎinai", l: 4 }, { espanol: "Abuela materna", chino: "外婆", pinyin: "wàipó", l: 4 },
+  { espanol: "Cumpleaños", chino: "生日", pinyin: "shēngrì", l: 4 },
+  { espanol: "Francia", chino: "法国", pinyin: "Fǎguó", l: 4 }, { espanol: "Portugal", chino: "葡萄牙", pinyin: "Pútáoyá", l: 4 },
+  { espanol: "Reino Unido", chino: "英国", pinyin: "Yīngguó", l: 4 }, { espanol: "Alemania", chino: "德国", pinyin: "Déguó", l: 4 },
+  { espanol: "Italia", chino: "意大利", pinyin: "Yìdàlì", l: 4 }, { espanol: "Estados Unidos", chino: "美国", pinyin: "Měiguó", l: 4 },
+  { espanol: "Japón", chino: "日本", pinyin: "Rìběn", l: 4 }, { espanol: "Corea del Sur", chino: "韩国", pinyin: "Hánguó", l: 4 },
+  // syn: mismo significado, distinta palabra (汉语/中文…): nunca salen juntas como opciones
+  { espanol: "Idioma chino", chino: "汉语", pinyin: "Hànyǔ", l: 4, syn: 'zh' }, { espanol: "Idioma chino", chino: "中文", pinyin: "Zhōngwén", l: 4, syn: 'zh' },
+  { espanol: "Idioma extranjero", chino: "外语", pinyin: "wàiyǔ", l: 4 },
+  { espanol: "Idioma español", chino: "西班牙语", pinyin: "Xībānyáyǔ", l: 4, syn: 'es' }, { espanol: "Idioma español", chino: "西班牙文", pinyin: "Xībānyáwén", l: 4, syn: 'es' },
+  { espanol: "Euskera", chino: "巴斯克语", pinyin: "Bāsīkèyǔ", l: 4, syn: 'eu' }, { espanol: "Euskera", chino: "巴斯克文", pinyin: "Bāsīkèwén", l: 4, syn: 'eu' },
+  { espanol: "Idioma francés", chino: "法语", pinyin: "Fǎyǔ", l: 4, syn: 'fr' }, { espanol: "Idioma francés", chino: "法文", pinyin: "Fǎwén", l: 4, syn: 'fr' },
+  { espanol: "Idioma inglés", chino: "英语", pinyin: "Yīngyǔ", l: 4 }, { espanol: "Idioma alemán", chino: "德语", pinyin: "Déyǔ", l: 4 },
+  { espanol: "Idioma coreano", chino: "韩语", pinyin: "Hányǔ", l: 4 }, { espanol: "Idioma portugués", chino: "葡萄牙语", pinyin: "Pútáoyáyǔ", l: 4 },
+  { espanol: "Idioma italiano", chino: "意大利语", pinyin: "Yìdàlìyǔ", l: 4 }, { espanol: "Idioma japonés", chino: "日语", pinyin: "Rìyǔ", l: 4 },
+  { espanol: "Daga", chino: "匕", pinyin: "bǐ", l: 4 }, { espanol: "Medio, centro", chino: "中", pinyin: "zhōng", l: 4 },
+  { espanol: "Sol, día", chino: "日", pinyin: "rì", l: 4 }, { espanol: "Concha", chino: "贝", pinyin: "bèi", l: 4 },
+  { espanol: "Jade", chino: "玉", pinyin: "yù", l: 4 }, { espanol: "Flecha", chino: "矢", pinyin: "shǐ", l: 4 },
+  { espanol: "Nacer", chino: "生", pinyin: "shēng", l: 4 }, { espanol: "Persona o cosa (sufijo)", chino: "者", pinyin: "zhě", l: 4 },
+  { espanol: "Viejo", chino: "老", pinyin: "lǎo", l: 4 }, { espanol: "Profesor", chino: "师", pinyin: "shī", l: 4, syn: 'prof' },
+  { espanol: "Curar", chino: "医", pinyin: "yī", l: 4 },
 ];
+VOCAB.find(v => v.chino === '老师').syn = 'prof';   // 老师 y 师 = «Profesor»
+// Caracteres que se aprenden a ESCRIBIR en clase (tema «Caracteres»); el resto es vocabulario
+const WRITE_CHARS = ['力', '门', '也', '马', '木', '林', '女', '火', '人', '丁', '刀', '又', '大', '口', '土', '尼', '不', '可', '吗', '呢', '妈妈', '哥哥',
+  '匕', '中', '日', '贝', '玉', '矢', '生', '者', '老', '师', '医', '他', '她', '你', '那', '哪', '都', '国', '是'];
+VOCAB.forEach(v => { if (WRITE_CHARS.includes(v.chino)) v.c = true; });
 const NUMS = VOCAB.slice(0, 10);
 const ZERO = VOCAB.find(v => v.chino === '零'), BAI = VOCAB.find(v => v.chino === '百');
 const DI = VOCAB.find(v => v.chino === '第'), YE = VOCAB.find(v => v.chino === '页');
@@ -302,10 +331,17 @@ const CONFUSABLE = { '木':['林','火','人'], '林':['木'], '人':['八','火
   '大':['人','六','不'], '土':['十','丁'], '丁':['可','十'], '可':['丁','口','喝'], '口':['可','喝'], '不':['大','木'], '吗':['妈妈','马','呢'],
   '呢':['尼','吗'], '尼':['呢','你'], '喝':['可','口'], '男':['力','女'], '朋友':['男朋友'], '男朋友':['朋友','男'], '第':['弟弟','页'],
   '页':['第','也'], '也':['页'], '你':['他','尼','您'], '很':['都'], '都':['很'],
-  '那':['哪','他'], '哪':['那','吗'], '您':['你','他'], '是':['十','不'], '谁':['那','哪'], '国':['中国','口'], '中国':['中国人','国'],
+  '那':['哪','这','他'], '哪':['那','吗'], '您':['你','他'], '是':['十','不'], '谁':['那','哪'], '国':['中国','口'], '中国':['中国人','国'],
   '中国人':['中国','人'], '西班牙':['巴斯克','中国'], '巴斯克':['西班牙','中国'], '老师':['朋友','男朋友'],
   '酒':['九','红酒','啤酒'], '红酒':['白酒','啤酒','苹果酒'], '白酒':['红酒','啤酒'], '啤酒':['红酒','白酒','苹果酒'], '苹果酒':['啤酒','红酒'],
-  '果汁':['葡萄汁','牛奶'], '葡萄汁':['果汁','红酒'], '牛奶':['茶','水'], '茶':['水','咖啡'], '水':['茶','牛奶'], '可乐':['可','咖啡'] };
+  '果汁':['葡萄汁','牛奶'], '葡萄汁':['果汁','红酒'], '牛奶':['茶','水'], '茶':['水','咖啡'], '水':['茶','牛奶'], '可乐':['可','咖啡'],
+  '这':['那','哪'], '外婆':['奶奶','妈妈'], '奶奶':['外婆','妈妈'], '医生':['老师','生日'], '生日':['生','日本'], '生':['日','中'], '日':['中','口'],
+  '中':['口','日'], '贝':['日','可'], '玉':['土','大'], '矢':['大','火'], '匕':['也','刀'], '者':['老','是'], '老':['者','也'], '师':['是','门'], '医':['口','匕'],
+  '法国':['德国','英国','美国'], '德国':['法国','英国'], '英国':['美国','法国'], '美国':['英国','韩国'], '韩国':['中国','美国'], '日本':['中国','韩国'],
+  '意大利':['葡萄牙','西班牙'], '葡萄牙':['意大利','西班牙'], '汉语':['韩语','日语'], '中文':['日语','英语'], '韩语':['汉语','韩国'], '日语':['汉语','日本'],
+  '英语':['英国','法语'], '法语':['法国','德语'], '德语':['德国','法语'], '西班牙语':['西班牙','葡萄牙语'], '葡萄牙语':['葡萄牙','西班牙语'],
+  '意大利语':['意大利','法语'], '巴斯克语':['巴斯克','西班牙语'], '外语':['外婆','法语'], '西班牙文':['西班牙','法文'], '法文':['法国','西班牙文'],
+  '巴斯克文':['巴斯克','西班牙文'] };
 // Frases de conversación, como tokens [carácter, pinyin] para poder dejar huecos
 const T = (c, p) => ({ c, p });
 const PHRASES = {
@@ -365,6 +401,22 @@ const PHRASES = {
   yaoShui:  { l: 3, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Quiero beber agua.' },
   yeShui:   { l: 3, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Yo también quiero beber agua.' },
   piJiu:    { l: 3, t: [T('他','Tā'), T('要','yào'), T('喝','hē'), T('啤酒','píjiǔ'), T('。','.')], es: 'Él quiere beber cerveza.' },
+  // Lección 4 · 这是谁
+  taSheiQ:  { l: 4, t: [T('他','Tā'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es él?' },
+  taDidi:   { l: 4, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('弟弟','dìdi'), T('。','.')], es: 'Es mi hermano pequeño.' },
+  taPengyou:{ l: 4, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Es mi amigo.' },
+  zheSheiQ: { l: 4, t: [T('这','Zhè'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es este?' },
+  zheGege:  { l: 4, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('哥哥','gēge'), T('。','.')], es: 'Este es mi hermano mayor.' },
+  zhePengyou:{ l: 4, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Este es mi amigo.' },
+  nainaiQ:  { l: 4, voc: true, t: [T('这','Zhè'), T('是','shì'), T('你','nǐ'), T('奶奶','nǎinai'), T('吗','ma'), T('？','?')], es: '¿Esta es tu abuela (paterna)?' },
+  waipo:    { l: 4, t: [T('不','Bú'), T('是','shì'), T('，',','), T('她','tā'), T('是','shì'), T('我','wǒ'), T('外婆','wàipó'), T('。','.')], es: 'No, es mi abuela materna.' },
+  yisheng:  { l: 4, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('，',','), T('我','wǒ'), T('是','shì'), T('医生','yīshēng'), T('。','.')], es: 'No soy profesor, soy médico.' },
+  waiyuLs:  { l: 4, t: [T('他','Tā'), T('是','shì'), T('外语','wàiyǔ'), T('老师','lǎoshī'), T('。','.')], es: 'Es profesor de idiomas.' },
+  faguoQ:   { l: 4, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('吗','ma'), T('？','?')], es: '¿Él es francés?' },
+  faguo:    { l: 4, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él es francés.' },
+  buFaguo:  { l: 4, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él no es francés.' },
+  riben:    { l: 4, t: [T('她','Tā'), T('是','shì'), T('日本','Rìběn'), T('人','rén'), T('。','.')], es: 'Ella es japonesa.' },
+  meiguo:   { l: 4, t: [T('我','Wǒ'), T('朋友','péngyou'), T('是','shì'), T('美国','Měiguó'), T('人','rén'), T('。','.')], es: 'Mi amigo es estadounidense.' },
 };
 const isPunct = tok => /[！？，。、]/.test(tok.c);
 for (const k in PHRASES) {
@@ -398,6 +450,11 @@ const REPLIES = [
   { q: 'yeLaoshiQ', ok: ['buLaoshi'], bad: ['ye', 'nihao', 'yao', 'naguoQ', 'taZgr', 'yeLaoshiQ'] },
   { q: 'chaQ', ok: ['yaoCha'], bad: ['ye', 'nihao', 'mangQ', 'taZgr', 'naguoQ', 'yeShui'] },
   { q: 'yaoShui', ok: ['yeShui'], bad: ['chaQ', 'ye', 'nihao', 'fumuQ', 'sheiQ'] },
+  // Lección 4
+  { q: 'taSheiQ', ok: ['taDidi', 'taPengyou'], bad: ['waipo', 'riben', 'nihao', 'yao', 'taSheiQ', 'mangQ'] },
+  { q: 'zheSheiQ', ok: ['zheGege', 'zhePengyou'], bad: ['naguoQ', 'nihao', 'yao', 'mangQ', 'zheSheiQ'] },
+  { q: 'nainaiQ', ok: ['waipo'], bad: ['taDidi', 'nihao', 'yao', 'taZgr2', 'nainaiQ'] },
+  { q: 'faguoQ', ok: ['faguo', 'buFaguo'], bad: ['riben', 'nihao', 'yao', 'sheiQ', 'faguoQ'] },
 ];
 // Completar la frase: para cada palabra que puede faltar, opciones que NUNCA forman una frase correcta
 // (por eso 很 no tiene 不/也/都 ni 也 tiene 们: 我不忙, 我都好 o 我们很好 también serían válidas)
@@ -450,16 +507,18 @@ function pickTarget(pool) {
 }
 // samePy: false cuando la opción se elige por el sonido o el pinyin (他/她 suenan igual: no pueden salir juntos)
 function charDistractors(target, n, samePy = true, pool = vocabPool()) {
-  const okV = v => v && v !== target && pool.includes(v) && (samePy || v.pinyin !== target.pinyin);
-  const out = shuffle((CONFUSABLE[target.chino] || []).map(c => VOCAB.find(v => v.chino === c)).filter(okV)).slice(0, 2);
-  for (const v of shuffle(pool)) { if (out.length >= n) break; if (okV(v) && !out.includes(v) && (samePy || !out.some(o => o.pinyin === v.pinyin))) out.push(v); }
+  const okV = v => v && v !== target && pool.includes(v) && (samePy || v.pinyin !== target.pinyin) && !(v.syn && v.syn === target.syn);
+  const synOk = v => !(v.syn && out.some(o => o.syn === v.syn));
+  const out = [];
+  for (const v of shuffle((CONFUSABLE[target.chino] || []).map(c => VOCAB.find(v => v.chino === c)).filter(okV))) if (out.length < 2 && synOk(v)) out.push(v);
+  for (const v of shuffle(pool)) { if (out.length >= n) break; if (okV(v) && !out.includes(v) && synOk(v) && (samePy || !out.some(o => o.pinyin === v.pinyin))) out.push(v); }
   return out;
 }
 // Distractores cuyo pinyin se parece (misma inicial o misma última letra): obliga a leer el pinyin entero
 const plain = p => p.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function pinyinDistractors(target, n, pool = vocabPool()) {
-  const t = plain(target.pinyin), okV = v => v !== target && v.pinyin !== target.pinyin;
-  const out = [], add = (v, max) => { if (out.length < max && okV(v) && !out.includes(v) && !out.some(o => o.pinyin === v.pinyin)) out.push(v); };
+  const t = plain(target.pinyin), okV = v => v !== target && v.pinyin !== target.pinyin && !(v.syn && v.syn === target.syn);
+  const out = [], add = (v, max) => { if (out.length < max && okV(v) && !out.includes(v) && !out.some(o => o.pinyin === v.pinyin || (v.syn && o.syn === v.syn))) out.push(v); };
   shuffle(pool.filter(v => plain(v.pinyin)[0] === t[0] || plain(v.pinyin).slice(-1) === t.slice(-1))).forEach(v => add(v, 2));
   shuffle(pool).forEach(v => add(v, n));
   return out;
@@ -549,6 +608,13 @@ function toneWhy(picked, right) {
 // Pistas para los pares que más se confunden (se buscan en cualquier orden)
 const HINTS = {};
 [['他', '她', '亻 (persona) → 他 él · 女 (mujer) → 她 ella'],
+ ['汉语', '韩语', 'Hànyǔ (4.º tono) = chino · Hányǔ (2.º tono) = coreano'],
+ ['这', '那', '这 zhè = este (cerca) · 那 nà = ese (lejos)'],
+ ['奶奶', '外婆', '奶奶 = abuela paterna · 外婆 = abuela materna (外 = de fuera)'],
+ ['是', '师', 'shì (4.º tono) = ser · shī (1.er tono) = profesor'],
+ ['法国', '法语'], ['德国', '德语'], ['英国', '英语'], ['韩国', '韩语'], ['西班牙', '西班牙语'], ['葡萄牙', '葡萄牙语'], ['意大利', '意大利语'], ['巴斯克', '巴斯克语'],
+ ['日本', '日语', '日本 = Japón · 日语 = japonés (se quita 本 y se pone 语)'],
+ ['中国', '汉语', '中国 = China · 汉语 / 中文 = idioma chino'],
  ['那', '哪', '那 nà = eso · 哪 nǎ = ¿cuál? (lleva 口: pregunta)'],
  ['你', '您', '您 = 你 + 心: forma respetuosa (usted)'],
  ['九', '酒', 'Suenan igual (jiǔ): 九 = nueve · 酒 = alcohol (lleva 氵, agua)'],
@@ -576,8 +642,10 @@ const HINTS = {};
  ['女', '她', '女 = mujer · 她 = 女 + 也 (ella)'],
  ['男', '力', '男 = 田 (campo) + 力 (fuerza): varón'],
  ['很', '都', '很 = muy · 都 = todos'],
-].forEach(([a, b, h]) => { HINTS[[a, b].sort().join('|')] = h; });
-const hintFor = (a, b) => HINTS[[a, b].sort().join('|')];
+].forEach(([a, b, h]) => { HINTS[[a, b].sort().join('|')] = h || [a, b]; });
+// Pares país/idioma sin texto propio: «法国 = francia · 法语 = idioma francés (país + 语 = idioma)»
+const hintFor = (a, b) => { const h = HINTS[[a, b].sort().join('|')];
+  return Array.isArray(h) ? `${h[0]} = ${vocabOf(h[0]).espanol} · ${h[1]} = ${lowerFirst(vocabOf(h[1]).espanol)} (país + 语 = idioma)` : h; };
 const lowerFirst = x => x.charAt(0).toLowerCase() + x.slice(1);
 const vocabOf = c => VOCAB.find(v => v.chino === c);
 const pyOf = c => ({ '们': 'men' })[c] || (vocabOf(c) ? vocabOf(c).pinyin : '');
@@ -1538,10 +1606,12 @@ function echoFits(e, k) {
 // Temas: qué tipo de ejercicio sale, siempre con todo el vocabulario de todas las lecciones. «Mezcla» es todo junto.
 const TOPICS = {
   mix:  { seal: '全', name: 'Mezcla', desc: 'Todos los ejercicios mezclados', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
+  words: { seal: '词', name: 'Vocabulario', desc: 'Palabras: significado, pinyin, audio y parejas',
+          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !isNumVocab(v), pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
+  char: { seal: '字', name: 'Caracteres', desc: 'Los que aprendéis a escribir (丁 刀 匕 贝 玉…)',
+          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !!v.c, pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
   num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页), dictado y parejas',
           modes: ['numbers', 'pyNum', 'page', 'dictation', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
-  char: { seal: '字', name: 'Caracteres', desc: 'Carácter, pinyin, significado, audio y parejas',
-          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !isNumVocab(v), pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
   talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar, ordenar y traducir frases', modes: ['dialog', 'order'] },
 };
 let topicKey = (() => {
@@ -1551,7 +1621,7 @@ let topicKey = (() => {
   return 'mix';
 })();
 // Lección (se combina con el tema): 'all' o '1'-'3'. Cada palabra/frase lleva la lección donde apareció por primera vez (l, por defecto 1).
-const LESSONS = { all: 'Todas', 1: 'Lección 1', 2: 'Lección 2', 3: 'Lección 3' };
+const LESSONS = { all: 'Todas', 1: 'Lección 1', 2: 'Lección 2', 3: 'Lección 3', 4: 'Lección 4' };
 let lessonKey = (() => {
   const q = new URLSearchParams(location.search).get('lesson');
   if (LESSONS[q]) return q;
@@ -2334,7 +2404,7 @@ function pairSet(sub, types = Object.keys(PAIR_TYPES)) {
       const [l, r] = PAIR_TYPES[type];
       const ans = l === 'num' ? numItem(randNum()) : pick(vocabPool());
       const a = cardText(ans, l), b = cardText(ans, r);
-      if (zhs.has(ans.chino) || txt.has(a) || txt.has(b) || out.some(o => o.ans.pinyin === ans.pinyin)) break;
+      if (zhs.has(ans.chino) || txt.has(a) || txt.has(b) || out.some(o => o.ans.pinyin === ans.pinyin || (ans.syn && o.ans.syn === ans.syn))) break;
       zhs.add(ans.chino); txt.add(a); txt.add(b); out.push({ ans, l, r });
     }
     if (out.length === 4) return out;
@@ -2481,8 +2551,9 @@ function openTopics(open) {
   if (open) {
     // Lección arriba (se combina con el tema); lo que no tiene material con la otra elección sale desactivado
     $('#topic-list').innerHTML =
-      `<div class="lessons">${['all', '1', '2', '3'].map(k =>
-        `<button class="lesson${k === lessonKey ? ' on' : ''}" data-l="${k}"${modesFor(topicKey, k).length ? '' : ' disabled'}>${k === 'all' ? 'Todas' : 'Lección ' + k}</button>`).join('')}</div>` +
+      `<div class="lesson-h">Lección</div><div class="lessons">${['all', '1', '2', '3', '4'].map(k =>
+        `<button class="lesson${k === lessonKey ? ' on' : ''}" data-l="${k}"${modesFor(topicKey, k).length ? '' : ' disabled'}>${k === 'all' ? 'Todas' : k}</button>`).join('')}</div>` +
+      `<div class="lesson-h">Tipo de ejercicio</div>` +
       Object.entries(TOPICS).map(([k, t]) =>
         `<button class="topic${k === topicKey ? ' on' : ''}" data-k="${k}"${modesFor(k, lessonKey).length ? '' : ' disabled'}><span class="seal">${t.seal}</span><div><b>${t.name}</b><span>${t.desc}</span></div></button>`).join('');
     el.classList.add('on');
