@@ -1637,7 +1637,7 @@ const TOPICS = {
   num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页), dictado y parejas',
           modes: ['numbers', 'pyNum', 'page', 'dictation', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
   talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar, ordenar y traducir frases', modes: ['dialog', 'order'] },
-  write: { seal: '写', name: 'Escritura', desc: 'Orden de trazos: míralo, cálcalo y escríbelo de memoria', modes: ['write'] },
+  write: { seal: '写', name: 'Escritura', desc: 'Orden de trazos de todos los caracteres (sin lecciones)', modes: ['write'] },
 };
 let topicKey = (() => {
   const q = new URLSearchParams(location.search).get('topic');
@@ -2311,7 +2311,7 @@ function roundOrder() {
    MODO 10 · 写 — Escritura: orden de trazos con el dedo (Hanzi Writer)
    1) Ver: se dibuja solo, trazo a trazo · 2) Calcar sobre la silueta · 3) De memoria
    --------------------------------------------------------------------- */
-const writePool = () => WRITE.filter(inLesson);
+const writePool = () => WRITE;   // la escritura no va por lecciones: todos los caracteres, al azar
 const HW_URL = 'https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.3/dist/hanzi-writer.min.js';
 let _hw = null;
 const loadHanziWriter = () => _hw || (_hw = new Promise((res, rej) => {
@@ -2680,7 +2680,7 @@ holdToSlow($('#speak'), () => {
 // Selector de temas
 function paintTopicBtn() {
   $('#topic-seal').textContent = TOPICS[topicKey].seal;
-  $('#topic-name').textContent = TOPICS[topicKey].name + (lessonKey === 'all' ? '' : ' · L' + lessonKey);
+  $('#topic-name').textContent = TOPICS[topicKey].name + (lessonKey === 'all' || topicKey === 'write' ? '' : ' · L' + lessonKey);
 }
 function openTopics(open) {
   const el = $('#topics');
