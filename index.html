@@ -171,6 +171,28 @@
   .topic span{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:rgba(255,226,192,.65)}
   .topic:disabled,.lesson:disabled{opacity:.35;cursor:default}
   /* ---------- 写 Escritura: papel con cuadrícula 米字格 y trazos con el dedo ---------- */
+  /* 读 Lee y entiende */
+  .read{position:fixed;left:50%;z-index:5;width:min(480px,calc(100% - 32px));display:flex;flex-direction:column;align-items:stretch;gap:12px;transform:translateX(-50%);opacity:0}
+  .rd-card{padding:22px 18px 18px;border-radius:24px;text-align:center;
+    background:linear-gradient(180deg,#fbf3e2,#efe2c4);box-shadow:inset 0 0 0 3px rgba(150,32,30,.5),inset 0 0 0 9px #fbf3e2,inset 0 0 0 10px rgba(190,140,60,.45),0 24px 50px -18px rgba(0,0,0,.85)}
+  .rd-zh{font:700 34px/1.3 var(--zh);color:#8a0d14;letter-spacing:.02em;word-break:break-all}
+  .rd-row{position:relative;margin-top:12px;min-height:26px;border-radius:12px}
+  .rd-row i{display:none}
+  .rd-row.hid span{visibility:hidden}
+  .rd-row.hid i{display:grid;place-items:center;position:absolute;inset:0;font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;font-style:normal;
+    color:rgba(110,40,20,.45);border:1.5px dashed rgba(150,80,40,.3)}
+  .rd-py{font:600 19px/1.4 var(--serif);color:#5a2a10}
+  .rd-py .t1{color:#b8860b}.rd-py .t2{color:#1f8a4c}.rd-py .t3{color:#2563b0}.rd-py .t4{color:#c0392b}
+  .rd-es{font:600 17px/1.4 var(--sans);color:#3a1a0c}
+  .rd-btns{display:flex;gap:10px}
+  .rd-b{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border-radius:16px;cursor:pointer;font:600 14px var(--sans);color:#fff1d2;
+    background:rgba(38,4,9,.55);border:1px solid rgba(255,214,140,.4);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .rd-b b{font:700 16px var(--zh);color:#ffd27a}
+  .rd-b:disabled{opacity:.35}
+  .rd-b:active,.rd-next:active{transform:scale(.97)}
+  .rd-next{padding:13px;border:0;border-radius:16px;cursor:pointer;font:700 16px var(--sans);color:#3a0306;
+    background:linear-gradient(180deg,#f7d78c,#d9963c);opacity:.5}
+  .read.done .rd-next{opacity:1;box-shadow:0 0 0 3px rgba(255,214,140,.2),0 10px 24px -12px rgba(0,0,0,.9)}
   .write{position:fixed;left:50%;z-index:5;display:flex;flex-direction:column;align-items:center;gap:12px;transform:translateX(-50%);opacity:0}
   .write .steps{display:flex;gap:6px}
   .write .step{padding:5px 11px;border-radius:999px;font:600 12px var(--sans);color:rgba(255,226,192,.55);
@@ -307,79 +329,94 @@ const VOCAB = [
   { espanol: "Cero", chino: "零", pinyin: "líng" }, { espanol: "Cien", chino: "百", pinyin: "bǎi" },
   { espanol: "Yo", chino: "我", pinyin: "wǒ" }, { espanol: "Tú", chino: "你", pinyin: "nǐ" },
   { espanol: "Bien, bueno", chino: "好", pinyin: "hǎo" }, { espanol: "Muy", chino: "很", pinyin: "hěn" },
-  // Lección 2 (l: 2): 你忙吗 · 你要咖啡吗 · caracteres básicos · número de página
-  { espanol: "Ocupado", chino: "忙", pinyin: "máng", l: 2 }, { espanol: "Partícula ¿sí o no?", chino: "吗", pinyin: "ma", l: 2 },
-  { espanol: "Partícula ¿y…?", chino: "呢", pinyin: "ne", l: 2 }, { espanol: "No", chino: "不", pinyin: "bù", l: 2 },
-  { espanol: "Padre", chino: "爸爸", pinyin: "bàba", l: 2 }, { espanol: "Madre", chino: "妈妈", pinyin: "māma", l: 2 },
-  { espanol: "Hermano mayor", chino: "哥哥", pinyin: "gēge", l: 2 }, { espanol: "Hermano menor", chino: "弟弟", pinyin: "dìdi", l: 2 },
-  { espanol: "Él", chino: "他", pinyin: "tā", l: 2 }, { espanol: "Ella", chino: "她", pinyin: "tā", l: 2 },
-  { espanol: "Ellos", chino: "他们", pinyin: "tāmen", l: 2 }, { espanol: "Ellas", chino: "她们", pinyin: "tāmen", l: 2 },
-  { espanol: "Nosotros", chino: "我们", pinyin: "wǒmen", l: 2 }, { espanol: "Vosotros", chino: "你们", pinyin: "nǐmen", l: 2 },
-  { espanol: "Todos, ambos", chino: "都", pinyin: "dōu", l: 2 }, { espanol: "Varón", chino: "男", pinyin: "nán", l: 2 },
-  { espanol: "Amigo", chino: "朋友", pinyin: "péngyou", l: 2 }, { espanol: "Novio", chino: "男朋友", pinyin: "nánpéngyou", l: 2 },
-  { espanol: "Querer", chino: "要", pinyin: "yào", l: 2 }, { espanol: "Beber", chino: "喝", pinyin: "hē", l: 2 },
-  { espanol: "Café", chino: "咖啡", pinyin: "kāfēi", l: 2 },
-  { espanol: "Clavo", chino: "丁", pinyin: "dīng", l: 2 }, { espanol: "Cuchillo", chino: "刀", pinyin: "dāo", l: 2 },
-  { espanol: "Otra vez", chino: "又", pinyin: "yòu", l: 2 }, { espanol: "Grande", chino: "大", pinyin: "dà", l: 2 },
-  { espanol: "Boca", chino: "口", pinyin: "kǒu", l: 2 }, { espanol: "Tierra", chino: "土", pinyin: "tǔ", l: 2 },
-  { espanol: "Monja budista", chino: "尼", pinyin: "ní", l: 2 }, { espanol: "Poder", chino: "可", pinyin: "kě", l: 2 },
-  { espanol: "Ordinal (1.º, 2.º…)", chino: "第", pinyin: "dì", l: 2 }, { espanol: "Página", chino: "页", pinyin: "yè", l: 2 },
-  // Lección 3 (l: 3): 她是哪国人 · bebidas
-  { espanol: "Ser", chino: "是", pinyin: "shì", l: 3 }, { espanol: "¿Cuál?, ¿de qué?", chino: "哪", pinyin: "nǎ", l: 3 },
-  { espanol: "País", chino: "国", pinyin: "guó", l: 3 }, { espanol: "Ese, eso", chino: "那", pinyin: "nà", l: 3 },
-  { espanol: "¿Quién?", chino: "谁", pinyin: "shéi", l: 3 }, { espanol: "Profesor", chino: "老师", pinyin: "lǎoshī", l: 3 },
-  { espanol: "China", chino: "中国", pinyin: "Zhōngguó", l: 3 }, { espanol: "Chino (persona)", chino: "中国人", pinyin: "Zhōngguórén", l: 3 },
-  { espanol: "España", chino: "西班牙", pinyin: "Xībānyá", l: 3 }, { espanol: "País Vasco", chino: "巴斯克", pinyin: "Bāsīkè", l: 3 },
-  { espanol: "Usted", chino: "您", pinyin: "nín", l: 3 },
-  { espanol: "Leche", chino: "牛奶", pinyin: "niúnǎi", l: 3 }, { espanol: "Té", chino: "茶", pinyin: "chá", l: 3 },
-  { espanol: "Agua", chino: "水", pinyin: "shuǐ", l: 3 }, { espanol: "Zumo", chino: "果汁", pinyin: "guǒzhī", l: 3 },
-  { espanol: "Coca-Cola", chino: "可乐", pinyin: "kělè", l: 3 }, { espanol: "Alcohol", chino: "酒", pinyin: "jiǔ", l: 3 },
-  { espanol: "Vino tinto", chino: "红酒", pinyin: "hóngjiǔ", l: 3 }, { espanol: "Vino blanco", chino: "白酒", pinyin: "báijiǔ", l: 3 },
-  { espanol: "Cerveza", chino: "啤酒", pinyin: "píjiǔ", l: 3 }, { espanol: "Sidra", chino: "苹果酒", pinyin: "píngguǒjiǔ", l: 3 },
-  { espanol: "Zumo de uva", chino: "葡萄汁", pinyin: "pútaozhī", l: 3 },
-  // Lección 4 (l: 4): 这是谁 · países e idiomas (país + 语/文) · caracteres para escribir
-  { espanol: "Este, esto", chino: "这", pinyin: "zhè", l: 4 }, { espanol: "Médico", chino: "医生", pinyin: "yīshēng", l: 4 },
-  { espanol: "Abuela paterna", chino: "奶奶", pinyin: "nǎinai", l: 4 }, { espanol: "Abuela materna", chino: "外婆", pinyin: "wàipó", l: 4 },
-  { espanol: "Cumpleaños", chino: "生日", pinyin: "shēngrì", l: 4 },
-  { espanol: "Francia", chino: "法国", pinyin: "Fǎguó", l: 4 }, { espanol: "Portugal", chino: "葡萄牙", pinyin: "Pútáoyá", l: 4 },
-  { espanol: "Reino Unido", chino: "英国", pinyin: "Yīngguó", l: 4 }, { espanol: "Alemania", chino: "德国", pinyin: "Déguó", l: 4 },
-  { espanol: "Italia", chino: "意大利", pinyin: "Yìdàlì", l: 4 }, { espanol: "Estados Unidos", chino: "美国", pinyin: "Měiguó", l: 4 },
-  { espanol: "Japón", chino: "日本", pinyin: "Rìběn", l: 4 }, { espanol: "Corea del Sur", chino: "韩国", pinyin: "Hánguó", l: 4 },
+  // Lección 1 (l: 1): 你忙吗 · 你要咖啡吗 · caracteres básicos · número de página
+  { espanol: "Ocupado", chino: "忙", pinyin: "máng", l: 1 }, { espanol: "Partícula ¿sí o no?", chino: "吗", pinyin: "ma", l: 1 },
+  { espanol: "Partícula ¿y…?", chino: "呢", pinyin: "ne", l: 1 }, { espanol: "No", chino: "不", pinyin: "bù", l: 1 },
+  { espanol: "Padre", chino: "爸爸", pinyin: "bàba", l: 1 }, { espanol: "Madre", chino: "妈妈", pinyin: "māma", l: 1 },
+  { espanol: "Hermano mayor", chino: "哥哥", pinyin: "gēge", l: 1 }, { espanol: "Hermano menor", chino: "弟弟", pinyin: "dìdi", l: 1 },
+  { espanol: "Él", chino: "他", pinyin: "tā", l: 1 }, { espanol: "Ella", chino: "她", pinyin: "tā", l: 1 },
+  { espanol: "Ellos", chino: "他们", pinyin: "tāmen", l: 1 }, { espanol: "Ellas", chino: "她们", pinyin: "tāmen", l: 1 },
+  { espanol: "Nosotros", chino: "我们", pinyin: "wǒmen", l: 1 }, { espanol: "Vosotros", chino: "你们", pinyin: "nǐmen", l: 1 },
+  { espanol: "Todos, ambos", chino: "都", pinyin: "dōu", l: 1 }, { espanol: "Varón", chino: "男", pinyin: "nán", l: 1 },
+  { espanol: "Amigo", chino: "朋友", pinyin: "péngyou", l: 1 }, { espanol: "Novio", chino: "男朋友", pinyin: "nánpéngyou", l: 1 },
+  { espanol: "Querer", chino: "要", pinyin: "yào", l: 1 }, { espanol: "Beber", chino: "喝", pinyin: "hē", l: 1 },
+  { espanol: "Café", chino: "咖啡", pinyin: "kāfēi", l: 1 },
+  { espanol: "Clavo", chino: "丁", pinyin: "dīng", l: 1 }, { espanol: "Cuchillo", chino: "刀", pinyin: "dāo", l: 1 },
+  { espanol: "Otra vez", chino: "又", pinyin: "yòu", l: 1 }, { espanol: "Grande", chino: "大", pinyin: "dà", l: 1 },
+  { espanol: "Boca", chino: "口", pinyin: "kǒu", l: 1 }, { espanol: "Tierra", chino: "土", pinyin: "tǔ", l: 1 },
+  { espanol: "Monja budista", chino: "尼", pinyin: "ní", l: 1 }, { espanol: "Poder", chino: "可", pinyin: "kě", l: 1 },
+  { espanol: "Ordinal (1.º, 2.º…)", chino: "第", pinyin: "dì", l: 1 }, { espanol: "Página", chino: "页", pinyin: "yè", l: 1 },
+  // Lección 2 (l: 2): 她是哪国人 · bebidas
+  { espanol: "Ser", chino: "是", pinyin: "shì", l: 2 }, { espanol: "¿Cuál?, ¿de qué?", chino: "哪", pinyin: "nǎ", l: 2 },
+  { espanol: "País", chino: "国", pinyin: "guó", l: 2 }, { espanol: "Ese, eso", chino: "那", pinyin: "nà", l: 2 },
+  { espanol: "¿Quién?", chino: "谁", pinyin: "shéi", l: 2 }, { espanol: "Profesor", chino: "老师", pinyin: "lǎoshī", l: 2 },
+  { espanol: "China", chino: "中国", pinyin: "Zhōngguó", l: 2 }, { espanol: "Chino (persona)", chino: "中国人", pinyin: "Zhōngguórén", l: 2 },
+  { espanol: "España", chino: "西班牙", pinyin: "Xībānyá", l: 2 }, { espanol: "País Vasco", chino: "巴斯克", pinyin: "Bāsīkè", l: 2 },
+  { espanol: "Usted", chino: "您", pinyin: "nín", l: 2 },
+  { espanol: "Leche", chino: "牛奶", pinyin: "niúnǎi", l: 2 }, { espanol: "Té", chino: "茶", pinyin: "chá", l: 2 },
+  { espanol: "Agua", chino: "水", pinyin: "shuǐ", l: 2 }, { espanol: "Zumo", chino: "果汁", pinyin: "guǒzhī", l: 2 },
+  { espanol: "Coca-Cola", chino: "可乐", pinyin: "kělè", l: 2 }, { espanol: "Alcohol", chino: "酒", pinyin: "jiǔ", l: 2 },
+  { espanol: "Vino tinto", chino: "红酒", pinyin: "hóngjiǔ", l: 2 }, { espanol: "Vino blanco", chino: "白酒", pinyin: "báijiǔ", l: 2 },
+  { espanol: "Cerveza", chino: "啤酒", pinyin: "píjiǔ", l: 2 }, { espanol: "Sidra", chino: "苹果酒", pinyin: "píngguǒjiǔ", l: 2 },
+  { espanol: "Zumo de uva", chino: "葡萄汁", pinyin: "pútaozhī", l: 2 },
+  // Lección 3 (l: 3): 这是谁 · países e idiomas (país + 语/文) · caracteres para escribir
+  { espanol: "Este, esto", chino: "这", pinyin: "zhè", l: 3 }, { espanol: "Médico", chino: "医生", pinyin: "yīshēng", l: 3 },
+  { espanol: "Abuela paterna", chino: "奶奶", pinyin: "nǎinai", l: 3 }, { espanol: "Abuela materna", chino: "外婆", pinyin: "wàipó", l: 3 },
+  { espanol: "Cumpleaños", chino: "生日", pinyin: "shēngrì", l: 3 },
+  { espanol: "Francia", chino: "法国", pinyin: "Fǎguó", l: 3 }, { espanol: "Portugal", chino: "葡萄牙", pinyin: "Pútáoyá", l: 3 },
+  { espanol: "Reino Unido", chino: "英国", pinyin: "Yīngguó", l: 3 }, { espanol: "Alemania", chino: "德国", pinyin: "Déguó", l: 3 },
+  { espanol: "Italia", chino: "意大利", pinyin: "Yìdàlì", l: 3 }, { espanol: "Estados Unidos", chino: "美国", pinyin: "Měiguó", l: 3 },
+  { espanol: "Japón", chino: "日本", pinyin: "Rìběn", l: 3 }, { espanol: "Corea del Sur", chino: "韩国", pinyin: "Hánguó", l: 3 },
   // syn: mismo significado, distinta palabra (汉语/中文…): nunca salen juntas como opciones
-  { espanol: "Idioma chino", chino: "汉语", pinyin: "Hànyǔ", l: 4, syn: 'zh' }, { espanol: "Idioma chino", chino: "中文", pinyin: "Zhōngwén", l: 4, syn: 'zh' },
-  { espanol: "Idioma extranjero", chino: "外语", pinyin: "wàiyǔ", l: 4 },
-  { espanol: "Idioma español", chino: "西班牙语", pinyin: "Xībānyáyǔ", l: 4, syn: 'es' }, { espanol: "Idioma español", chino: "西班牙文", pinyin: "Xībānyáwén", l: 4, syn: 'es' },
-  { espanol: "Euskera", chino: "巴斯克语", pinyin: "Bāsīkèyǔ", l: 4, syn: 'eu' }, { espanol: "Euskera", chino: "巴斯克文", pinyin: "Bāsīkèwén", l: 4, syn: 'eu' },
-  { espanol: "Idioma francés", chino: "法语", pinyin: "Fǎyǔ", l: 4, syn: 'fr' }, { espanol: "Idioma francés", chino: "法文", pinyin: "Fǎwén", l: 4, syn: 'fr' },
-  { espanol: "Idioma inglés", chino: "英语", pinyin: "Yīngyǔ", l: 4 }, { espanol: "Idioma alemán", chino: "德语", pinyin: "Déyǔ", l: 4 },
-  { espanol: "Idioma coreano", chino: "韩语", pinyin: "Hányǔ", l: 4 }, { espanol: "Idioma portugués", chino: "葡萄牙语", pinyin: "Pútáoyáyǔ", l: 4 },
-  { espanol: "Idioma italiano", chino: "意大利语", pinyin: "Yìdàlìyǔ", l: 4 }, { espanol: "Idioma japonés", chino: "日语", pinyin: "Rìyǔ", l: 4 },
-  { espanol: "Puñal", chino: "匕", pinyin: "bǐ", l: 4 }, { espanol: "Medio, centro", chino: "中", pinyin: "zhōng", l: 4 },
-  { espanol: "Sol, día", chino: "日", pinyin: "rì", l: 4 }, { espanol: "Concha", chino: "贝", pinyin: "bèi", l: 4 },
-  { espanol: "Jade", chino: "玉", pinyin: "yù", l: 4 }, { espanol: "Flecha", chino: "矢", pinyin: "shǐ", l: 4 },
-  { espanol: "Nacer; sufijo de persona", chino: "生", pinyin: "shēng", l: 4 }, { espanol: "Sufijo de persona", chino: "者", pinyin: "zhě", l: 4 },
-  { espanol: "Mayor", chino: "老", pinyin: "lǎo", l: 4 }, { espanol: "Sabio, maestro", chino: "师", pinyin: "shī", l: 4, syn: 'prof' },
-  { espanol: "Curar", chino: "医", pinyin: "yī", l: 4 },
-  { espanol: "Rey; apellido", chino: "王", pinyin: "wáng", l: 4 }, { espanol: "Plural de personas", chino: "们", pinyin: "men", l: 4 },
-  // Lección 5 (l: 5): 认识你很高兴 · pedir permiso · preguntar el nombre
-  { espanol: "Conocer (a alguien)", chino: "认识", pinyin: "rènshi", l: 5 }, { espanol: "Contento, encantado", chino: "高兴", pinyin: "gāoxìng", l: 5 },
-  { espanol: "Alto", chino: "高", pinyin: "gāo", l: 5 }, { espanol: "Poder (pedir permiso)", chino: "可以", pinyin: "kěyǐ", l: 5 },
-  { espanol: "Entrar", chino: "进来", pinyin: "jìnlai", l: 5, syn: 'jin' }, { espanol: "Entrar", chino: "进", pinyin: "jìn", l: 5, syn: 'jin' },
-  { espanol: "Venir", chino: "来", pinyin: "lái", l: 5 }, { espanol: "Por favor; invitar", chino: "请", pinyin: "qǐng", l: 5 },
-  { espanol: "Periodista", chino: "记者", pinyin: "jìzhě", l: 5 }, { espanol: "Perdone, ¿podría preguntarle…?", chino: "请问", pinyin: "qǐngwèn", l: 5 },
-  { espanol: "Preguntar", chino: "问", pinyin: "wèn", l: 5 }, { espanol: "¿Cómo se apellida? (educado)", chino: "贵姓", pinyin: "guìxìng", l: 5 },
-  { espanol: "Apellido; apellidarse", chino: "姓", pinyin: "xìng", l: 5 }, { espanol: "Llamarse", chino: "叫", pinyin: "jiào", l: 5 },
-  { espanol: "Señor", chino: "先生", pinyin: "xiānsheng", l: 5 }, { espanol: "Vale, de acuerdo", chino: "行", pinyin: "xíng", l: 5 },
-  { espanol: "No se puede", chino: "不行", pinyin: "bù xíng", l: 5 },
+  { espanol: "Idioma chino", chino: "汉语", pinyin: "Hànyǔ", l: 3, syn: 'zh' }, { espanol: "Idioma chino", chino: "中文", pinyin: "Zhōngwén", l: 3, syn: 'zh' },
+  { espanol: "Idioma extranjero", chino: "外语", pinyin: "wàiyǔ", l: 3 },
+  { espanol: "Idioma español", chino: "西班牙语", pinyin: "Xībānyáyǔ", l: 3, syn: 'es' }, { espanol: "Idioma español", chino: "西班牙文", pinyin: "Xībānyáwén", l: 3, syn: 'es' },
+  { espanol: "Euskera", chino: "巴斯克语", pinyin: "Bāsīkèyǔ", l: 3, syn: 'eu' }, { espanol: "Euskera", chino: "巴斯克文", pinyin: "Bāsīkèwén", l: 3, syn: 'eu' },
+  { espanol: "Idioma francés", chino: "法语", pinyin: "Fǎyǔ", l: 3, syn: 'fr' }, { espanol: "Idioma francés", chino: "法文", pinyin: "Fǎwén", l: 3, syn: 'fr' },
+  { espanol: "Idioma inglés", chino: "英语", pinyin: "Yīngyǔ", l: 3 }, { espanol: "Idioma alemán", chino: "德语", pinyin: "Déyǔ", l: 3 },
+  { espanol: "Idioma coreano", chino: "韩语", pinyin: "Hányǔ", l: 3 }, { espanol: "Idioma portugués", chino: "葡萄牙语", pinyin: "Pútáoyáyǔ", l: 3 },
+  { espanol: "Idioma italiano", chino: "意大利语", pinyin: "Yìdàlìyǔ", l: 3 }, { espanol: "Idioma japonés", chino: "日语", pinyin: "Rìyǔ", l: 3 },
+  { espanol: "Puñal", chino: "匕", pinyin: "bǐ", l: 3 }, { espanol: "Medio, centro", chino: "中", pinyin: "zhōng", l: 3 },
+  { espanol: "Sol, día", chino: "日", pinyin: "rì", l: 3 }, { espanol: "Concha", chino: "贝", pinyin: "bèi", l: 3 },
+  { espanol: "Jade", chino: "玉", pinyin: "yù", l: 3 }, { espanol: "Flecha", chino: "矢", pinyin: "shǐ", l: 3 },
+  { espanol: "Nacer; sufijo de persona", chino: "生", pinyin: "shēng", l: 3 }, { espanol: "Sufijo de persona", chino: "者", pinyin: "zhě", l: 3 },
+  { espanol: "Mayor", chino: "老", pinyin: "lǎo", l: 3 }, { espanol: "Sabio, maestro", chino: "师", pinyin: "shī", l: 3, syn: 'prof' },
+  { espanol: "Curar", chino: "医", pinyin: "yī", l: 3 },
+  { espanol: "Rey; apellido", chino: "王", pinyin: "wáng", l: 3 }, { espanol: "Plural de personas", chino: "们", pinyin: "men", l: 3 },
+  // Lección 4 (l: 4): 认识你很高兴 · pedir permiso · preguntar el nombre
+  { espanol: "Conocer (a alguien)", chino: "认识", pinyin: "rènshi", l: 4 }, { espanol: "Contento, encantado", chino: "高兴", pinyin: "gāoxìng", l: 4 },
+  { espanol: "Alto", chino: "高", pinyin: "gāo", l: 4 }, { espanol: "Poder (pedir permiso)", chino: "可以", pinyin: "kěyǐ", l: 4 },
+  { espanol: "Entrar", chino: "进来", pinyin: "jìnlai", l: 4, syn: 'jin' }, { espanol: "Entrar", chino: "进", pinyin: "jìn", l: 4, syn: 'jin' },
+  { espanol: "Venir", chino: "来", pinyin: "lái", l: 4 }, { espanol: "Por favor; invitar", chino: "请", pinyin: "qǐng", l: 4 },
+  { espanol: "Periodista", chino: "记者", pinyin: "jìzhě", l: 4 }, { espanol: "Perdone, ¿podría preguntarle…?", chino: "请问", pinyin: "qǐngwèn", l: 4 },
+  { espanol: "Preguntar", chino: "问", pinyin: "wèn", l: 4 }, { espanol: "¿Cómo se apellida? (educado)", chino: "贵姓", pinyin: "guìxìng", l: 4 },
+  { espanol: "Apellido; apellidarse", chino: "姓", pinyin: "xìng", l: 4 }, { espanol: "Llamarse", chino: "叫", pinyin: "jiào", l: 4 },
+  { espanol: "Señor", chino: "先生", pinyin: "xiānsheng", l: 4 }, { espanol: "Vale, de acuerdo", chino: "行", pinyin: "xíng", l: 4 },
+  { espanol: "No se puede", chino: "不行", pinyin: "bù xíng", l: 4 },
+  // Lección 4 (2.ª parte): caracteres para escribir, 非常/超级, 加油, fechas y semana, estudiar
+  { espanol: "Pequeño", chino: "小", pinyin: "xiǎo", l: 4 }, { espanol: "Corazón", chino: "心", pinyin: "xīn", l: 4 },
+  { espanol: "Luna; mes", chino: "月", pinyin: "yuè", l: 4 }, { espanol: "Mano", chino: "手", pinyin: "shǒu", l: 4 },
+  { espanol: "Campo (de cultivo)", chino: "田", pinyin: "tián", l: 4 }, { espanol: "Blanco", chino: "白", pinyin: "bái", l: 4 },
+  { espanol: "Solo, solamente", chino: "只", pinyin: "zhǐ", l: 4 }, { espanol: "Palabra", chino: "言", pinyin: "yán", l: 4 },
+  { espanol: "Extremadamente", chino: "非常", pinyin: "fēicháng", l: 4 }, { espanol: "Súper (coloquial)", chino: "超级", pinyin: "chāojí", l: 4 },
+  { espanol: "¡Ánimo!", chino: "加油", pinyin: "jiāyóu", l: 4 },
+  { espanol: "Semana", chino: "星期", pinyin: "xīngqī", l: 4 }, { espanol: "Día (del mes)", chino: "号", pinyin: "hào", l: 4 },
+  { espanol: "Cielo; día", chino: "天", pinyin: "tiān", l: 4 },
+  { espanol: "¿Qué?", chino: "什么", pinyin: "shénme", l: 4 }, { espanol: "Estudiar, aprender", chino: "学习", pinyin: "xuéxí", l: 4 },
+  { espanol: "Estudiante", chino: "学生", pinyin: "xuésheng", l: 4 }, { espanol: "Idioma, lengua", chino: "语言", pinyin: "yǔyán", l: 4 },
+  { espanol: "Instituto, escuela", chino: "学院", pinyin: "xuéyuàn", l: 4 }, { espanol: "Universidad", chino: "大学", pinyin: "dàxué", l: 4 },
+  { espanol: "Hospital", chino: "医院", pinyin: "yīyuàn", l: 4 }, { espanol: "Partícula «de» (posesión)", chino: "的", pinyin: "de", l: 4 },
+  { espanol: "Canadá", chino: "加拿大", pinyin: "Jiānádà", l: 4 },
 ];
 VOCAB.find(v => v.chino === '老师').syn = 'prof';   // 老师 y 师 = «Profesor»
 // Caracteres que se aprenden a ESCRIBIR en clase (tema «Caracteres»); el resto es vocabulario
 const WRITE_CHARS = ['力', '门', '也', '马', '木', '林', '女', '火', '人', '丁', '刀', '又', '大', '口', '土', '尼', '不', '可', '吗', '呢', '妈妈', '哥哥',
-  '匕', '中', '日', '贝', '玉', '矢', '生', '者', '老', '师', '医', '他', '她', '你', '那', '哪', '都', '国', '是', '王', '们'];
+  '匕', '中', '日', '贝', '玉', '矢', '生', '者', '老', '师', '医', '他', '她', '你', '那', '哪', '都', '国', '是', '王', '们',
+  '小', '心', '水', '月', '手', '田', '白', '只', '言'];
 VOCAB.forEach(v => { if (WRITE_CHARS.includes(v.chino)) v.c = true; });
 // 写 Escritura: caracteres cuyo orden de trazos se practica, con la lección en que se aprendieron a ESCRIBIR.
 // Los trazos están en trazos/<carácter>.json (datos de Hanzi Writer, licencia en trazos/ARPHICPL.TXT).
-const WRITE_LESSONS = { 1: '力门也马女木火人林一二三四五六七八九十零百', 2: '丁刀又大口土不可吗呢妈哥', 4: '匕中日贝王玉矢生者他她们你那哪都老师国医是' };
+const WRITE_LESSONS = { 1: '力门也马女木火人林一二三四五六七八九十零百丁刀又大口土不可吗呢妈哥', 3: '匕中日贝王玉矢生者他她们你那哪都老师国医是', 4: '小心水月手田白只言' };
 const WRITE_EXTRA = { '妈': ['mā', 'Mamá (de 妈妈)'], '哥': ['gē', 'Hermano mayor (de 哥哥)'], '们': ['men', 'Plural de personas (我们, 他们)'] };
 const WRITE = Object.entries(WRITE_LESSONS).flatMap(([l, str]) => [...str].map(c => {
   const v = VOCAB.find(x => x.chino === c), x = WRITE_EXTRA[c];
@@ -421,91 +458,130 @@ const PHRASES = {
   ne:    { t: [T('我','Wǒ'), T('很','hěn'), T('好','hǎo'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy bien, ¿y tú?' },
   ye:    { t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Yo también estoy bien.' },
   bu:    { t: [T('我','Wǒ'), T('不','bù'), T('好','hǎo'), T('。','.')], es: 'No estoy bien.' },
-  // Lección 2 · 你忙吗
-  mangQ:    { l: 2, voc: true, t: [T('你','Nǐ'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Estás ocupado?' },
-  henMang:  { l: 2, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Estoy muy ocupado.' },
-  buMang:   { l: 2, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'No estoy ocupado.' },
-  yeMang:   { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Yo también estoy muy ocupado.' },
-  yeBuMang: { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Yo tampoco estoy ocupado.' },
-  mangNe:   { l: 2, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy muy ocupado, ¿y tú?' },
-  buMangNe: { l: 2, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'No estoy ocupado, ¿y tú?' },
-  fumuQ:    { l: 2, t: [T('你','Nǐ'), T('爸爸','bàba'), T('、',','), T('妈妈','māma'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal tus padres?' },
-  tamenHao: { l: 2, t: [T('他们','Tāmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Están todos bien.' },
-  womenHao: { l: 2, t: [T('我们','Wǒmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Todos estamos bien.' },
-  babaQ:    { l: 2, t: [T('你','Nǐ'), T('爸爸','bàba'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu padre está ocupado?' },
-  mamaQ:    { l: 2, t: [T('你','Nǐ'), T('妈妈','māma'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu madre está ocupada?' },
-  babaMang: { l: 2, t: [T('我','Wǒ'), T('爸爸','bàba'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi padre está muy ocupado.' },
-  mamaMang: { l: 2, t: [T('我','Wǒ'), T('妈妈','māma'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi madre está muy ocupada.' },
-  taMang:   { l: 2, t: [T('他','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Él está muy ocupado.' },
-  taBuMang: { l: 2, t: [T('他','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Él no está ocupado.' },
-  ta2Mang:  { l: 2, t: [T('她','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Ella está muy ocupada.' },
-  ta2BuMang:{ l: 2, t: [T('她','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Ella no está ocupada.' },
-  npyNe:    { l: 2, t: [T('你','Nǐ'), T('男朋友','nánpéngyou'), T('呢','ne'), T('？','?')], es: '¿Y tu novio?' },
-  // Lección 2 · 你要咖啡吗
-  yaoQ:     { l: 2, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres café?' },
-  heQ:      { l: 2, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres beber café?' },
-  yao:      { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero café.' },
-  yaoHe:    { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero beber café.' },
-  yeYao:    { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Yo también quiero café.' },
-  douHe:    { l: 2, t: [T('好','Hǎo'), T('，',','), T('我们','wǒmen'), T('都','dōu'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Vale, todos bebemos café.' },
-  // Lección 3 · 她是哪国人
-  naguoQ:   { l: 3, t: [T('她','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es ella?' },
-  naguoQ2:  { l: 3, t: [T('他','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es él?' },
-  niNaguoQ: { l: 3, voc: true, t: [T('你','Nǐ'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país eres?' },
-  taZgr:    { l: 3, t: [T('她','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Ella es china.' },
-  taZgr2:   { l: 3, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él es chino.' },
-  taXby:    { l: 3, t: [T('他','Tā'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Él es español.' },
-  zgrQ:     { l: 3, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('吗','ma'), T('？','?')], es: '¿Él es chino?' },
-  buZgr:    { l: 3, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él no es chino.' },
-  woXby:    { l: 3, t: [T('我','Wǒ'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Soy español.' },
-  woBsk:    { l: 3, t: [T('我','Wǒ'), T('是','shì'), T('巴斯克','Bāsīkè'), T('人','rén'), T('。','.')], es: 'Soy vasco.' },
-  sheiQ:    { l: 3, t: [T('那','Nà'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es ese?' },
-  laoshi:   { l: 3, t: [T('那','Nà'), T('是','shì'), T('我们','wǒmen'), T('老师','lǎoshī'), T('。','.')], es: 'Ese es nuestro profesor.' },
-  douZgr:   { l: 3, t: [T('我们','Wǒmen'), T('老师','lǎoshī'), T('都','dōu'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Todos nuestros profesores son chinos.' },
-  ninhao:   { l: 3, t: [T('您','Nín'), T('好','hǎo'), T('！','!')], es: '¡Hola! (de usted)' },
-  yeLaoshiQ:{ l: 3, voc: true, t: [T('你','Nǐ'), T('也','yě'), T('是','shì'), T('老师','lǎoshī'), T('吗','ma'), T('？','?')], es: '¿Tú también eres profesor?' },
-  buLaoshi: { l: 3, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('。','.')], es: 'No soy profesor.' },
-  // Lección 3 · bebidas
-  chaQ:     { l: 3, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('吗','ma'), T('？','?')], es: '¿Quieres beber té?' },
-  yaoCha:   { l: 3, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('。','.')], es: 'Quiero beber té.' },
-  yaoShui:  { l: 3, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Quiero beber agua.' },
-  yeShui:   { l: 3, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Yo también quiero beber agua.' },
-  piJiu:    { l: 3, t: [T('他','Tā'), T('要','yào'), T('喝','hē'), T('啤酒','píjiǔ'), T('。','.')], es: 'Él quiere beber cerveza.' },
-  // Lección 4 · 这是谁
-  taSheiQ:  { l: 4, t: [T('他','Tā'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es él?' },
-  taDidi:   { l: 4, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('弟弟','dìdi'), T('。','.')], es: 'Es mi hermano pequeño.' },
-  taPengyou:{ l: 4, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Es mi amigo.' },
-  zheSheiQ: { l: 4, t: [T('这','Zhè'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es este?' },
-  zheGege:  { l: 4, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('哥哥','gēge'), T('。','.')], es: 'Este es mi hermano mayor.' },
-  zhePengyou:{ l: 4, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Este es mi amigo.' },
-  nainaiQ:  { l: 4, voc: true, t: [T('这','Zhè'), T('是','shì'), T('你','nǐ'), T('奶奶','nǎinai'), T('吗','ma'), T('？','?')], es: '¿Esta es tu abuela (paterna)?' },
-  waipo:    { l: 4, t: [T('不','Bú'), T('是','shì'), T('，',','), T('她','tā'), T('是','shì'), T('我','wǒ'), T('外婆','wàipó'), T('。','.')], es: 'No, es mi abuela materna.' },
-  yisheng:  { l: 4, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('，',','), T('我','wǒ'), T('是','shì'), T('医生','yīshēng'), T('。','.')], es: 'No soy profesor, soy médico.' },
-  waiyuLs:  { l: 4, t: [T('他','Tā'), T('是','shì'), T('外语','wàiyǔ'), T('老师','lǎoshī'), T('。','.')], es: 'Es profesor de idiomas.' },
-  faguoQ:   { l: 4, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('吗','ma'), T('？','?')], es: '¿Él es francés?' },
-  faguo:    { l: 4, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él es francés.' },
-  buFaguo:  { l: 4, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él no es francés.' },
-  riben:    { l: 4, t: [T('她','Tā'), T('是','shì'), T('日本','Rìběn'), T('人','rén'), T('。','.')], es: 'Ella es japonesa.' },
-  meiguo:   { l: 4, t: [T('我','Wǒ'), T('朋友','péngyou'), T('是','shì'), T('美国','Měiguó'), T('人','rén'), T('。','.')], es: 'Mi amigo es estadounidense.' },
-  // Lección 5 · 认识你很高兴 (alts: otros órdenes que también valen en «Ordena la frase»)
-  jinlaiQ:  { l: 5, t: [T('可以','Kěyǐ'), T('进来','jìnlai'), T('吗','ma'), T('？','?')], es: '¿Puedo entrar?' },
-  qingJin:  { l: 5, t: [T('请','Qǐng'), T('进','jìn'), T('！','!')], es: '¡Pase, por favor!' },
-  taJizhe:  { l: 5, t: [T('他','Tā'), T('是','shì'), T('记者','jìzhě'), T('。','.')], es: 'Es periodista.' },
-  guixingQ: { l: 5, t: [T('请问','Qǐngwèn'), T('，',','), T('您','nín'), T('贵姓','guìxìng'), T('？','?')], es: 'Perdone, ¿cómo se apellida?' },
-  xingWang: { l: 5, t: [T('我','Wǒ'), T('姓','xìng'), T('王','Wáng'), T('。','.')], es: 'Me apellido Wang.' },
-  xingLin:  { l: 5, t: [T('我','Wǒ'), T('姓','xìng'), T('林','Lín'), T('。','.')], es: 'Me apellido Lin.' },
-  renshi:   { l: 5, t: [T('认识','Rènshi'), T('你','nǐ'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conocerte.',
+  // Lección 1 · 你忙吗
+  mangQ:    { l: 1, voc: true, t: [T('你','Nǐ'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Estás ocupado?' },
+  henMang:  { l: 1, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Estoy muy ocupado.' },
+  buMang:   { l: 1, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'No estoy ocupado.' },
+  yeMang:   { l: 1, t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Yo también estoy muy ocupado.' },
+  yeBuMang: { l: 1, t: [T('我','Wǒ'), T('也','yě'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Yo tampoco estoy ocupado.' },
+  mangNe:   { l: 1, t: [T('我','Wǒ'), T('很','hěn'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'Estoy muy ocupado, ¿y tú?' },
+  buMangNe: { l: 1, t: [T('我','Wǒ'), T('不','bù'), T('忙','máng'), T('，',','), T('你','nǐ'), T('呢','ne'), T('？','?')], es: 'No estoy ocupado, ¿y tú?' },
+  fumuQ:    { l: 1, t: [T('你','Nǐ'), T('爸爸','bàba'), T('、',','), T('妈妈','māma'), T('好','hǎo'), T('吗','ma'), T('？','?')], es: '¿Qué tal tus padres?' },
+  tamenHao: { l: 1, t: [T('他们','Tāmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Están todos bien.' },
+  womenHao: { l: 1, t: [T('我们','Wǒmen'), T('都','dōu'), T('很','hěn'), T('好','hǎo'), T('。','.')], es: 'Todos estamos bien.' },
+  babaQ:    { l: 1, t: [T('你','Nǐ'), T('爸爸','bàba'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu padre está ocupado?' },
+  mamaQ:    { l: 1, t: [T('你','Nǐ'), T('妈妈','māma'), T('忙','máng'), T('吗','ma'), T('？','?')], es: '¿Tu madre está ocupada?' },
+  babaMang: { l: 1, t: [T('我','Wǒ'), T('爸爸','bàba'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi padre está muy ocupado.' },
+  mamaMang: { l: 1, t: [T('我','Wǒ'), T('妈妈','māma'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Mi madre está muy ocupada.' },
+  taMang:   { l: 1, t: [T('他','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Él está muy ocupado.' },
+  taBuMang: { l: 1, t: [T('他','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Él no está ocupado.' },
+  ta2Mang:  { l: 1, t: [T('她','Tā'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'Ella está muy ocupada.' },
+  ta2BuMang:{ l: 1, t: [T('她','Tā'), T('不','bù'), T('忙','máng'), T('。','.')], es: 'Ella no está ocupada.' },
+  npyNe:    { l: 1, t: [T('你','Nǐ'), T('男朋友','nánpéngyou'), T('呢','ne'), T('？','?')], es: '¿Y tu novio?' },
+  // Lección 1 · 你要咖啡吗
+  yaoQ:     { l: 1, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres café?' },
+  heQ:      { l: 1, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Quieres beber café?' },
+  yao:      { l: 1, t: [T('我','Wǒ'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero café.' },
+  yaoHe:    { l: 1, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Quiero beber café.' },
+  yeYao:    { l: 1, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('咖啡','kāfēi'), T('。','.')], es: 'Yo también quiero café.' },
+  douHe:    { l: 1, t: [T('好','Hǎo'), T('，',','), T('我们','wǒmen'), T('都','dōu'), T('喝','hē'), T('咖啡','kāfēi'), T('。','.')], es: 'Vale, todos bebemos café.' },
+  // Lección 2 · 她是哪国人
+  naguoQ:   { l: 2, t: [T('她','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es ella?' },
+  naguoQ2:  { l: 2, t: [T('他','Tā'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país es él?' },
+  niNaguoQ: { l: 2, voc: true, t: [T('你','Nǐ'), T('是','shì'), T('哪','nǎ'), T('国','guó'), T('人','rén'), T('？','?')], es: '¿De qué país eres?' },
+  taZgr:    { l: 2, t: [T('她','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Ella es china.' },
+  taZgr2:   { l: 2, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él es chino.' },
+  taXby:    { l: 2, t: [T('他','Tā'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Él es español.' },
+  zgrQ:     { l: 2, t: [T('他','Tā'), T('是','shì'), T('中国人','Zhōngguórén'), T('吗','ma'), T('？','?')], es: '¿Él es chino?' },
+  buZgr:    { l: 2, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Él no es chino.' },
+  woXby:    { l: 2, t: [T('我','Wǒ'), T('是','shì'), T('西班牙','Xībānyá'), T('人','rén'), T('。','.')], es: 'Soy español.' },
+  woBsk:    { l: 2, t: [T('我','Wǒ'), T('是','shì'), T('巴斯克','Bāsīkè'), T('人','rén'), T('。','.')], es: 'Soy vasco.' },
+  sheiQ:    { l: 2, t: [T('那','Nà'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es ese?' },
+  laoshi:   { l: 2, t: [T('那','Nà'), T('是','shì'), T('我们','wǒmen'), T('老师','lǎoshī'), T('。','.')], es: 'Ese es nuestro profesor.' },
+  douZgr:   { l: 2, t: [T('我们','Wǒmen'), T('老师','lǎoshī'), T('都','dōu'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Todos nuestros profesores son chinos.' },
+  ninhao:   { l: 2, t: [T('您','Nín'), T('好','hǎo'), T('！','!')], es: '¡Hola! (de usted)' },
+  yeLaoshiQ:{ l: 2, voc: true, t: [T('你','Nǐ'), T('也','yě'), T('是','shì'), T('老师','lǎoshī'), T('吗','ma'), T('？','?')], es: '¿Tú también eres profesor?' },
+  buLaoshi: { l: 2, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('。','.')], es: 'No soy profesor.' },
+  // Lección 2 · bebidas
+  chaQ:     { l: 2, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('吗','ma'), T('？','?')], es: '¿Quieres beber té?' },
+  yaoCha:   { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('茶','chá'), T('。','.')], es: 'Quiero beber té.' },
+  yaoShui:  { l: 2, t: [T('我','Wǒ'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Quiero beber agua.' },
+  yeShui:   { l: 2, t: [T('我','Wǒ'), T('也','yě'), T('要','yào'), T('喝','hē'), T('水','shuǐ'), T('。','.')], es: 'Yo también quiero beber agua.' },
+  piJiu:    { l: 2, t: [T('他','Tā'), T('要','yào'), T('喝','hē'), T('啤酒','píjiǔ'), T('。','.')], es: 'Él quiere beber cerveza.' },
+  // Lección 3 · 这是谁
+  taSheiQ:  { l: 3, t: [T('他','Tā'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es él?' },
+  taDidi:   { l: 3, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('弟弟','dìdi'), T('。','.')], es: 'Es mi hermano pequeño.' },
+  taPengyou:{ l: 3, t: [T('他','Tā'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Es mi amigo.' },
+  zheSheiQ: { l: 3, t: [T('这','Zhè'), T('是','shì'), T('谁','shéi'), T('？','?')], es: '¿Quién es este?' },
+  zheGege:  { l: 3, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('哥哥','gēge'), T('。','.')], es: 'Este es mi hermano mayor.' },
+  zhePengyou:{ l: 3, t: [T('这','Zhè'), T('是','shì'), T('我','wǒ'), T('朋友','péngyou'), T('。','.')], es: 'Este es mi amigo.' },
+  nainaiQ:  { l: 3, voc: true, t: [T('这','Zhè'), T('是','shì'), T('你','nǐ'), T('奶奶','nǎinai'), T('吗','ma'), T('？','?')], es: '¿Esta es tu abuela (paterna)?' },
+  waipo:    { l: 3, t: [T('不','Bú'), T('是','shì'), T('，',','), T('她','tā'), T('是','shì'), T('我','wǒ'), T('外婆','wàipó'), T('。','.')], es: 'No, es mi abuela materna.' },
+  yisheng:  { l: 3, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('老师','lǎoshī'), T('，',','), T('我','wǒ'), T('是','shì'), T('医生','yīshēng'), T('。','.')], es: 'No soy profesor, soy médico.' },
+  waiyuLs:  { l: 3, t: [T('他','Tā'), T('是','shì'), T('外语','wàiyǔ'), T('老师','lǎoshī'), T('。','.')], es: 'Es profesor de idiomas.' },
+  faguoQ:   { l: 3, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('吗','ma'), T('？','?')], es: '¿Él es francés?' },
+  faguo:    { l: 3, t: [T('他','Tā'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él es francés.' },
+  buFaguo:  { l: 3, t: [T('他','Tā'), T('不','bú'), T('是','shì'), T('法国','Fǎguó'), T('人','rén'), T('。','.')], es: 'Él no es francés.' },
+  riben:    { l: 3, t: [T('她','Tā'), T('是','shì'), T('日本','Rìběn'), T('人','rén'), T('。','.')], es: 'Ella es japonesa.' },
+  meiguo:   { l: 3, t: [T('我','Wǒ'), T('朋友','péngyou'), T('是','shì'), T('美国','Měiguó'), T('人','rén'), T('。','.')], es: 'Mi amigo es estadounidense.' },
+  // Lección 4 · 认识你很高兴 (alts: otros órdenes que también valen en «Ordena la frase»)
+  jinlaiQ:  { l: 4, t: [T('可以','Kěyǐ'), T('进来','jìnlai'), T('吗','ma'), T('？','?')], es: '¿Puedo entrar?' },
+  qingJin:  { l: 4, t: [T('请','Qǐng'), T('进','jìn'), T('！','!')], es: '¡Pase, por favor!' },
+  taJizhe:  { l: 4, t: [T('他','Tā'), T('是','shì'), T('记者','jìzhě'), T('。','.')], es: 'Es periodista.' },
+  guixingQ: { l: 4, t: [T('请问','Qǐngwèn'), T('，',','), T('您','nín'), T('贵姓','guìxìng'), T('？','?')], es: 'Perdone, ¿cómo se apellida?' },
+  xingWang: { l: 4, t: [T('我','Wǒ'), T('姓','xìng'), T('王','Wáng'), T('。','.')], es: 'Me apellido Wang.' },
+  xingLin:  { l: 4, t: [T('我','Wǒ'), T('姓','xìng'), T('林','Lín'), T('。','.')], es: 'Me apellido Lin.' },
+  renshi:   { l: 4, t: [T('认识','Rènshi'), T('你','nǐ'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conocerte.',
               alts: [['很', '高兴', '认识', '你']] },
-  renshiYe: { l: 5, t: [T('认识','Rènshi'), T('您','nín'), T('，',','), T('我','wǒ'), T('也','yě'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conocerle yo también.',
+  renshiYe: { l: 4, t: [T('认识','Rènshi'), T('您','nín'), T('，',','), T('我','wǒ'), T('也','yě'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conocerle yo también.',
               alts: [['我', '也', '很', '高兴', '认识', '您']] },
-  gaoxing:  { l: 5, t: [T('我','Wǒ'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Estoy contento.' },
-  buGaoxing:{ l: 5, t: [T('我','Wǒ'), T('不','bù'), T('高兴','gāoxìng'), T('。','.')], es: 'No estoy contento.' },
-  taGao:    { l: 5, t: [T('他','Tā'), T('很','hěn'), T('高','gāo'), T('。','.')], es: 'Él es alto.' },
-  keyiQ:    { l: 5, voc: true, t: [T('我','Wǒ'), T('可以','kěyǐ'), T('喝','hē'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Puedo beber café?' },
-  keyi:     { l: 5, t: [T('可以','Kěyǐ'), T('。','.')], es: 'Sí, puedes.' },
-  buxing:   { l: 5, t: [T('不行','Bù xíng'), T('。','.')], es: 'No, no puedes.' },
-  xing:     { l: 5, t: [T('行','Xíng'), T('。','.')], es: 'Vale.' },
-  dingXs:   { l: 5, t: [T('丁','Dīng'), T('先生','xiānsheng'), T('，',','), T('您','nín'), T('好','hǎo'), T('！','!')], es: '¡Buenos días, señor Ding!' },
+  gaoxing:  { l: 4, t: [T('我','Wǒ'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Estoy contento.' },
+  buGaoxing:{ l: 4, t: [T('我','Wǒ'), T('不','bù'), T('高兴','gāoxìng'), T('。','.')], es: 'No estoy contento.' },
+  taGao:    { l: 4, t: [T('他','Tā'), T('很','hěn'), T('高','gāo'), T('。','.')], es: 'Él es alto.' },
+  keyiQ:    { l: 4, voc: true, t: [T('我','Wǒ'), T('可以','kěyǐ'), T('喝','hē'), T('咖啡','kāfēi'), T('吗','ma'), T('？','?')], es: '¿Puedo beber café?' },
+  keyi:     { l: 4, t: [T('可以','Kěyǐ'), T('。','.')], es: 'Sí, puedes.' },
+  buxing:   { l: 4, t: [T('不行','Bù xíng'), T('。','.')], es: 'No, no puedes.' },
+  xing:     { l: 4, t: [T('行','Xíng'), T('。','.')], es: 'Vale.' },
+  // Lección 4 (2.ª parte) · 非常 / 超级 / 加油 · 什么 · 的
+  feichangHao:   { l: 4, t: [T('我','Wǒ'), T('非常','fēicháng'), T('好','hǎo'), T('。','.')], es: 'Estoy extremadamente bien.' },
+  feichangBuHao: { l: 4, t: [T('我','Wǒ'), T('非常','fēicháng'), T('不','bù'), T('好','hǎo'), T('。','.')], es: 'Estoy extremadamente mal.' },
+  chaojiHao:     { l: 4, t: [T('我','Wǒ'), T('超级','chāojí'), T('好','hǎo'), T('！','!')], es: '¡Estoy súper bien!' },
+  jiayou:        { l: 4, t: [T('加油','Jiāyóu'), T('！','!')], es: '¡Ánimo!' },
+  heShenme:      { l: 4, voc: true, t: [T('你','Nǐ'), T('要','yào'), T('喝','hē'), T('什么','shénme'), T('？','?')], es: '¿Qué quieres beber?' },
+  xuexiQ:        { l: 4, t: [T('你们','Nǐmen'), T('都','dōu'), T('学习','xuéxí'), T('什么','shénme'), T('？','?')], es: '¿Qué estudiáis (todos)?' },
+  xuexiHanyu:    { l: 4, t: [T('我们','Wǒmen'), T('都','dōu'), T('学习','xuéxí'), T('汉语','Hànyǔ'), T('。','.')], es: 'Todos estudiamos chino.' },
+  xueyuanXs:     { l: 4, t: [T('他','Tā'), T('是','shì'), T('语言','yǔyán'), T('学院','xuéyuàn'), T('的','de'), T('学生','xuésheng'), T('。','.')], es: 'Él es estudiante de la escuela de idiomas.' },
+  mamaPy:        { l: 4, t: [T('她','Tā'), T('是','shì'), T('我','wǒ'), T('妈妈','māma'), T('的','de'), T('朋友','péngyou'), T('。','.')], es: 'Ella es amiga de mi madre.' },
+  daxueLs:       { l: 4, t: [T('她','Tā'), T('是','shì'), T('大学','dàxué'), T('的','de'), T('老师','lǎoshī'), T('。','.')], es: 'Ella es profesora de la universidad.' },
+  yiyuan:        { l: 4, t: [T('我','Wǒ'), T('爸爸','bàba'), T('是','shì'), T('医院','yīyuàn'), T('的','de'), T('医生','yīshēng'), T('。','.')], es: 'Mi padre es médico del hospital.' },
+  niXuexiQ:      { l: 4, voc: true, t: [T('你','Nǐ'), T('学习','xuéxí'), T('什么','shénme'), T('？','?')], es: '¿Qué estudias?' },
+  woXuexi:       { l: 4, t: [T('我','Wǒ'), T('学习','xuéxí'), T('汉语','Hànyǔ'), T('。','.')], es: 'Estudio chino.' },
+  dawei:         { l: 4, t: [T('马大为','Mǎ Dàwéi'), T('是','shì'), T('美国','Měiguó'), T('学生','xuésheng'), T('。','.')], es: 'Ma Dawei es un estudiante estadounidense.' },
+  jianada:       { l: 4, t: [T('她','Tā'), T('是','shì'), T('加拿大','Jiānádà'), T('人','rén'), T('。','.')], es: 'Ella es canadiense.' },
+  // Inventadas con lo que ya se sabe (l = la lección más alta de sus palabras)
+  zheShenmeQ:    { l: 4, t: [T('这','Zhè'), T('是','shì'), T('什么','shénme'), T('？','?')], es: '¿Qué es esto?' },
+  zheCha:        { l: 3, t: [T('这','Zhè'), T('是','shì'), T('茶','chá'), T('。','.')], es: 'Esto es té.' },
+  zheKafei:      { l: 3, t: [T('这','Zhè'), T('是','shì'), T('咖啡','kāfēi'), T('。','.')], es: 'Esto es café.' },
+  taXuexiQ:      { l: 4, t: [T('他','Tā'), T('学习','xuéxí'), T('英语','Yīngyǔ'), T('吗','ma'), T('？','?')], es: '¿Él estudia inglés?' },
+  xueYingyu:     { l: 4, t: [T('他','Tā'), T('学习','xuéxí'), T('英语','Yīngyǔ'), T('。','.')], es: 'Él estudia inglés.' },
+  buXueYingyu:   { l: 4, t: [T('他','Tā'), T('不','bù'), T('学习','xuéxí'), T('英语','Yīngyǔ'), T('。','.')], es: 'Él no estudia inglés.' },
+  gegeDaxue:     { l: 4, t: [T('我','Wǒ'), T('哥哥','gēge'), T('是','shì'), T('大学','dàxué'), T('的','de'), T('学生','xuésheng'), T('。','.')], es: 'Mi hermano mayor es estudiante de la universidad.' },
+  laoshiZgr:     { l: 4, t: [T('我们','Wǒmen'), T('的','de'), T('老师','lǎoshī'), T('是','shì'), T('中国人','Zhōngguórén'), T('。','.')], es: 'Nuestro profesor es chino.' },
+  pengyouJiao:   { l: 4, t: [T('我','Wǒ'), T('朋友','péngyou'), T('叫','jiào'), T('马大为','Mǎ Dàwéi'), T('。','.')], es: 'Mi amigo se llama Ma Dawei.' },
+  yuyanLaoshi:   { l: 4, t: [T('我','Wǒ'), T('是','shì'), T('语言','yǔyán'), T('学院','xuéyuàn'), T('的','de'), T('老师','lǎoshī'), T('。','.')], es: 'Soy profesor de la escuela de idiomas.' },
+  zhiXuexi:      { l: 4, t: [T('我','Wǒ'), T('只','zhǐ'), T('学习','xuéxí'), T('汉语','Hànyǔ'), T('。','.')], es: 'Solo estudio chino.' },
+  zhiYao:        { l: 4, t: [T('我','Wǒ'), T('只','zhǐ'), T('要','yào'), T('茶','chá'), T('。','.')], es: 'Solo quiero té.' },
+  qingHe:        { l: 4, t: [T('请','Qǐng'), T('喝','hē'), T('茶','chá'), T('！','!')], es: '¡Tome té, por favor!' },
+  shouDa:        { l: 4, t: [T('他','Tā'), T('的','de'), T('手','shǒu'), T('很','hěn'), T('大','dà'), T('。','.')], es: 'Sus manos son muy grandes.' },
+  xiaoDidi:      { l: 4, t: [T('我','Wǒ'), T('弟弟','dìdi'), T('很','hěn'), T('小','xiǎo'), T('。','.')], es: 'Mi hermanito es muy pequeño.' },
+  xqtMang:       { l: 4, t: [T('我','Wǒ'), T('星期天','xīngqītiān'), T('很','hěn'), T('忙','máng'), T('。','.')], es: 'El domingo estoy muy ocupado.',
+                   alts: [['星期天', '我', '很', '忙']] },
+  shengri:       { l: 4, t: [T('我','Wǒ'), T('的','de'), T('生日','shēngrì'), T('是','shì'), T('三月','sān yuè'), T('十五','shíwǔ'), T('号','hào'), T('。','.')], es: 'Mi cumpleaños es el 15 de marzo.' },
+  feichangGx:    { l: 4, t: [T('我','Wǒ'), T('非常','fēicháng'), T('高兴','gāoxìng'), T('。','.')], es: 'Estoy muy contento.' },
+  chaojiMang:    { l: 4, t: [T('我','Wǒ'), T('超级','chāojí'), T('忙','máng'), T('！','!')], es: '¡Estoy súper ocupado!' },
+  renshiNimen:   { l: 4, t: [T('认识','Rènshi'), T('你们','nǐmen'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conoceros.',
+                   alts: [['很', '高兴', '认识', '你们']] },
+  dingXs:   { l: 4, t: [T('丁','Dīng'), T('先生','xiānsheng'), T('，',','), T('您','nín'), T('好','hǎo'), T('！','!')], es: '¡Buenos días, señor Ding!' },
 };
 const isPunct = tok => /[！？，。、]/.test(tok.c);
 for (const k in PHRASES) {
@@ -529,7 +605,7 @@ const REPLIES = [
   { q: 'yaoQ', ok: ['yao'], bad: ['yeYao', 'ma', 'henMang', 'tamenHao', 'nihao', 'yaoQ'] },
   { q: 'heQ', ok: ['yaoHe'], bad: ['yeYao', 'ma', 'buMang', 'nihao', 'tamenHao'] },
   { q: 'yao', ok: ['yeYao'], bad: ['yaoQ', 'mangQ', 'ye', 'nihao', 'fumuQ'] },
-  // Lección 3 (他/她 importa: «¿de qué país es ella?» no se contesta con 他)
+  // Lección 2 (他/她 importa: «¿de qué país es ella?» no se contesta con 他)
   { q: 'naguoQ', ok: ['taZgr'], bad: ['taZgr2', 'taXby', 'zgrQ', 'nihao', 'yao', 'sheiQ', 'buLaoshi'] },
   { q: 'naguoQ2', ok: ['taZgr2', 'taXby'], bad: ['taZgr', 'naguoQ', 'nihao', 'yao', 'henMang', 'laoshi'] },
   { q: 'niNaguoQ', ok: ['woXby', 'woBsk'], bad: ['taZgr', 'taZgr2', 'taXby', 'nihao', 'yao', 'henMang'] },
@@ -539,16 +615,24 @@ const REPLIES = [
   { q: 'yeLaoshiQ', ok: ['buLaoshi'], bad: ['ye', 'nihao', 'yao', 'naguoQ', 'taZgr', 'yeLaoshiQ'] },
   { q: 'chaQ', ok: ['yaoCha'], bad: ['ye', 'nihao', 'mangQ', 'taZgr', 'naguoQ', 'yeShui'] },
   { q: 'yaoShui', ok: ['yeShui'], bad: ['chaQ', 'ye', 'nihao', 'fumuQ', 'sheiQ'] },
-  // Lección 4
+  // Lección 3
   { q: 'taSheiQ', ok: ['taDidi', 'taPengyou'], bad: ['waipo', 'riben', 'nihao', 'yao', 'taSheiQ', 'mangQ'] },
   { q: 'zheSheiQ', ok: ['zheGege', 'zhePengyou'], bad: ['naguoQ', 'nihao', 'yao', 'mangQ', 'zheSheiQ'] },
   { q: 'nainaiQ', ok: ['waipo'], bad: ['taDidi', 'nihao', 'yao', 'taZgr2', 'nainaiQ'] },
   { q: 'faguoQ', ok: ['faguo', 'buFaguo'], bad: ['riben', 'nihao', 'yao', 'sheiQ', 'faguoQ'] },
-  // Lección 5
+  // Lección 4
   { q: 'jinlaiQ', ok: ['qingJin'], bad: ['taJizhe', 'henMang', 'xingWang', 'yao', 'jinlaiQ'] },
   { q: 'guixingQ', ok: ['xingWang', 'xingLin'], bad: ['taJizhe', 'nihao', 'yao', 'keyi', 'qingJin'] },
   { q: 'renshi', ok: ['renshiYe'], bad: ['qingJin', 'jinlaiQ', 'buxing', 'taJizhe', 'keyiQ'] },
   { q: 'keyiQ', ok: ['keyi', 'buxing', 'xing'], bad: ['nihao', 'henMang', 'taJizhe', 'guixingQ', 'qingJin'] },
+  { q: 'heShenme', ok: ['yaoCha', 'yaoShui', 'yaoHe'], bad: ['nihao', 'henMang', 'xuexiHanyu', 'taJizhe', 'jiayou'] },
+  { q: 'zheShenmeQ', ok: ['zheCha', 'zheKafei'], bad: ['nihao', 'henMang', 'xuexiHanyu', 'jiayou', 'qingJin'] },
+  { q: 'taXuexiQ', ok: ['xueYingyu', 'buXueYingyu'], bad: ['nihao', 'yaoCha', 'henMang', 'jiayou', 'qingJin'] },
+  { q: 'chaojiMang', ok: ['jiayou'], bad: ['nihao', 'yaoCha', 'taJizhe', 'xuexiHanyu', 'qingJin'] },
+  { q: 'niXuexiQ', ok: ['woXuexi'], bad: ['yaoCha', 'nihao', 'henMang', 'feichangHao', 'jiayou'] },
+  { q: 'xuexiQ', ok: ['xuexiHanyu'], bad: ['yaoCha', 'nihao', 'henMang', 'feichangHao', 'taJizhe'] },
+  { q: 'henMang', ok: ['jiayou'], bad: ['nihao', 'yaoCha', 'taJizhe', 'xuexiHanyu', 'qingJin'] },
+  { q: 'feichangBuHao', ok: ['jiayou'], bad: ['nihao', 'yaoCha', 'taJizhe', 'xuexiHanyu', 'qingJin'] },
 ];
 // Completar la frase: para cada palabra que puede faltar, opciones que NUNCA forman una frase correcta
 // (por eso 很 no tiene 不/也/都 ni 也 tiene 们: 我不忙, 我都好 o 我们很好 también serían válidas)
@@ -557,7 +641,7 @@ const BLANK_WRONG = {
   '很': ['吗', '呢', '们', '男'], '都': ['吗', '呢', '喝', '忙'], '不': ['吗', '呢', '男', '口'],
   '忙': ['吗', '呢', '们', '都'], '好': ['吗', '呢', '们', '都'], '要': ['吗', '呢', '忙', '大'],
   '喝': ['吗', '呢', '们', '忙', '都'], '我': ['吗', '呢', '们', '忙'], '你': ['吗', '呢', '们', '忙'],
-  '是': ['吗', '呢', '喝', '忙'], '哪': ['吗', '很', '都', '不'], '谁': ['吗', '很', '都', '们'],
+  '是': ['吗', '呢', '喝', '忙'], '什么': ['很', '都', '也', '们'], '的': ['吗', '呢', '很', '都'], '哪': ['吗', '很', '都', '不'], '谁': ['吗', '很', '都', '们'],
 };
 // Compañeros de clase (y 哥哥/弟弟): a veces la pregunta va dirigida a uno de ellos ("Lorea，你好吗？")
 const NAMES = ['Manex', 'Isidro', 'Imanol', 'Lorea', 'Ekai', 'Itsaso', 'Andrea', 'Irati', 'Mikel', 'Cristina'];
@@ -700,6 +784,13 @@ function toneWhy(picked, right) {
   if (i < 0 || !a[i]) return '';
   return `${a[i]} ≠ ${b[i]}: el sonido está bien, el tono no · ${b[i]} = ${TONE_DESC[toneOf(b[i])]}`;
 }
+// Más pares parecidos (en los dos sentidos): caracteres nuevos de la lección 4
+[['日', '月'], ['日', '白'], ['日', '田'], ['百', '白'], ['口', '田'], ['大', '小'], ['水', '小'], ['心', '小'], ['只', '口'], ['言', '请'],
+ ['号', '好'], ['号', '月'], ['天', '大'], ['星期', '生日'], ['非常', '超级'], ['学生', '学院'], ['大学', '学院'], ['医院', '医生'], ['学习', '学生'],
+ ['语言', '外语'], ['什么', '谁'], ['的', '都'], ['加拿大', '加油'], ['加拿大', '美国']].forEach(([a, b]) => {
+  if (!(CONFUSABLE[a] || (CONFUSABLE[a] = [])).includes(b)) CONFUSABLE[a].push(b);
+  if (!(CONFUSABLE[b] || (CONFUSABLE[b] = [])).includes(a)) CONFUSABLE[b].push(a);
+});
 // Pistas para los pares que más se confunden (se buscan en cualquier orden)
 const HINTS = {};
 [['他', '她', '亻 (persona) → 他 él · 女 (mujer) → 她 ella'],
@@ -710,6 +801,15 @@ const HINTS = {};
  ['高', '高兴', '高 = alto · 高兴 = contento'],
  ['请问', '问', '请问 = perdone, ¿podría preguntarle…? (educado) · 问 = preguntar'],
  ['可以', '不行', '可以 = sí, puedes · 不行 = no se puede (不可以 suena a «prohibido»)'],
+ ['白', '百', 'bái (2.º tono) = blanco · bǎi (3.er tono) = cien'],
+ ['日', '月', '日 = sol, día · 月 = luna, mes'],
+ ['日', '白', '日 = sol, día · 白 = blanco (日 con un trazo encima)'],
+ ['号', '好', 'hào (4.º tono) = día del mes · hǎo (3.er tono) = bien'],
+ ['非常', '超级', '非常 = extremadamente · 超级 = súper (más coloquial)'],
+ ['学生', '学院', '学生 = estudiante · 学院 = instituto, escuela'],
+ ['大学', '学院', '大学 = universidad · 学院 = instituto, escuela'],
+ ['医院', '医生', '医院 = hospital · 医生 = médico'],
+ ['加拿大', '加油', '加拿大 = Canadá · 加油 = ¡ánimo!'],
  ['汉语', '韩语', 'Hànyǔ (4.º tono) = chino · Hányǔ (2.º tono) = coreano'],
  ['这', '那', '这 zhè = este (cerca) · 那 nà = ese (lejos)'],
  ['奶奶', '外婆', '奶奶 = abuela paterna · 外婆 = abuela materna (外 = de fuera)'],
@@ -1658,7 +1758,7 @@ async function resolve(ok, ans, info = {}) {
   const R = round;
   if (!info.noMem) Mem.record(memKey(ans), ok);
   if (!ok && !info.noEcho) Echo.push(ans, lastMode);
-  if (ok) { sfx.correct(); haptic(14); await sleep(1300); }   // sin cartel de 很好/对 (distraía): el verde lo pone el halo de la pieza
+  if (ok) { if (!info.quiet) { sfx.correct(); haptic(14); } await sleep(info.quiet ? 0 : 1300); }   // quiet: sin «acierto» (读 no tiene respuesta)   // sin cartel de 很好/对 (distraía): el verde lo pone el halo de la pieza
   else { haptic([30, 50, 30]); flashBg(false); await sleep(550); Speech.say(ans.chino, R && R.speakRate); await UI.reveal(ans, info); }
   if (round !== R || R.exiting) return;   // p. ej. se ha cambiado de tema mientras tanto
   await transitionOut();
@@ -1694,7 +1794,9 @@ const MODES = {
   pairs:   { create: () => roundPairs(), w: 2 },
   page:    { create: () => pyOn && Math.random() < .5 ? roundPlaques(true) : roundNumbers({ page: true }) },
   order:   { create: () => roundOrder(), w: 2 },
+  read:    { create: () => roundRead() },
   write:   { create: () => roundWrite(), solo: true },   // solo en su tema: las rondas son largas
+  date:    { create: () => roundNumbers({ date: pick(['month', 'day', 'day', 'week', 'week']), audio: MODES.listen.ok() && Math.random() < .3 }) },
   dictation: { create: () => { const e = Echo.peek('n'), both = numsIn() && pagesIn();
                  return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesIn() }); },
                ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
@@ -1711,9 +1813,9 @@ function echoFits(e, k) {
 // Cómo: tipo de ejercicio. «Mezcla» es todo junto. 写 Escritura va aparte (botón propio): todos los caracteres, sin lecciones ni temáticas.
 const TOPICS = {
   mix:   { seal: '全', name: 'Mezcla', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  words: { seal: '词', name: 'Palabras', modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'numbers', 'pyNum', 'page', 'dictation'],
+  words: { seal: '词', name: 'Palabras', modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'numbers', 'pyNum', 'page', 'dictation', 'date'],
            pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  talk:  { seal: '话', name: 'Frases', modes: ['dialog', 'order'] },
+  talk:  { seal: '话', name: 'Frases', modes: ['dialog', 'order', 'read'] },
   write: { seal: '写', name: 'Escritura', modes: ['write'] },
 };
 const EXERCISES = ['mix', 'words', 'talk'];
@@ -1721,22 +1823,26 @@ const EXERCISES = ['mix', 'words', 'talk'];
 // vocab: caracteres separados por espacios (o una función); phrases: ids de PHRASES. nums/pages: hay números 0-100 / 第…页.
 const THEMES = {
   hola:    { seal: '好', name: 'Saludar', short: 'Saludar', desc: '你好 · 你好吗 · 您好',
-             vocab: '你 好 很 我 也 不 吗 呢 您 高兴', phrases: 'nihao ma ne ye bu ninhao gaoxing buGaoxing' },
+             vocab: '你 好 很 我 也 不 吗 呢 您 高兴 非常 超级 加油',
+             phrases: 'nihao ma ne ye bu ninhao gaoxing buGaoxing feichangHao feichangBuHao chaojiHao jiayou feichangGx' },
   mang:    { seal: '忙', name: 'Estar ocupado', short: 'Ocupado', desc: '你忙吗 · 我很忙',
              vocab: '忙 很 不 也 吗 呢 都 我 你 他 她 我们 你们 他们 她们 爸爸 妈妈 男朋友',
-             phrases: 'mangQ henMang buMang yeMang yeBuMang mangNe buMangNe fumuQ tamenHao womenHao babaQ mamaQ babaMang mamaMang taMang taBuMang ta2Mang ta2BuMang npyNe' },
+             phrases: 'mangQ henMang buMang yeMang yeBuMang mangNe buMangNe fumuQ tamenHao womenHao babaQ mamaQ babaMang mamaMang taMang taBuMang ta2Mang ta2BuMang npyNe chaojiMang xqtMang' },
   nums:    { seal: '数', name: 'Números', short: 'Números', desc: '0-100 · 第…页', vocab: v => isNumVocab(v), nums: true, pages: true },
   beber:   { seal: '喝', name: 'Bebidas', short: 'Bebidas', desc: '你要咖啡吗 · 茶 · 水',
-             vocab: '要 喝 咖啡 牛奶 茶 水 果汁 可乐 酒 红酒 白酒 啤酒 苹果酒 葡萄汁',
-             phrases: 'yaoQ heQ yao yaoHe yeYao douHe chaQ yaoCha yaoShui yeShui piJiu keyiQ' },
+             vocab: '要 喝 咖啡 牛奶 茶 水 果汁 可乐 酒 红酒 白酒 啤酒 苹果酒 葡萄汁 什么',
+             phrases: 'yaoQ heQ yao yaoHe yeYao douHe chaQ yaoCha yaoShui yeShui piJiu keyiQ heShenme zheShenmeQ zheCha zheKafei zhiYao qingHe' },
+  fecha:   { seal: '月', name: 'Fechas', short: 'Fechas', desc: '星期一 · 一月一日', vocab: '月 日 号 星期 天', phrases: 'xqtMang shengri', dates: true },
   pais:    { seal: '国', name: 'Países', short: 'Países', desc: '你是哪国人 · 汉语 · 英语',
-             vocab: '国 哪 是 中国 中国人 西班牙 巴斯克 法国 葡萄牙 英国 德国 意大利 美国 日本 韩国 汉语 中文 外语 西班牙语 西班牙文 巴斯克语 巴斯克文 法语 法文 英语 德语 韩语 葡萄牙语 意大利语 日语',
-             phrases: 'naguoQ naguoQ2 niNaguoQ taZgr taZgr2 taXby zgrQ buZgr woXby woBsk douZgr faguoQ faguo buFaguo riben meiguo' },
+             vocab: '国 哪 是 中国 中国人 西班牙 巴斯克 法国 葡萄牙 英国 德国 意大利 美国 日本 韩国 汉语 中文 外语 西班牙语 西班牙文 巴斯克语 巴斯克文 法语 法文 英语 德语 韩语 葡萄牙语 意大利语 日语 加拿大',
+             phrases: 'naguoQ naguoQ2 niNaguoQ taZgr taZgr2 taXby zgrQ buZgr woXby woBsk douZgr faguoQ faguo buFaguo riben meiguo jianada dawei' },
   quien:   { seal: '谁', name: '¿Quién es?', short: '¿Quién es?', desc: '这是谁 · familia',
-             vocab: '谁 这 那 是 爸爸 妈妈 哥哥 弟弟 奶奶 外婆 朋友 男朋友 男 女 人 老师 医生 记者 先生 他 她 高',
-             phrases: 'sheiQ laoshi yeLaoshiQ buLaoshi taSheiQ taDidi taPengyou zheSheiQ zheGege zhePengyou nainaiQ waipo yisheng waiyuLs taJizhe taGao' },
+             vocab: '谁 这 那 是 爸爸 妈妈 哥哥 弟弟 奶奶 外婆 朋友 男朋友 男 女 人 老师 医生 记者 先生 他 她 高 的 医院',
+             phrases: 'sheiQ laoshi yeLaoshiQ buLaoshi taSheiQ taDidi taPengyou zheSheiQ zheGege zhePengyou nainaiQ waipo yisheng waiyuLs taJizhe taGao mamaPy yiyuan gegeDaxue laoshiZgr pengyouJiao shouDa xiaoDidi' },
+  xue:     { seal: '学', name: 'Estudiar', short: 'Estudiar', desc: '学习 · 大学 · 学生',
+             vocab: '学习 学生 学院 大学 语言 什么 汉语 英语 外语 老师 的', phrases: 'xuexiQ xuexiHanyu xueyuanXs daxueLs niXuexiQ woXuexi dawei taXuexiQ xueYingyu buXueYingyu gegeDaxue yuyanLaoshi zhiXuexi' },
   nombre:  { seal: '姓', name: 'Presentarse', short: 'Presentarse', desc: '您贵姓 · 认识你',
-             vocab: '姓 贵姓 叫 请问 问 先生 认识 高兴 王 林 您 我 你 很', phrases: 'guixingQ xingWang xingLin renshi renshiYe dingXs' },
+             vocab: '姓 贵姓 叫 请问 问 先生 认识 高兴 王 林 您 我 你 很', phrases: 'guixingQ xingWang xingLin renshi renshiYe dingXs renshiNimen pengyouJiao' },
   permiso: { seal: '请', name: 'Pedir permiso', short: 'Permiso', desc: '可以进来吗 · 请进',
              vocab: '可以 进来 进 来 请 行 不行 可 不 吗 喝 咖啡', phrases: 'jinlaiQ qingJin keyiQ keyi buxing xing' },
   chars:   { seal: '字', name: 'Caracteres', short: 'Caracteres', desc: '丁 刀 匕 贝 玉…', vocab: v => !!v.c },
@@ -1745,8 +1851,8 @@ for (const t of Object.values(THEMES)) for (const f of ['vocab', 'phrases']) {
   if (typeof t[f] === 'string') { const set = new Set(t[f].split(' ')); t[f + 'Set'] = set; t[f] = f === 'vocab' ? v => set.has(v.chino) : P => set.has(P.id); }
   else if (!t[f]) t[f] = () => false;
 }
-const LESSON_KEYS = ['all', '1', '2', '3', '4', '5'], CONTENTS = [...LESSON_KEYS, ...Object.keys(THEMES)];
-const LESSON_SEAL = { all: '全', 1: '一', 2: '二', 3: '三', 4: '四', 5: '五' };
+const LESSON_KEYS = ['all', '1', '2', '3', '4'], CONTENTS = [...LESSON_KEYS, ...Object.keys(THEMES)];
+const LESSON_SEAL = { all: '全', 1: '一', 2: '二', 3: '三', 4: '四' };
 const contentInfo = k => THEMES[k] || (k === 'all' ? { seal: '全', name: 'Todo', short: 'Todo' } : { seal: LESSON_SEAL[k], name: 'Lección ' + k, short: 'Lección ' + k });
 const QS = new URLSearchParams(location.search), LS = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 // Los antiguos temas «Números» y «Caracteres» ahora son contenido (temática) con el ejercicio «Palabras»
@@ -1754,6 +1860,11 @@ const OLD_TOPIC = QS.get('topic') || LS('topic');
 // En el menú solo se elige el contenido: siempre sale de todo (Mezcla). words/talk quedan para depurar (?topic=words|talk).
 let topicKey = TOPICS[QS.get('topic')] ? QS.get('topic') : LS('topic') === 'write' ? 'write' : 'mix';
 let exKey = EXERCISES.includes(topicKey) ? topicKey : 'mix';   // al que se vuelve desde 写
+// Las lecciones se renumeraron (1+2 → 1, 3 → 2, 4 → 3, 5 → 4): lo guardado antes se traslada una vez
+try { if (localStorage.getItem('lessons') !== '4') {
+  for (const k of ['content', 'lesson']) { const v = localStorage.getItem(k); if (/^[2-5]$/.test(v || '')) localStorage.setItem(k, String(+v - 1)); }
+  localStorage.setItem('lessons', '4');
+} } catch (e) {}
 let contentKey = [QS.get('content'), QS.get('lesson')].find(k => CONTENTS.includes(k))
   || (OLD_TOPIC === 'num' ? 'nums' : OLD_TOPIC === 'char' ? 'chars' : null)
   || [LS('content'), LS('lesson')].find(k => CONTENTS.includes(k)) || 'all';
@@ -1766,7 +1877,8 @@ const theme = () => THEMES[contentKey];
 const vocabIn = v => contentKey === 'all' || (theme() ? theme().vocab(v) : String(v.l || 1) === contentKey);
 const phraseIn = P => contentKey === 'all' || (theme() ? theme().phrases(P) : String(P.l || 1) === contentKey);
 const numsIn = () => contentKey === 'all' || contentKey === '1' || !!(theme() && theme().nums);    // números 0-100 y centenas: lección 1
-const pagesIn = () => contentKey === 'all' || contentKey === '2' || !!(theme() && theme().pages);  // 第…页: lección 2
+const datesIn = () => contentKey === 'all' || contentKey === '4' || !!(theme() && theme().dates);  // meses, fechas y semana: lección 4
+const pagesIn = () => contentKey === 'all' || contentKey === '1' || !!(theme() && theme().pages);  // 第…页: lección 1
 function vocabPool() { return VOCAB.filter(vocabIn); }
 function topicPhrases() { return Object.values(PHRASES).filter(phraseIn); }
 function pairTypes() {   // tipos de parejas posibles con el ejercicio, el contenido y el pinyin actuales
@@ -1783,12 +1895,14 @@ function modeFits(k) {
     case 'pyNum': return pyOn && numsIn();
     case 'page': return pagesIn();
     case 'dictation': return numsIn() || pagesIn();
+    case 'date': return datesIn();
     case 'tiles': case 'meaning': return pool.length >= 4;
     case 'pyChar': case 'orbit': return pyOn && py >= 4;
     case 'listen': return py >= 4;
     case 'pairs': return pairTypes().length > 0;
     case 'dialog': return dialogSubs().length > 0;
     case 'order': return ph.some(P => orderWords(P).length >= 3);
+    case 'read': return ph.length > 0;
     case 'write': return writePool().length > 0;
   }
   return true;
@@ -1966,16 +2080,39 @@ function roundOrbit() {
 // audio (听写 dictado): no se ve el número; la voz lo dicta despacio y se construye de oído
 function forcedNum(page) { const e = Echo.peek('n'); if (e && !!e.ans.page === page) { e.used = true; return e.ans.num; } return null; }
 const DICTATE_RATE = .6;   // el dictado va más despacio que el resto (y aún más al mantener pulsado el altavoz)
-function roundNumbers({ page = false, audio = false } = {}) {
+// 月 Fechas: mes (三月), fecha (三月十五日 / 号) o día de la semana (星期三; domingo = 星期日 o 星期天)
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const DIAS = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+function dateTask(kind) {
+  const V = c => vocabOf(c), XQ = V('星期'), YUE = V('月'), RI = V('日'), HAO = V('号'), TIAN = V('天'), zh = s => s.map(v => v.chino).join('');
+  if (kind === 'week') {
+    const d = 1 + Math.floor(Math.random() * 7);
+    return { valids: d < 7 ? [[XQ, NUMS[d - 1]]] : [[XQ, RI], [XQ, TIAN]], espanol: cap(DIAS[d - 1]), ask: '¿Qué día de la semana oyes?',
+      keys: [XQ, ...NUMS.slice(0, 7), RI, TIAN, YUE, HAO],
+      why: d < 7 ? `Días de la semana: 星期 + número (lunes = 星期一 … sábado = 星期六) → ${cap(DIAS[d - 1])} = 星期${NUMS[d - 1].chino}`
+                 : 'El domingo no lleva número: 星期日 o 星期天 (nunca 星期七)' };
+  }
+  const m = 1 + Math.floor(Math.random() * 12), mz = numZh(m);
+  if (kind === 'month') return { valids: [[...mz, YUE]], espanol: cap(MESES[m - 1]), ask: '¿Qué mes oyes?', keys: [...NUMS, YUE, pick([RI, HAO])],
+    why: `Meses: número + 月 (enero = 一月 … diciembre = 十二月) → ${cap(MESES[m - 1])} = ${zh(mz)}月` };
+  const d = 1 + Math.floor(Math.random() * [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]), end = pick([RI, HAO]);
+  return { valids: [[...mz, YUE, ...numZh(d), end]], espanol: `${d} de ${MESES[m - 1]}`, ask: '¿Qué fecha oyes?', keys: [...NUMS, YUE, end],
+    why: `Fechas: primero el mes y después el día: mes + 月 + día + 日 (o 号, más hablado) → ${zh(mz)}月${zh(numZh(d))}${end.chino}` };
+}
+function roundNumbers({ page = false, audio = false, date = null } = {}) {
   const R = newRound('numbers');
-  const f = forcedNum(page), n = f != null ? f : page ? pageNum() : randNum();
-  const seq = page ? [DI, ...numZh(n), YE] : numZh(n);
-  const ans = { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
+  const D = date ? dateTask(date) : null;
+  const f = D ? null : forcedNum(page), n = D ? 0 : f != null ? f : page ? pageNum() : randNum();
+  const valids = D ? D.valids : [page ? [DI, ...numZh(n), YE] : numZh(n)], seq = valids[0];
+  let live = valids;   // secuencias aún posibles (星期日 / 星期天)
+  const ans = D ? { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: D.espanol }
+    : { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
   if (audio) {
-    UI.prompt({ seal: '听', chip: 'Dictado', title: page ? '¿Qué página oyes?' : '¿Qué número oyes?', long: true, sub: 'Constrúyelo con las fichas', speaker: true });
+    UI.prompt({ seal: '听', chip: 'Dictado', title: D ? D.ask : page ? '¿Qué página oyes?' : '¿Qué número oyes?', long: true, sub: 'Constrúyelo con las fichas', speaker: true });
     R.speakText = ans.chino; R.speakRate = DICTATE_RATE;   // solo el número: sin nombres que distraigan
     setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, DICTATE_RATE); }, 800);
   }
+  else if (D) UI.prompt({ seal: '月', chip: 'Fechas', title: D.espanol, long: D.espanol.length > 9, sub: 'Constrúyelo en chino' });
   else if (page) UI.prompt({ seal: '页', chip: 'Página', title: `Página ${n}`, sub: `${ans.espanol} · constrúyelo en chino` });
   else UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   const slotMat = [];
@@ -1984,7 +2121,7 @@ function roundNumbers({ page = false, audio = false } = {}) {
     R.disposables.push(m); slotMat.push(m);
     const sl = new THREE.Mesh(tileAssets().face, m); sl.scale.set(1 / .82, 1 / .86, 1); const g = new THREE.Group(); g.add(sl); g.userData.mat = m; R.group.add(g); return g;
   });
-  const keys = shuffle([...NUMS, ...(page ? [DI, YE] : [ZERO, BAI])]).map(v => { const k = makeTile(v.chino, R, v.pinyin); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
+  const keys = shuffle(D ? D.keys : [...NUMS, ...(page ? [DI, YE] : [ZERO, BAI])]).map(v => { const k = makeTile(v.chino, R, v.pinyin); k.userData.item = v; k.userData.onTap = () => press(k); R.group.add(k); R.pick.push(k); return k; });
   let ks = .74, ss = 1, step = 0;
   R.layout = () => {
     const A = area();
@@ -2017,12 +2154,18 @@ function roundNumbers({ page = false, audio = false } = {}) {
     slotMat.forEach((m, i) => { if (i === step && !state.locked) m.opacity = .55 + .45 * Math.sin(t * 5); else if (i > step) m.opacity = .45; });
   };
   // En el dictado, al terminar (bien o mal) se muestra el número que se ha oído
-  const showNum = () => { if (!audio) return; const t = $('#title'); t.textContent = page ? `Página ${n}` : String(n); t.classList.remove('long'); t.classList.add('number'); $('#sub').textContent = ans.espanol; };
+  const showNum = () => {
+    if (!audio) return; const t = $('#title');
+    if (D) { t.textContent = D.espanol; $('#sub').textContent = ''; return; }
+    t.textContent = page ? `Página ${n}` : String(n); t.classList.remove('long'); t.classList.add('number'); $('#sub').textContent = ans.espanol;
+  };
   function press(k) {
     if (state.locked) return;
     const v = k.userData.item; if (!audio) Speech.say(v.chino, .85); sfx.tap();
     gsap.fromTo(k.userData.float.position, { z: -.3 }, { z: 0, duration: .5, ease: 'back.out(3)' });
-    if (v !== seq[step]) { state.locked = true; rejectTile(k); showNum(); resolve(false, ans, { picked: v.chino, why: numberWhy(n, page) }); return; }
+    const ok = live.filter(s => s[step] === v);
+    if (!ok.length) { state.locked = true; rejectTile(k); showNum(); resolve(false, ans, { picked: v.chino, why: D ? D.why : numberWhy(n, page) }); return; }
+    live = ok;
     const sl = slots[step++], h = sl.userData.home, m = sl.userData.mat;
     const t = makeTile(v.chino, R, v.pinyin); sl.userData.tile = t; R.group.add(t);
     t.position.copy(k.position); t.scale.setScalar(ks);
@@ -2036,6 +2179,7 @@ function roundNumbers({ page = false, audio = false } = {}) {
       .add(() => { sfx.place(); sparks.burst(t.getWorldPosition(new THREE.Vector3()), { count: 40, speed: [.8, 2.4], life: [.4, .8], size: [.03, .08] }); }, .58);
     if (step === seq.length) {
       state.locked = true;
+      ans.chino = live[0].map(x => x.chino).join(''); ans.pinyin = live[0].map(x => x.pinyin).join(' ');   // lo que ha construido (星期天)
       showNum();
       setTimeout(() => {
         Speech.say(ans.chino, audio ? DICTATE_RATE : .75);
@@ -2439,6 +2583,43 @@ const hwLoader = (c, onLoad, onError) => fetch('trazos/' + encodeURIComponent(c)
 const GRID_SVG = '<svg class="grid" viewBox="0 0 100 100" preserveAspectRatio="none"><g stroke="rgba(170,40,30,.28)" stroke-width=".5" stroke-dasharray="2.2 2" fill="none">' +
   '<line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><line x1="0" y1="0" x2="100" y2="100"/><line x1="100" y1="0" x2="0" y2="100"/></g></svg>';
 const recentW = [];
+/* ---------------------------------------------------------------------
+   MODO · 读 — Lee y entiende: una frase en caracteres para entenderla de cabeza.
+   Sin respuesta: se puede destapar el pinyin y luego el significado, y pasar a la siguiente.
+   --------------------------------------------------------------------- */
+function roundRead() {
+  const R = newRound('read');
+  const P = pickPhrase(topicPhrases());
+  UI.prompt({ seal: '读', chip: 'Lee y entiende', title: '¿Qué significa?', sub: 'Piénsalo y luego destápalo', speaker: true });
+  R.speakText = P.zh;
+  const el = document.createElement('div'); el.className = 'read';
+  el.innerHTML = `<div class="rd-card"><div class="rd-zh">${P.zh}</div>
+      <div class="rd-row rd-py hid"><span>${pyHTML(P.py)}</span><i>pinyin</i></div>
+      <div class="rd-row rd-es hid"><span>${P.es}</span><i>significado</i></div></div>
+    <div class="rd-btns"><button class="rd-b" data-r="py"><b>拼</b>Ver pinyin</button><button class="rd-b" data-r="es"><b>义</b>Ver significado</button></div>
+    <button class="rd-next">Siguiente</button>`;
+  document.body.appendChild(el);
+  el.addEventListener('pointerdown', e => e.stopPropagation());
+  const $r = q => el.querySelector(q);
+  R.layout = () => { el.style.top = ($('#card').getBoundingClientRect().bottom + 18) + 'px'; };
+  R.layout();
+  gsap.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .6, ease: 'expo.out', delay: .15 });
+  R.onExit = () => gsap.to(el, { opacity: 0, y: -20, duration: .35, ease: 'power2.in', onComplete: () => el.remove() });
+  const show = k => {
+    const row = $r('.rd-' + k), b = $r(`[data-r="${k}"]`);
+    if (!row.classList.contains('hid')) return;
+    row.classList.remove('hid'); b.disabled = true;
+    gsap.fromTo(row.querySelector('span'), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .45, ease: 'expo.out' });
+    if (k === 'py') Speech.say(P.zh, .8);
+    if (k === 'es') { show('py'); el.classList.add('done'); }
+  };
+  el.querySelectorAll('.rd-b').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if (state.locked) return; sfx.tap(); show(b.dataset.r); }));
+  $r('.rd-next').addEventListener('click', e => {
+    e.stopPropagation(); if (state.locked) return; sfx.tap();
+    resolve(true, phraseAns(P), { noMem: true, quiet: true });
+  });
+  return R;
+}
 function roundWrite() {
   const R = newRound('write');
   const pool = writePool(), fresh = pool.filter(v => !recentW.includes(v.chino));
@@ -3021,7 +3202,8 @@ async function loadFonts() {
     const ms = TOPICS[topicKey].modes || Object.keys(MODES), has = m => ms.includes(m), L = new Map();
     const add = (key, make) => { if (!texCache.has(key)) L.set(key, make); };
     const tile = (c, py = '') => { if (!pyOn) py = ''; add('tile:' + c + '|' + py, () => tileFaceTex(c, py)); };
-    if (['numbers', 'page', 'dictation'].some(has)) [...NUMS, ZERO, BAI, DI, YE].forEach(v => tile(v.chino, v.pinyin));
+    if (['numbers', 'page', 'dictation', 'date'].some(has)) [...NUMS, ZERO, BAI, DI, YE].forEach(v => tile(v.chino, v.pinyin));
+    if (has('date')) ['星期', '月', '日', '号', '天'].forEach(c => tile(c, pyOf(c)));
     if (has('order') || has('dialog')) {
       topicPhrases().forEach(P => orderWords(P).forEach(x => tile(x.c, x.p.toLowerCase())));
       [...ORDER_TRAPS, ...Object.values(BLANK_WRONG).flat()].forEach(c => { const py = pyOf(c); if (py) tile(c, py); });
