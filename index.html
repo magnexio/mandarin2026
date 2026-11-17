@@ -158,6 +158,7 @@
     background:rgba(12,1,3,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   #topics.on{display:flex}
   .sheet{width:min(520px,100%);margin:0 12px calc(var(--safe-b) + 12px);padding:18px 14px 14px;border-radius:30px;
+    max-height:calc(100dvh - var(--safe-b) - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
     background:linear-gradient(180deg,rgba(80,12,16,.92),rgba(26,3,7,.96));border:1px solid var(--hair);
     box-shadow:inset 0 1px 0 rgba(255,220,200,.12),0 -10px 60px -20px rgba(0,0,0,.8)}
   .sheet h2{margin:0 6px 12px;font:600 11.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,215,160,.75)}
@@ -189,6 +190,37 @@
   .lesson{flex:1;padding:10px 0;border-radius:14px;cursor:pointer;font:600 15px var(--sans);white-space:nowrap;color:#fff1d2;
     background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14)}
   .lesson.on{background:linear-gradient(180deg,rgba(243,197,107,.3),rgba(190,110,40,.2));border-color:rgba(255,214,140,.6)}
+  /* Menú: escritura aparte · qué repasar (lección o temática) · cómo (tipo de ejercicio) · pinyin de ayuda */
+  .hud-row .chip{min-width:0}
+  .themes{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 2px 12px}
+  .theme{display:flex;align-items:center;gap:9px;min-width:0;padding:8px 9px;border-radius:16px;text-align:left;cursor:pointer;
+    background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14);color:#fff;font-family:var(--sans)}
+  .theme:active,.lesson:active,.pyt:active{transform:scale(.97)}
+  .theme.on{background:linear-gradient(180deg,rgba(243,197,107,.3),rgba(190,110,40,.2));border-color:rgba(255,214,140,.6)}
+  .theme:disabled{opacity:.35;cursor:default}
+  .theme .seal{flex:none;width:30px;height:30px;border-radius:9px;font-size:16px}
+  .theme div{min-width:0}
+  .theme b{display:block;font-size:13.5px;font-weight:600;color:#fff1d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .theme em,.pyt em{display:block;font-style:normal;font-size:11.5px;color:rgba(255,226,192,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pyt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:2px;padding:11px 14px;border-radius:18px;
+    text-align:left;cursor:pointer;background:rgba(255,236,214,.06);border:1px solid rgba(255,212,145,.14);color:#fff;font-family:var(--sans)}
+  .pyt div{min-width:0}
+  .pyt b{display:block;font-size:15px;font-weight:600;color:#fff1d2}
+  .pyt em{white-space:normal}
+  .pyt .sw{flex:none;position:relative;width:46px;height:28px;border-radius:14px;background:rgba(255,236,214,.16);transition:background .2s}
+  .pyt .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff1d2;
+    box-shadow:0 2px 6px rgba(0,0,0,.5);transition:transform .2s}
+  .pyt.on .sw{background:linear-gradient(180deg,#f3c56b,#be6e28)}
+  .pyt.on .sw::after{transform:translateX(18px)}
+  .go{display:block;width:100%;margin-top:12px;padding:13px;border:0;border-radius:18px;cursor:pointer;font:700 16px var(--sans);color:#3a0306;
+    background:linear-gradient(180deg,#f7d78c,#d9963c);box-shadow:inset 0 1px 0 rgba(255,250,230,.6),0 10px 24px -12px rgba(0,0,0,.9)}
+  .go:active{transform:scale(.98)}
+  #topic-name{max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+  .topic.wr{margin-top:0}
+  .topic.all{margin:0 0 12px}
+  .themes .theme:last-child:nth-child(odd){grid-column:span 2}
+  .topic.wr .brush{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:#ffe7b3;
+    background:linear-gradient(145deg,#e0402f,#8a0d14);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 8px rgba(120,0,0,.55)}
 </style>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -218,7 +250,7 @@
 
 <header id="hud">
   <div class="hud-row">
-    <button id="topic-btn" aria-label="Elegir tema"><span id="topic-seal" class="seal">全</span><span id="topic-name">Mezcla</span>
+    <button id="topic-btn" aria-label="Qué practicar"><span id="topic-seal" class="seal">全</span><span id="topic-name">Mezcla</span>
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <div id="chip" class="chip"><span id="seal" class="seal">字</span><span id="chip-text">Cargando</span><span id="review" class="review" title="Repaso de un fallo">复</span></div>
   </div>
@@ -539,6 +571,7 @@ function withName(P) {
 }
 const phraseAns = P => ({ chino: P.zh, pinyin: P.py, espanol: P.es, pid: P.id });
 function bubble(cls, who, zh, py, es) {
+  if (!pyOn) py = '';   // sin pinyin de ayuda: solo caracteres
   return `<div class="bub ${cls}"><span class="who">${who}</span><div class="zh">${zh}</div>${py ? `<div class="py">${py}</div>` : ''}${es ? `<div class="es">${es}</div>` : ''}</div>`;
 }
 
@@ -1304,6 +1337,7 @@ function tileAssets() {
   };
 }
 function makeTile(ch, R, py = '') {
+  if (!pyOn) py = '';   // sin pinyin de ayuda
   const A = tileAssets(), root = new THREE.Group(), float = new THREE.Group(); root.add(float);
   const ivory = new THREE.Mesh(A.ivory, A.ivoryMat); ivory.position.z = .14;
   const jade = new THREE.Mesh(A.jade, A.jadeMat); jade.position.z = -.2;
@@ -1658,11 +1692,11 @@ const MODES = {
   meaning: { create: () => roundMeaning() },
   dialog:  { create: () => roundDialog(), w: 2 },   // contenido nuevo: sale el doble
   pairs:   { create: () => roundPairs(), w: 2 },
-  page:    { create: () => Math.random() < .5 ? roundNumbers({ page: true }) : roundPlaques(true) },
+  page:    { create: () => pyOn && Math.random() < .5 ? roundPlaques(true) : roundNumbers({ page: true }) },
   order:   { create: () => roundOrder(), w: 2 },
   write:   { create: () => roundWrite(), solo: true },   // solo en su tema: las rondas son largas
-  dictation: { create: () => { const e = Echo.peek('n'), both = numsInLesson() && pagesInLesson();
-                 return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesInLesson() }); },
+  dictation: { create: () => { const e = Echo.peek('n'), both = numsIn() && pagesIn();
+                 return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesIn() }); },
                ok: () => Speech.ok && Speech.unlocked && !Speech.knownNoZh() },
 };
 // Qué modos pueden repasar cada tipo de fallo (v: palabra, p: frase, n: número, np: página)
@@ -1674,52 +1708,84 @@ function echoFits(e, k) {
   if (kind === 'p') { const P = PHRASES[e.ans.pid]; return topicPhrases().includes(P) && (k !== 'order' || orderWords(P).length >= 3); }
   return true;
 }
-// Temas: qué tipo de ejercicio sale, siempre con todo el vocabulario de todas las lecciones. «Mezcla» es todo junto.
+// Cómo: tipo de ejercicio. «Mezcla» es todo junto. 写 Escritura va aparte (botón propio): todos los caracteres, sin lecciones ni temáticas.
 const TOPICS = {
-  mix:  { seal: '全', name: 'Mezcla', desc: 'Todos los ejercicios mezclados', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  words: { seal: '词', name: 'Vocabulario', desc: 'Palabras: significado, pinyin, audio y parejas',
-          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !isNumVocab(v), pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
-  char: { seal: '字', name: 'Caracteres', desc: 'Los que aprendéis a escribir (丁 刀 匕 贝 玉…)',
-          modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs'], vocab: v => !!v.c, pairs: ['zhEs', 'zhPy', 'esPy', 'mix'] },
-  num:  { seal: '数', name: 'Números', desc: 'Construir números, pinyin, páginas (第…页), dictado y parejas',
-          modes: ['numbers', 'pyNum', 'page', 'dictation', 'pairs', 'tiles', 'orbit', 'listen'], vocab: isNumVocab, pairs: ['numZh', 'numPy', 'zhEs'] },
-  talk: { seal: '话', name: 'Conversación', desc: 'Responder, completar, ordenar y traducir frases', modes: ['dialog', 'order'] },
-  write: { seal: '写', name: 'Escritura', desc: 'Orden de trazos de todos los caracteres (sin lecciones)', modes: ['write'] },
+  mix:   { seal: '全', name: 'Mezcla', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
+  words: { seal: '词', name: 'Palabras', modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'numbers', 'pyNum', 'page', 'dictation'],
+           pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
+  talk:  { seal: '话', name: 'Frases', modes: ['dialog', 'order'] },
+  write: { seal: '写', name: 'Escritura', modes: ['write'] },
 };
-let topicKey = (() => {
-  const q = new URLSearchParams(location.search).get('topic');
-  if (TOPICS[q]) return q;
-  try { const s = localStorage.getItem('topic'); if (TOPICS[s]) return s; } catch (e) {}
-  return 'mix';
-})();
-// Lección (se combina con el tema): 'all' o '1'-'3'. Cada palabra/frase lleva la lección donde apareció por primera vez (l, por defecto 1).
-const LESSONS = { all: 'Todas', 1: 'Lección 1', 2: 'Lección 2', 3: 'Lección 3', 4: 'Lección 4', 5: 'Lección 5' };
-let lessonKey = (() => {
-  const q = new URLSearchParams(location.search).get('lesson');
-  if (LESSONS[q]) return q;
-  try { const s = localStorage.getItem('lesson'); if (LESSONS[s]) return s; } catch (e) {}
-  return 'all';
-})();
-const inLesson = x => lessonKey === 'all' || String(x.l || 1) === lessonKey;
-const numsInLesson = () => lessonKey === 'all' || lessonKey === '1';    // números 0-100 y centenas: lección 1
-const pagesInLesson = () => lessonKey === 'all' || lessonKey === '2';   // 第…页: lección 2
-function vocabPool() { const f = TOPICS[topicKey].vocab; return VOCAB.filter(v => (!f || f(v)) && inLesson(v)); }
-function topicPhrases() { const f = TOPICS[topicKey].phrases; return Object.values(PHRASES).filter(P => (!f || f(P)) && inLesson(P)); }
-function pairTypes() {   // tipos de parejas posibles con el tema y la lección actuales
+const EXERCISES = ['mix', 'words', 'talk'];
+// Qué repasar: todo, una lección (l de cada palabra/frase; sin l = lección 1) o una temática. Se combina con el ejercicio.
+// vocab: caracteres separados por espacios (o una función); phrases: ids de PHRASES. nums/pages: hay números 0-100 / 第…页.
+const THEMES = {
+  hola:    { seal: '好', name: 'Saludar', short: 'Saludar', desc: '你好 · 你好吗 · 您好',
+             vocab: '你 好 很 我 也 不 吗 呢 您 高兴', phrases: 'nihao ma ne ye bu ninhao gaoxing buGaoxing' },
+  mang:    { seal: '忙', name: 'Estar ocupado', short: 'Ocupado', desc: '你忙吗 · 我很忙',
+             vocab: '忙 很 不 也 吗 呢 都 我 你 他 她 我们 你们 他们 她们 爸爸 妈妈 男朋友',
+             phrases: 'mangQ henMang buMang yeMang yeBuMang mangNe buMangNe fumuQ tamenHao womenHao babaQ mamaQ babaMang mamaMang taMang taBuMang ta2Mang ta2BuMang npyNe' },
+  nums:    { seal: '数', name: 'Números', short: 'Números', desc: '0-100 · 第…页', vocab: v => isNumVocab(v), nums: true, pages: true },
+  beber:   { seal: '喝', name: 'Bebidas', short: 'Bebidas', desc: '你要咖啡吗 · 茶 · 水',
+             vocab: '要 喝 咖啡 牛奶 茶 水 果汁 可乐 酒 红酒 白酒 啤酒 苹果酒 葡萄汁',
+             phrases: 'yaoQ heQ yao yaoHe yeYao douHe chaQ yaoCha yaoShui yeShui piJiu keyiQ' },
+  pais:    { seal: '国', name: 'Países', short: 'Países', desc: '你是哪国人 · 汉语 · 英语',
+             vocab: '国 哪 是 中国 中国人 西班牙 巴斯克 法国 葡萄牙 英国 德国 意大利 美国 日本 韩国 汉语 中文 外语 西班牙语 西班牙文 巴斯克语 巴斯克文 法语 法文 英语 德语 韩语 葡萄牙语 意大利语 日语',
+             phrases: 'naguoQ naguoQ2 niNaguoQ taZgr taZgr2 taXby zgrQ buZgr woXby woBsk douZgr faguoQ faguo buFaguo riben meiguo' },
+  quien:   { seal: '谁', name: '¿Quién es?', short: '¿Quién es?', desc: '这是谁 · familia',
+             vocab: '谁 这 那 是 爸爸 妈妈 哥哥 弟弟 奶奶 外婆 朋友 男朋友 男 女 人 老师 医生 记者 先生 他 她 高',
+             phrases: 'sheiQ laoshi yeLaoshiQ buLaoshi taSheiQ taDidi taPengyou zheSheiQ zheGege zhePengyou nainaiQ waipo yisheng waiyuLs taJizhe taGao' },
+  nombre:  { seal: '姓', name: 'Presentarse', short: 'Presentarse', desc: '您贵姓 · 认识你',
+             vocab: '姓 贵姓 叫 请问 问 先生 认识 高兴 王 林 您 我 你 很', phrases: 'guixingQ xingWang xingLin renshi renshiYe dingXs' },
+  permiso: { seal: '请', name: 'Pedir permiso', short: 'Permiso', desc: '可以进来吗 · 请进',
+             vocab: '可以 进来 进 来 请 行 不行 可 不 吗 喝 咖啡', phrases: 'jinlaiQ qingJin keyiQ keyi buxing xing' },
+  chars:   { seal: '字', name: 'Caracteres', short: 'Caracteres', desc: '丁 刀 匕 贝 玉…', vocab: v => !!v.c },
+};
+for (const t of Object.values(THEMES)) for (const f of ['vocab', 'phrases']) {
+  if (typeof t[f] === 'string') { const set = new Set(t[f].split(' ')); t[f + 'Set'] = set; t[f] = f === 'vocab' ? v => set.has(v.chino) : P => set.has(P.id); }
+  else if (!t[f]) t[f] = () => false;
+}
+const LESSON_KEYS = ['all', '1', '2', '3', '4', '5'], CONTENTS = [...LESSON_KEYS, ...Object.keys(THEMES)];
+const LESSON_SEAL = { all: '全', 1: '一', 2: '二', 3: '三', 4: '四', 5: '五' };
+const contentInfo = k => THEMES[k] || (k === 'all' ? { seal: '全', name: 'Todo', short: 'Todo' } : { seal: LESSON_SEAL[k], name: 'Lección ' + k, short: 'Lección ' + k });
+const QS = new URLSearchParams(location.search), LS = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+// Los antiguos temas «Números» y «Caracteres» ahora son contenido (temática) con el ejercicio «Palabras»
+const OLD_TOPIC = QS.get('topic') || LS('topic');
+// En el menú solo se elige el contenido: siempre sale de todo (Mezcla). words/talk quedan para depurar (?topic=words|talk).
+let topicKey = TOPICS[QS.get('topic')] ? QS.get('topic') : LS('topic') === 'write' ? 'write' : 'mix';
+let exKey = EXERCISES.includes(topicKey) ? topicKey : 'mix';   // al que se vuelve desde 写
+let contentKey = [QS.get('content'), QS.get('lesson')].find(k => CONTENTS.includes(k))
+  || (OLD_TOPIC === 'num' ? 'nums' : OLD_TOPIC === 'char' ? 'chars' : null)
+  || [LS('content'), LS('lesson')].find(k => CONTENTS.includes(k)) || 'all';
+// Pinyin de ayuda (bajo las fichas, en los diálogos…). Sin él se aprende a leer los caracteres; las respuestas lo siguen mostrando.
+let pyOn = QS.get('pinyin') === '0' ? false : LS('pinyin') !== '0';
+function saveCfg() {
+  try { localStorage.setItem('topic', topicKey); localStorage.setItem('ex', exKey); localStorage.setItem('content', contentKey); localStorage.setItem('pinyin', pyOn ? '1' : '0'); } catch (e) {}
+}
+const theme = () => THEMES[contentKey];
+const vocabIn = v => contentKey === 'all' || (theme() ? theme().vocab(v) : String(v.l || 1) === contentKey);
+const phraseIn = P => contentKey === 'all' || (theme() ? theme().phrases(P) : String(P.l || 1) === contentKey);
+const numsIn = () => contentKey === 'all' || contentKey === '1' || !!(theme() && theme().nums);    // números 0-100 y centenas: lección 1
+const pagesIn = () => contentKey === 'all' || contentKey === '2' || !!(theme() && theme().pages);  // 第…页: lección 2
+function vocabPool() { return VOCAB.filter(vocabIn); }
+function topicPhrases() { return Object.values(PHRASES).filter(phraseIn); }
+function pairTypes() {   // tipos de parejas posibles con el ejercicio, el contenido y el pinyin actuales
   const pool = vocabPool(), py = new Set(pool.map(v => v.pinyin)).size;
-  const ok = (TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES)).filter(t => t === 'mix' ||
-    (PAIR_TYPES[t][0] === 'num' ? numsInLesson() : PAIR_TYPES[t].includes('py') ? py >= 4 : pool.length >= 4));
+  const ok = (TOPICS[topicKey].pairs || Object.keys(PAIR_TYPES)).filter(t => t === 'mix' || (PAIR_TYPES[t].includes('py') && !pyOn ? false :
+    PAIR_TYPES[t][0] === 'num' ? numsIn() : PAIR_TYPES[t].includes('py') ? py >= 4 : pool.length >= 4));
   return ok.some(t => t !== 'mix') ? ok : [];
 }
-// ¿Hay material para este modo con el tema y la lección actuales?
+// ¿Hay material para este modo con el contenido actual? (sin pinyin de ayuda no salen los modos de pinyin)
 function modeFits(k) {
   const pool = vocabPool(), py = new Set(pool.map(v => v.pinyin)).size, ph = topicPhrases();
   switch (k) {
-    case 'numbers': case 'pyNum': return numsInLesson();
-    case 'page': return pagesInLesson();
-    case 'dictation': return numsInLesson() || pagesInLesson();
+    case 'numbers': return numsIn();
+    case 'pyNum': return pyOn && numsIn();
+    case 'page': return pagesIn();
+    case 'dictation': return numsIn() || pagesIn();
     case 'tiles': case 'meaning': return pool.length >= 4;
-    case 'pyChar': case 'orbit': case 'listen': return py >= 4;
+    case 'pyChar': case 'orbit': return pyOn && py >= 4;
+    case 'listen': return py >= 4;
     case 'pairs': return pairTypes().length > 0;
     case 'dialog': return dialogSubs().length > 0;
     case 'order': return ph.some(P => orderWords(P).length >= 3);
@@ -1734,15 +1800,15 @@ function dialogSubs() {
   if (ph.length >= 4) subs.push('meaning');
   return subs;
 }
-// Modos jugables para una combinación tema + lección (sin cambiar la actual)
-function modesFor(tk, lk) {
-  const T0 = topicKey, L0 = lessonKey; topicKey = tk; lessonKey = lk;
-  try { return (TOPICS[tk].modes || Object.keys(MODES).filter(k => !MODES[k].solo)).filter(k => MODES[k] && modeFits(k)); } finally { topicKey = T0; lessonKey = L0; }
+// Modos jugables para una combinación ejercicio + contenido (sin cambiar la actual)
+function modesFor(tk, ck) {
+  const T0 = topicKey, C0 = contentKey; topicKey = tk; contentKey = ck;
+  try { return (TOPICS[tk].modes || Object.keys(MODES).filter(k => !MODES[k].solo)).filter(k => MODES[k] && modeFits(k)); } finally { topicKey = T0; contentKey = C0; }
 }
 function startRound() {
-  if (!modesFor(topicKey, lessonKey).length) lessonKey = 'all';   // combinación sin material (no debería pasar: el menú la desactiva)
+  if (!modesFor(topicKey, contentKey).length) { contentKey = 'all'; paintTopicBtn(); }   // sin material (no debería pasar)
   let keys = (TOPICS[topicKey].modes || Object.keys(MODES).filter(k => !MODES[k].solo)).filter(k => MODES[k] && (!MODES[k].ok || MODES[k].ok()) && modeFits(k));
-  if (!keys.length) keys = modesFor(topicKey, lessonKey);
+  if (!keys.length) keys = modesFor(topicKey, contentKey);
   if (keys.some(k => k !== lastMode)) keys = keys.filter(k => k !== lastMode);   // nunca el mismo dos veces (si hay otro)
   const forced = new URLSearchParams(location.search).get('mode');   // depuración: ?mode=tiles|orbit|numbers|listen
   Echo.n++; Echo.active = null;
@@ -2153,7 +2219,7 @@ function dialogPlaques(meaning) {
   }
   setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, .8); }, 800);
   const plaques = opts.map(o => {
-    const P = meaning ? makePlaque(o, R) : makePlaque(o, R, Object.values(PHRASES).find(x => x.zh === o).py);
+    const P = meaning || !pyOn ? makePlaque(o, R) : makePlaque(o, R, Object.values(PHRASES).find(x => x.zh === o).py);
     P.userData.val = o; P.userData.onTap = () => choose(P); R.group.add(P); R.pick.push(P); return P;
   });
   let s = 1;
@@ -2378,7 +2444,7 @@ function roundWrite() {
   const pool = writePool(), fresh = pool.filter(v => !recentW.includes(v.chino));
   const item = wpick(fresh.length ? fresh : pool, v => 'w:' + v.chino);
   recentW.push(item.chino); if (recentW.length > 6) recentW.shift();
-  UI.prompt({ seal: '写', chip: 'Escritura', title: item.espanol, long: true, sub: `${item.pinyin} · mira el orden de los trazos`, speaker: true });
+  UI.prompt({ seal: '写', chip: 'Escritura', title: item.espanol, long: true, sub: `${pyOn ? item.pinyin + ' · ' : ''}mira el orden de los trazos`, speaker: true });
   R.speakText = item.chino;
   setTimeout(() => { if (round === R && !R.exiting) Speech.say(item.chino); }, 700);
   const el = document.createElement('div'); el.className = 'write';
@@ -2724,31 +2790,43 @@ holdToSlow($('#speak'), () => {
   else if (round.speakText) { sfx.tap(); Speech.say(round.speakText, round.speakRate); }
 });
 
-// Selector de temas
+// Menú: 写 Escritura aparte · qué repasar (lección o temática) · cómo (ejercicio) · pinyin de ayuda
 function paintTopicBtn() {
-  $('#topic-seal').textContent = TOPICS[topicKey].seal;
-  $('#topic-name').textContent = TOPICS[topicKey].name + (lessonKey === 'all' || topicKey === 'write' ? '' : ' · L' + lessonKey);
+  const c = contentInfo(contentKey), w = topicKey === 'write';
+  $('#topic-seal').textContent = w ? '写' : c.seal;
+  $('#topic-name').textContent = w ? 'Escritura' : c.short + (topicKey === 'mix' ? '' : ' · ' + TOPICS[topicKey].name);
 }
+function paintMenu() {
+  const on = c => c ? ' on' : '', dis = d => d ? ' disabled' : '';
+  const contentOk = k => modesFor('mix', k).length > 0;   // el contenido manda: si el ejercicio no encaja, se pasa a Mezcla
+  $('#topic-list').innerHTML =
+    `<button class="topic all${on(contentKey === 'all')}" data-c="all"><span class="seal">全</span><div><b>Todo</b><span>Todas las lecciones y todos los temas</span></div></button>` +
+    `<div class="lesson-h">Por lecciones</div>` +
+    `<div class="lessons">${LESSON_KEYS.filter(k => k !== 'all').map(k => `<button class="lesson${on(k === contentKey)}" data-c="${k}"${dis(!contentOk(k))}>L${k}</button>`).join('')}</div>` +
+    `<div class="lesson-h">Por temas</div>` +
+    `<div class="themes">${Object.entries(THEMES).map(([k, t]) => `<button class="theme${on(k === contentKey)}" data-c="${k}"${dis(!contentOk(k))}>` +
+      `<span class="seal">${t.seal}</span><div><b>${t.name}</b><em>${t.desc}</em></div></button>`).join('')}</div>` +
+    `<button class="pyt${on(pyOn)}" data-p="1"><div><b>Pinyin de ayuda</b><em>${pyOn ? 'Bajo las fichas y en los diálogos' : 'Oculto: aprende a leer los caracteres (las respuestas lo siguen mostrando)'}</em></div><i class="sw"></i></button>` +
+    `<div class="lesson-h" style="margin-top:14px">Escritura</div>` +
+    `<button class="topic wr${on(topicKey === 'write')}" data-w="1"><span class="brush"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M21.2 2.8c.5.5.5 1.2 0 1.7l-7.9 7.9-1.7-1.7 7.9-7.9c.5-.5 1.2-.5 1.7 0z"/><path d="M10.6 11.6l1.8 1.8-.6.6-1.8-1.8z" opacity=".75"/><path d="M9.3 12.4c1.5-.2 2.6 1 2.3 2.4-.6 3-3.8 5.7-8.6 6.4.6-4.9 3.3-8.3 6.3-8.8z"/></svg></span>` +
+      `<div><b>Practicar la escritura</b><span>Orden de los trazos con el dedo · todos los caracteres</span></div></button>` +
+    `<button class="go">${topicKey === 'write' ? 'Volver a repasar' : 'Jugar'}</button>`;
+}
+let menuDirty = false;
 function openTopics(open) {
   const el = $('#topics');
   if (open) {
-    // Lección arriba (se combina con el tema); lo que no tiene material con la otra elección sale desactivado
-    $('#topic-list').innerHTML =
-      `<div class="lesson-h">Lección</div><div class="lessons">${['all', '1', '2', '3', '4', '5'].map(k =>
-        `<button class="lesson${k === lessonKey ? ' on' : ''}" data-l="${k}"${modesFor(topicKey, k).length ? '' : ' disabled'}>${k === 'all' ? 'Todas' : k}</button>`).join('')}</div>` +
-      `<div class="lesson-h">Tipo de ejercicio</div>` +
-      Object.entries(TOPICS).map(([k, t]) =>
-        `<button class="topic${k === topicKey ? ' on' : ''}" data-k="${k}"${modesFor(k, lessonKey).length ? '' : ' disabled'}><span class="seal">${t.seal}</span><div><b>${t.name}</b><span>${t.desc}</span></div></button>`).join('');
-    el.classList.add('on');
+    menuDirty = false; paintMenu(); el.classList.add('on'); $('#topics .sheet').scrollTop = 0;
     gsap.fromTo('#topics .sheet', { yPercent: 110 }, { yPercent: 0, duration: .5, ease: 'expo.out' });
     gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: .25 });
-  } else gsap.to('#topics .sheet', { yPercent: 110, duration: .3, ease: 'power3.in', onComplete: () => el.classList.remove('on') });
+  } else {
+    gsap.to('#topics .sheet', { yPercent: 110, duration: .3, ease: 'power3.in', onComplete: () => el.classList.remove('on') });
+    if (menuDirty) applyCfg();
+  }
 }
-function setTopic(k, lk = lessonKey) {
-  openTopics(false);
-  if (k === topicKey && lk === lessonKey) return;
-  topicKey = k; lessonKey = lk; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
-  try { localStorage.setItem('topic', k); localStorage.setItem('lesson', lk); } catch (e) {}
+// Al cerrar el menú con cambios: nueva ronda con la configuración nueva
+function applyCfg() {
+  menuDirty = false; lastMode = null; recent.length = 0; recentP.length = 0;
   if (!round || round.exiting) return;
   const R = round;
   transitionOut().then(() => { if (round === R) startRound(); });
@@ -2756,15 +2834,19 @@ function setTopic(k, lk = lessonKey) {
 }
 $('#topic-btn').addEventListener('click', e => { e.stopPropagation(); sfx.tap(); openTopics(true); });
 $('#topics').addEventListener('click', e => {
-  const b = e.target.closest('.topic'), l = e.target.closest('.lesson');
-  if (b && !b.disabled) setTopic(b.dataset.k);
-  else if (l && !l.disabled) {   // elegir lección deja el menú abierto para elegir también el tema
-    lessonKey = l.dataset.l; paintTopicBtn(); lastMode = null; recent.length = 0; recentP.length = 0;
-    try { localStorage.setItem('lesson', lessonKey); } catch (e) {}
-    openTopics(true);
-    if (round && !round.exiting) { const R = round; transitionOut().then(() => { if (round === R) startRound(); }); if (state.skip) state.skip(); }
+  const b = e.target.closest('button');
+  if (!b) { if (e.target.id === 'topics') openTopics(false); return; }
+  if (b.disabled) return;
+  sfx.tap();
+  if (b.classList.contains('go')) {   // «Jugar» desde la escritura vuelve al repaso
+    if (topicKey === 'write') { topicKey = exKey; menuDirty = true; saveCfg(); paintTopicBtn(); }
+    return openTopics(false);
   }
-  else if (e.target.id === 'topics') openTopics(false);
+  if (b.dataset.w) { if (topicKey !== 'write') { topicKey = 'write'; menuDirty = true; saveCfg(); paintTopicBtn(); } return openTopics(false); }
+  if (b.dataset.c) { contentKey = b.dataset.c; topicKey = exKey; }
+  else if (b.dataset.p) pyOn = !pyOn;
+  if (topicKey !== 'write' && !modesFor(topicKey, contentKey).length) topicKey = exKey = 'mix';
+  menuDirty = true; saveCfg(); paintTopicBtn(); paintMenu();
 });
 paintTopicBtn();
 
@@ -2808,7 +2890,10 @@ if (PERF) {
   perf.el.style.cssText = 'position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:30;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.6);color:#9f9;font:600 11px ui-monospace,Menlo,monospace;pointer-events:none;white-space:pre';
   document.body.appendChild(perf.el);
   renderer.info.autoReset = false;   // el composer hace varios render(): se cuenta el fotograma entero
-  window.__dbg = { get round() { return round; }, glowFace, gsap, THREE, renderer, composer, bloom, outPass, texCache };
+  window.__dbg = { get round() { return round; }, glowFace, gsap, THREE, renderer, composer, bloom, outPass, texCache,
+    // menú: probar combinaciones ejercicio × contenido × pinyin sin tocar la interfaz
+    cfg: { modesFor, CONTENTS, EXERCISES, THEMES, VOCAB, PHRASES, MODES, vocabPool, topicPhrases, pairTypes, dialogSubs, startRound,
+      set(t, c, p) { topicKey = t; contentKey = c; pyOn = p; if (EXERCISES.includes(t)) exKey = t; } } };
   document.addEventListener('visibilitychange', () => { perf.last = performance.now(); });   // volver de segundo plano no es un tirón
   // A/B: el mismo fotograma con dos configuraciones → diferencia máxima por canal (0-255) y % de canales distintos
   window.__ab = (setA, setB) => {
@@ -2935,7 +3020,7 @@ async function loadFonts() {
   const warmList = () => {
     const ms = TOPICS[topicKey].modes || Object.keys(MODES), has = m => ms.includes(m), L = new Map();
     const add = (key, make) => { if (!texCache.has(key)) L.set(key, make); };
-    const tile = (c, py = '') => add('tile:' + c + '|' + py, () => tileFaceTex(c, py));
+    const tile = (c, py = '') => { if (!pyOn) py = ''; add('tile:' + c + '|' + py, () => tileFaceTex(c, py)); };
     if (['numbers', 'page', 'dictation'].some(has)) [...NUMS, ZERO, BAI, DI, YE].forEach(v => tile(v.chino, v.pinyin));
     if (has('order') || has('dialog')) {
       topicPhrases().forEach(P => orderWords(P).forEach(x => tile(x.c, x.p.toLowerCase())));
@@ -2946,10 +3031,11 @@ async function loadFonts() {
     if (has('orbit')) vocabPool().forEach(v => add('py:' + v.pinyin, () => labelTex(v.pinyin)));
     return [...L.values()];
   };
-  let warmQ = warmList(), warmTopic = topicKey, seenR = null, seenAt = 0;
+  const cfg = () => topicKey + '|' + contentKey + '|' + pyOn;
+  let warmQ = warmList(), warmTopic = cfg(), seenR = null, seenAt = 0;
   const pump = () => {
     const now = performance.now();
-    if (topicKey !== warmTopic) { warmTopic = topicKey; warmQ = warmList(); }
+    if (cfg() !== warmTopic) { warmTopic = cfg(); warmQ = warmList(); }
     if (round !== seenR) { seenR = round; seenAt = now; }
     if (warmQ.length && !document.hidden && !state.locked && round && !round.exiting && now - seenAt > 1200 && now - lastInput > 1200)
       renderer.initTexture(warmQ.shift()());
