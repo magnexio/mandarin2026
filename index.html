@@ -407,17 +407,20 @@ const VOCAB = [
   { espanol: "Instituto, escuela", chino: "学院", pinyin: "xuéyuàn", l: 4 }, { espanol: "Universidad", chino: "大学", pinyin: "dàxué", l: 4 },
   { espanol: "Hospital", chino: "医院", pinyin: "yīyuàn", l: 4 }, { espanol: "Partícula «de» (posesión)", chino: "的", pinyin: "de", l: 4 },
   { espanol: "Canadá", chino: "加拿大", pinyin: "Jiānádà", l: 4 },
+  { espanol: "Años (de edad)", chino: "岁", pinyin: "suì", l: 4 },
 ];
 VOCAB.find(v => v.chino === '老师').syn = 'prof';   // 老师 y 师 = «Profesor»
 // Caracteres que se aprenden a ESCRIBIR en clase (tema «Caracteres»); el resto es vocabulario
 const WRITE_CHARS = ['力', '门', '也', '马', '木', '林', '女', '火', '人', '丁', '刀', '又', '大', '口', '土', '尼', '不', '可', '吗', '呢', '妈妈', '哥哥',
   '匕', '中', '日', '贝', '玉', '矢', '生', '者', '老', '师', '医', '他', '她', '你', '那', '哪', '都', '国', '是', '王', '们',
-  '小', '心', '水', '月', '手', '田', '白', '只', '言'];
+  '小', '心', '水', '月', '手', '田', '白', '只', '言', '您', '姓', '叫', '的'];
 VOCAB.forEach(v => { if (WRITE_CHARS.includes(v.chino)) v.c = true; });
 // 写 Escritura: caracteres cuyo orden de trazos se practica, con la lección en que se aprendieron a ESCRIBIR.
 // Los trazos están en trazos/<carácter>.json (datos de Hanzi Writer, licencia en trazos/ARPHICPL.TXT).
-const WRITE_LESSONS = { 1: '力门也马女木火人林一二三四五六七八九十零百丁刀又大口土不可吗呢妈哥', 3: '匕中日贝王玉矢生者他她们你那哪都老师国医是', 4: '小心水月手田白只言' };
-const WRITE_EXTRA = { '妈': ['mā', 'Mamá (de 妈妈)'], '哥': ['gē', 'Hermano mayor (de 哥哥)'], '们': ['men', 'Plural de personas (我们, 他们)'] };
+const WRITE_LESSONS = { 1: '力门也马女木火人林一二三四五六七八九十零百丁刀又大口土不可吗呢妈哥', 3: '匕中日贝王玉矢生者他她们你那哪都老师国医是', 4: '小心水月手田白只言认识语汉您朋友贵姓叫的' };
+const WRITE_EXTRA = { '妈': ['mā', 'Mamá (de 妈妈)'], '哥': ['gē', 'Hermano mayor (de 哥哥)'], '们': ['men', 'Plural de personas (我们, 他们)'],
+  '认': ['rèn', 'Reconocer (de 认识)'], '识': ['shí', 'Saber, conocer (de 认识)'], '语': ['yǔ', 'Idioma (de 汉语)'],
+  '汉': ['hàn', 'Han, chino (de 汉语)'], '朋': ['péng', 'Amigo (de 朋友)'], '友': ['yǒu', 'Amigo (de 朋友)'], '贵': ['guì', 'Caro; noble (de 贵姓)'] };
 const WRITE = Object.entries(WRITE_LESSONS).flatMap(([l, str]) => [...str].map(c => {
   const v = VOCAB.find(x => x.chino === c), x = WRITE_EXTRA[c];
   return { chino: c, pinyin: v ? v.pinyin : x[0], espanol: v ? v.espanol : x[1], l: +l };
@@ -581,6 +584,18 @@ const PHRASES = {
   chaojiMang:    { l: 4, t: [T('我','Wǒ'), T('超级','chāojí'), T('忙','máng'), T('！','!')], es: '¡Estoy súper ocupado!' },
   renshiNimen:   { l: 4, t: [T('认识','Rènshi'), T('你们','nǐmen'), T('很','hěn'), T('高兴','gāoxìng'), T('。','.')], es: 'Encantado de conoceros.',
                    alts: [['很', '高兴', '认识', '你们']] },
+  // Lección 4 · repaso: presentarse con la edad (我 + número + 岁, sin 是)
+  niGuixing:     { l: 4, t: [T('你','Nǐ'), T('贵姓','guìxìng'), T('？','?')], es: '¿Cómo te apellidas?' },
+  xingMa:        { l: 4, t: [T('我','Wǒ'), T('姓','xìng'), T('马','Mǎ'), T('，',','), T('叫','jiào'), T('马大为','Mǎ Dàwéi'), T('。','.')], es: 'Me apellido Ma y me llamo Ma Dawei.' },
+  shiSui:        { l: 4, t: [T('我','Wǒ'), T('十','shí'), T('岁','suì'), T('。','.')], es: 'Tengo diez años.' },
+  ershiwuSui:    { l: 4, t: [T('我','Wǒ'), T('二十五','èrshíwǔ'), T('岁','suì'), T('。','.')], es: 'Tengo veinticinco años.' },
+  gegeSui:       { l: 4, t: [T('我','Wǒ'), T('哥哥','gēge'), T('三十','sānshí'), T('岁','suì'), T('。','.')], es: 'Mi hermano mayor tiene treinta años.' },
+  niXsQ:         { l: 4, voc: true, t: [T('你','Nǐ'), T('是','shì'), T('学生','xuésheng'), T('吗','ma'), T('？','?')], es: '¿Eres estudiante?' },
+  hanyuXs:       { l: 4, t: [T('我','Wǒ'), T('是','shì'), T('汉语','Hànyǔ'), T('学生','xuésheng'), T('。','.')], es: 'Soy estudiante de chino.' },
+  buXs:          { l: 4, t: [T('我','Wǒ'), T('不','bú'), T('是','shì'), T('学生','xuésheng'), T('。','.')], es: 'No soy estudiante.' },
+  gxRenshi:      { l: 4, t: [T('很','Hěn'), T('高兴','gāoxìng'), T('认识','rènshi'), T('你','nǐ'), T('。','.')], es: 'Encantado de conocerte.',
+                   alts: [['认识', '你', '很', '高兴']] },
+  yeGxRenshi:    { l: 4, t: [T('我','Wǒ'), T('也','yě'), T('很','hěn'), T('高兴','gāoxìng'), T('认识','rènshi'), T('你','nǐ'), T('。','.')], es: 'Yo también estoy encantado de conocerte.' },
   dingXs:   { l: 4, t: [T('丁','Dīng'), T('先生','xiānsheng'), T('，',','), T('您','nín'), T('好','hǎo'), T('！','!')], es: '¡Buenos días, señor Ding!' },
 };
 const isPunct = tok => /[！？，。、]/.test(tok.c);
@@ -623,7 +638,10 @@ const REPLIES = [
   // Lección 4
   { q: 'jinlaiQ', ok: ['qingJin'], bad: ['taJizhe', 'henMang', 'xingWang', 'yao', 'jinlaiQ'] },
   { q: 'guixingQ', ok: ['xingWang', 'xingLin'], bad: ['taJizhe', 'nihao', 'yao', 'keyi', 'qingJin'] },
-  { q: 'renshi', ok: ['renshiYe'], bad: ['qingJin', 'jinlaiQ', 'buxing', 'taJizhe', 'keyiQ'] },
+  { q: 'niGuixing', ok: ['xingMa', 'xingWang', 'xingLin'], bad: ['nihao', 'yaoCha', 'hanyuXs', 'jiayou', 'qingJin'] },
+  { q: 'niXsQ', ok: ['hanyuXs', 'buXs'], bad: ['nihao', 'yaoCha', 'henMang', 'jiayou', 'qingJin'] },
+  { q: 'gxRenshi', ok: ['yeGxRenshi'], bad: ['qingJin', 'jinlaiQ', 'buxing', 'taJizhe', 'keyiQ'] },
+  { q: 'renshi', ok: ['renshiYe', 'yeGxRenshi'], bad: ['qingJin', 'jinlaiQ', 'buxing', 'taJizhe', 'keyiQ'] },
   { q: 'keyiQ', ok: ['keyi', 'buxing', 'xing'], bad: ['nihao', 'henMang', 'taJizhe', 'guixingQ', 'qingJin'] },
   { q: 'heShenme', ok: ['yaoCha', 'yaoShui', 'yaoHe'], bad: ['nihao', 'henMang', 'xuexiHanyu', 'taJizhe', 'jiayou'] },
   { q: 'zheShenmeQ', ok: ['zheCha', 'zheKafei'], bad: ['nihao', 'henMang', 'xuexiHanyu', 'jiayou', 'qingJin'] },
@@ -1796,6 +1814,7 @@ const MODES = {
   order:   { create: () => roundOrder(), w: 2 },
   read:    { create: () => roundRead() },
   write:   { create: () => roundWrite(), solo: true },   // solo en su tema: las rondas son largas
+  comp:    { create: () => roundNumbers({ comp: true }) },
   date:    { create: () => roundNumbers({ date: pick(['month', 'day', 'day', 'week', 'week']), audio: MODES.listen.ok() && Math.random() < .3 }) },
   dictation: { create: () => { const e = Echo.peek('n'), both = numsIn() && pagesIn();
                  return roundNumbers({ audio: true, page: e ? !!e.ans.page : both ? Math.random() < .4 : pagesIn() }); },
@@ -1813,7 +1832,7 @@ function echoFits(e, k) {
 // Cómo: tipo de ejercicio. «Mezcla» es todo junto. 写 Escritura va aparte (botón propio): todos los caracteres, sin lecciones ni temáticas.
 const TOPICS = {
   mix:   { seal: '全', name: 'Mezcla', pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
-  words: { seal: '词', name: 'Palabras', modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'numbers', 'pyNum', 'page', 'dictation', 'date'],
+  words: { seal: '词', name: 'Palabras', modes: ['tiles', 'pyChar', 'meaning', 'orbit', 'listen', 'pairs', 'numbers', 'pyNum', 'page', 'dictation', 'date', 'comp'],
            pairs: ['zhEs', 'zhPy', 'esPy', 'numZh', 'numPy', 'mix', 'mix'] },
   talk:  { seal: '话', name: 'Frases', modes: ['dialog', 'order', 'read'] },
   write: { seal: '写', name: 'Escritura', modes: ['write'] },
@@ -1840,9 +1859,9 @@ const THEMES = {
              vocab: '谁 这 那 是 爸爸 妈妈 哥哥 弟弟 奶奶 外婆 朋友 男朋友 男 女 人 老师 医生 记者 先生 他 她 高 的 医院',
              phrases: 'sheiQ laoshi yeLaoshiQ buLaoshi taSheiQ taDidi taPengyou zheSheiQ zheGege zhePengyou nainaiQ waipo yisheng waiyuLs taJizhe taGao mamaPy yiyuan gegeDaxue laoshiZgr pengyouJiao shouDa xiaoDidi' },
   xue:     { seal: '学', name: 'Estudiar', short: 'Estudiar', desc: '学习 · 大学 · 学生',
-             vocab: '学习 学生 学院 大学 语言 什么 汉语 英语 外语 老师 的', phrases: 'xuexiQ xuexiHanyu xueyuanXs daxueLs niXuexiQ woXuexi dawei taXuexiQ xueYingyu buXueYingyu gegeDaxue yuyanLaoshi zhiXuexi' },
+             vocab: '学习 学生 学院 大学 语言 什么 汉语 英语 外语 老师 的', phrases: 'xuexiQ xuexiHanyu xueyuanXs daxueLs niXuexiQ woXuexi dawei taXuexiQ xueYingyu buXueYingyu gegeDaxue yuyanLaoshi zhiXuexi niXsQ hanyuXs buXs' },
   nombre:  { seal: '姓', name: 'Presentarse', short: 'Presentarse', desc: '您贵姓 · 认识你',
-             vocab: '姓 贵姓 叫 请问 问 先生 认识 高兴 王 林 您 我 你 很', phrases: 'guixingQ xingWang xingLin renshi renshiYe dingXs renshiNimen pengyouJiao' },
+             vocab: '姓 贵姓 叫 请问 问 先生 认识 高兴 王 林 您 我 你 很 岁 马', phrases: 'guixingQ xingWang xingLin renshi renshiYe dingXs renshiNimen pengyouJiao niGuixing xingMa shiSui ershiwuSui gegeSui gxRenshi yeGxRenshi' },
   permiso: { seal: '请', name: 'Pedir permiso', short: 'Permiso', desc: '可以进来吗 · 请进',
              vocab: '可以 进来 进 来 请 行 不行 可 不 吗 喝 咖啡', phrases: 'jinlaiQ qingJin keyiQ keyi buxing xing' },
   chars:   { seal: '字', name: 'Caracteres', short: 'Caracteres', desc: '丁 刀 匕 贝 玉…', vocab: v => !!v.c },
@@ -1896,6 +1915,7 @@ function modeFits(k) {
     case 'page': return pagesIn();
     case 'dictation': return numsIn() || pagesIn();
     case 'date': return datesIn();
+    case 'comp': return compPool().length > 0;
     case 'tiles': case 'meaning': return pool.length >= 4;
     case 'pyChar': case 'orbit': return pyOn && py >= 4;
     case 'listen': return py >= 4;
@@ -2099,20 +2119,49 @@ function dateTask(kind) {
   return { valids: [[...mz, YUE, ...numZh(d), end]], espanol: `${d} de ${MESES[m - 1]}`, ask: '¿Qué fecha oyes?', keys: [...NUMS, YUE, end],
     why: `Fechas: primero el mes y después el día: mes + 月 + día + 日 (o 号, más hablado) → ${zh(mz)}月${zh(numZh(d))}${end.chino}` };
 }
-function roundNumbers({ page = false, audio = false, date = null } = {}) {
+// 部 Partes del carácter: con el significado (y el pinyin), elegir las dos piezas que lo forman.
+// Orden de las piezas: izquierda→derecha, arriba→abajo, fuera→dentro (se aceptan en cualquier orden).
+const COMP_NAMES = { '亻': 'persona', '讠': 'palabra', '氵': 'agua', '忄': 'corazón', '囗': 'marco', '匚': 'caja', '阝': 'ciudad' };
+const COMP_PY = { '也': 'yě', '门': 'mén', '尔': 'ěr', '女': 'nǚ', '马': 'mǎ', '子': 'zǐ', '生': 'shēng', '乃': 'nǎi', '口': 'kǒu', '尼': 'ní',
+  '那': 'nà', '木': 'mù', '人': 'rén', '只': 'zhǐ', '吾': 'wú', '青': 'qīng', '隹': 'zhuī', '己': 'jǐ', '又': 'yòu', '十': 'shí', '去': 'qù',
+  '酉': 'yǒu', '你': 'nǐ', '心': 'xīn', '亡': 'wáng', '月': 'yuè', '田': 'tián', '力': 'lì', '日': 'rì', '玉': 'yù', '矢': 'shǐ', '加': 'jiā',
+  '八': 'bā', '夕': 'xī', '卜': 'bǔ', '非': 'fēi', '者': 'zhě' };
+const COMP = [   // carácter, sus dos partes, pinyin, significado (sin caracteres: darían la respuesta)
+  ['他', '亻也', 'tā', 'Él'], ['们', '亻门', 'men', 'Plural de personas'], ['你', '亻尔', 'nǐ', 'Tú'], ['她', '女也', 'tā', 'Ella'],
+  ['妈', '女马', 'mā', 'Mamá'], ['好', '女子', 'hǎo', 'Bien, bueno'], ['姓', '女生', 'xìng', 'Apellido; apellidarse'], ['奶', '女乃', 'nǎi', 'Leche; abuela (de nǎinai)'],
+  ['吗', '口马', 'ma', 'Partícula ¿sí o no?'], ['呢', '口尼', 'ne', 'Partícula ¿y…?'], ['哪', '口那', 'nǎ', '¿Cuál?'], ['咖', '口加', 'kā', 'Primera sílaba de kāfēi (café)'],
+  ['啡', '口非', 'fēi', 'Segunda sílaba de kāfēi (café)'], ['林', '木木', 'lín', 'Bosque'], ['认', '讠人', 'rèn', 'Reconocer (de rènshi)'],
+  ['识', '讠只', 'shí', 'Saber, conocer (de rènshi)'], ['语', '讠吾', 'yǔ', 'Idioma (de Hànyǔ)'], ['请', '讠青', 'qǐng', 'Por favor; invitar'],
+  ['谁', '讠隹', 'shéi', '¿Quién?'], ['记', '讠己', 'jì', 'Apuntar (de jìzhě)'], ['汉', '氵又', 'hàn', 'Han, chino (de Hànyǔ)'], ['汁', '氵十', 'zhī', 'Zumo (de guǒzhī)'],
+  ['法', '氵去', 'fǎ', 'Primera sílaba de Fǎguó (Francia)'], ['酒', '氵酉', 'jiǔ', 'Alcohol'], ['您', '你心', 'nín', 'Usted'], ['忙', '忄亡', 'máng', 'Ocupado'],
+  ['朋', '月月', 'péng', 'Amigo (de péngyou)'], ['男', '田力', 'nán', 'Varón'], ['星', '日生', 'xīng', 'Estrella (de xīngqī)'], ['问', '门口', 'wèn', 'Preguntar'],
+  ['国', '囗玉', 'guó', 'País'], ['医', '匚矢', 'yī', 'Curar'], ['加', '力口', 'jiā', 'Sumar, añadir (de jiāyóu)'], ['只', '口八', 'zhǐ', 'Solo, solamente'],
+  ['外', '夕卜', 'wài', 'Fuera (de wàiyǔ)'], ['都', '者阝', 'dōu', 'Todos'],
+];
+const compPool = () => { const pool = vocabPool(); return COMP.filter(c => pool.some(v => v.chino.includes(c[0]))); };
+function compTask() {
+  const [zh, parts, p, es] = wpick(compPool(), c => 'k:' + c[0]), [a, b] = [...parts];
+  const item = ch => ({ chino: ch, pinyin: COMP_NAMES[ch] || COMP_PY[ch] || '' }), A = item(a), B = a === b ? A : item(b);
+  const others = shuffle([...new Set(COMP.flatMap(c => [...c[1]]))].filter(x => x !== a && x !== b));
+  const desc = x => COMP_NAMES[x] ? `${x} (${COMP_NAMES[x]})` : `${x} (${COMP_PY[x]})`;
+  return { valids: [[A, B], [B, A]], espanol: es, keys: [A, ...(a === b ? [] : [B]), ...others.slice(0, a === b ? 5 : 4).map(item)],
+    seal: '部', chip: 'Partes del carácter', sub: `${pyOn ? p + ' · ' : ''}¿Con qué dos partes se escribe?`, mute: true,
+    ans: { chino: zh, pinyin: p, espanol: es }, why: `${zh} = ${desc(a)} + ${desc(b)}${a === b ? ': la misma pieza dos veces' : ''}` };
+}
+function roundNumbers({ page = false, audio = false, date = null, comp = false } = {}) {
   const R = newRound('numbers');
-  const D = date ? dateTask(date) : null;
+  const D = date ? dateTask(date) : comp ? compTask() : null;
   const f = D ? null : forcedNum(page), n = D ? 0 : f != null ? f : page ? pageNum() : randNum();
   const valids = D ? D.valids : [page ? [DI, ...numZh(n), YE] : numZh(n)], seq = valids[0];
   let live = valids;   // secuencias aún posibles (星期日 / 星期天)
-  const ans = D ? { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: D.espanol }
+  const ans = D ? D.ans || { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: D.espanol }
     : { chino: seq.map(v => v.chino).join(''), pinyin: seq.map(v => v.pinyin).join(' '), espanol: cap((page ? 'página ' : '') + numES(n)), num: n, page };
   if (audio) {
     UI.prompt({ seal: '听', chip: 'Dictado', title: D ? D.ask : page ? '¿Qué página oyes?' : '¿Qué número oyes?', long: true, sub: 'Constrúyelo con las fichas', speaker: true });
     R.speakText = ans.chino; R.speakRate = DICTATE_RATE;   // solo el número: sin nombres que distraigan
     setTimeout(() => { if (round === R && !R.exiting) Speech.say(R.speakText, DICTATE_RATE); }, 800);
   }
-  else if (D) UI.prompt({ seal: '月', chip: 'Fechas', title: D.espanol, long: D.espanol.length > 9, sub: 'Constrúyelo en chino' });
+  else if (D) UI.prompt({ seal: D.seal || '月', chip: D.chip || 'Fechas', title: D.espanol, long: D.espanol.length > 9, sub: D.sub || 'Constrúyelo en chino' });
   else if (page) UI.prompt({ seal: '页', chip: 'Página', title: `Página ${n}`, sub: `${ans.espanol} · constrúyelo en chino` });
   else UI.prompt({ seal: '数', chip: 'Números', title: String(n), number: true, sub: `${ans.espanol} · constrúyelo en chino` });
   const slotMat = [];
@@ -2161,9 +2210,9 @@ function roundNumbers({ page = false, audio = false, date = null } = {}) {
   };
   function press(k) {
     if (state.locked) return;
-    const v = k.userData.item; if (!audio) Speech.say(v.chino, .85); sfx.tap();
+    const v = k.userData.item; if (!audio && !(D && D.mute)) Speech.say(v.chino, .85); sfx.tap();
     gsap.fromTo(k.userData.float.position, { z: -.3 }, { z: 0, duration: .5, ease: 'back.out(3)' });
-    const ok = live.filter(s => s[step] === v);
+    const ok = live.filter(s => s[step] === v || s[step].chino === v.chino);
     if (!ok.length) { state.locked = true; rejectTile(k); showNum(); resolve(false, ans, { picked: v.chino, why: D ? D.why : numberWhy(n, page) }); return; }
     live = ok;
     const sl = slots[step++], h = sl.userData.home, m = sl.userData.mat;
@@ -2179,7 +2228,8 @@ function roundNumbers({ page = false, audio = false, date = null } = {}) {
       .add(() => { sfx.place(); sparks.burst(t.getWorldPosition(new THREE.Vector3()), { count: 40, speed: [.8, 2.4], life: [.4, .8], size: [.03, .08] }); }, .58);
     if (step === seq.length) {
       state.locked = true;
-      ans.chino = live[0].map(x => x.chino).join(''); ans.pinyin = live[0].map(x => x.pinyin).join(' ');   // lo que ha construido (星期天)
+      if (D && D.ans) $('#title').textContent = `${D.espanol} = ${ans.chino}`;   // 部: el carácter montado
+      else { ans.chino = live[0].map(x => x.chino).join(''); ans.pinyin = live[0].map(x => x.pinyin).join(' '); }   // lo que ha construido (星期天)
       showNum();
       setTimeout(() => {
         Speech.say(ans.chino, audio ? DICTATE_RATE : .75);
